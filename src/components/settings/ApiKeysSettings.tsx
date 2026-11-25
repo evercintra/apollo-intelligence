@@ -8,12 +8,35 @@ import { Frame, FrameHeader, FramePanel } from "@/components/analytics/kit/Frame
 import { useDialogs } from "@/components/DialogProvider";
 import { Callout } from "@/components/settings/SettingsKit";
 import type { ApiKeySummary } from "@/lib/publicApi/keys";
-import { ALL_API_SCOPES, API_SCOPES, type ApiScope } from "@/lib/publicApi/scopes";
+import { ALL_API_SCOPES, type ApiScope } from "@/lib/publicApi/scopes";
 
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
+const dateFormat = new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" });
+
+const SCOPE_COPY_PT: Record<ApiScope, { label: string; description: string }> = {
+  "crm:read": {
+    label: "Ler o CRM",
+    description: "Ver a fila de Ação necessária e os registros de leads: conversas, detalhes e ligações.",
+  },
+  "crm:write": {
+    label: "Trabalhar no CRM",
+    description: "Editar e reescrever rascunhos, alterar estágios, adiar ou fechar registros e marcar leads como Não contatar.",
+  },
+  "crm:send": {
+    label: "Enviar mensagens",
+    description: "Enviar respostas aos leads por e-mail, LinkedIn ou WhatsApp em seu nome.",
+  },
+  "campaigns:read": {
+    label: "Ler campanhas",
+    description: "Listar campanhas de e-mail.",
+  },
+  "campaigns:write": {
+    label: "Gerenciar leads das campanhas",
+    description: "Adicionar leads a campanhas de e-mail e interromper suas sequências.",
+  },
+};
 
 function when(iso: string | null): string {
-  return iso ? dateFormat.format(new Date(iso)) : "Never";
+  return iso ? dateFormat.format(new Date(iso)) : "Nunca";
 }
 
 /**
@@ -43,13 +66,13 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
         body: JSON.stringify({ name: name.trim(), scopes: ALL_API_SCOPES.filter((scope) => scopes.has(scope)) }),
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok) return setError(data?.error || "Could not create the key.");
+      if (!res.ok) return setError(data?.error || "Não foi possível criar a chave.");
       setKeys((current) => [data.apiKey as ApiKeySummary, ...current]);
       setCreated({ key: data.key as string, name: (data.apiKey as ApiKeySummary).name });
       setCopied(false);
       setName("");
     } catch {
-      setError("Network error. Try again.");
+      setError("Erro de rede. Tente de novo.");
     } finally {
       setBusy(null);
     }
@@ -57,9 +80,9 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
 
   async function revoke(key: ApiKeySummary) {
     const confirmed = await dialogs.confirm({
-      title: `Revoke ${key.name}?`,
-      description: "Anything using this key stops working at once. This cannot be undone.",
-      confirmLabel: "Revoke key",
+      title: `Revogar ${key.name}?`,
+      description: "Tudo que usa esta chave para de funcionar imediatamente. Isso não pode ser desfeito.",
+      confirmLabel: "Revogar chave",
       variant: "error",
     });
     if (!confirmed) return;
@@ -68,11 +91,11 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
     try {
       const res = await fetch(`/api/settings/api-keys/${key.id}`, { method: "DELETE" });
       const data = await res.json().catch(() => null);
-      if (!res.ok) return setError(data?.error || "Could not revoke the key.");
+      if (!res.ok) return setError(data?.error || "Não foi possível revogar a chave.");
       const now = new Date().toISOString();
       setKeys((current) => current.map((k) => (k.id === key.id ? { ...k, revokedAt: k.revokedAt ?? now } : k)));
     } catch {
-      setError("Network error. Try again.");
+      setError("Erro de rede. Tente de novo.");
     } finally {
       setBusy(null);
     }
@@ -84,51 +107,51 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
       await navigator.clipboard.writeText(created.key);
       setCopied(true);
     } catch {
-      setError("Could not copy. Select the key and copy it by hand.");
+      setError("Não foi possível copiar. Selecione a chave e copie manualmente.");
     }
   }
 
   return (
     <div className="flex flex-col gap-6">
       <Callout tone="info">
-        A key acts for the whole organization, limited to what you tick when you create it. Send it as{" "}
-        <code>Authorization: Bearer &lt;key&gt;</code> to <code>/api/v1/</code>, or use it to connect an AI assistant
-        to <code>/api/mcp</code> without signing in (Settings → AI assistants).
+        Uma chave age pela organização inteira, limitada ao que você marcar ao criá-la. Envie-a como{" "}
+        <code>Authorization: Bearer &lt;key&gt;</code> para <code>/api/v1/</code>, ou use-a para conectar um assistente de IA
+        a <code>/api/mcp</code> sem login (Configurações → Assistentes de IA).
       </Callout>
       {error && <Callout tone="error">{error}</Callout>}
 
       {created && (
         <Callout
           tone="success"
-          title={`Copy the key for ${created.name} now`}
+          title={`Copie a chave de ${created.name} agora`}
           action={
             <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={() => setCreated(null)}>
-              Done
+              Concluído
             </Button.Root>
           }
         >
-          <p>It is shown only once. Store it in the other application&apos;s settings.</p>
+          <p>Ela aparece só uma vez. Guarde nas configurações do outro aplicativo.</p>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
             <code className="min-w-0 flex-1 break-all rounded-lg bg-bg-white-0 px-2.5 py-1.5 text-paragraph-xs text-text-strong-950 ring-1 ring-inset ring-stroke-soft-200">
               {created.key}
             </code>
             <Button.Root variant="primary" mode="filled" size="xsmall" onClick={() => void copy()}>
-              {copied ? "Copied" : "Copy"}
+              {copied ? "Copiado" : "Copiar"}
             </Button.Root>
           </div>
         </Callout>
       )}
 
       <Frame>
-        <FrameHeader title="Create a key" description="Name it after what will use it, for example the app's name." />
+        <FrameHeader title="Criar uma chave" description="Use um nome que identifique quem vai utilizá-la, por exemplo o nome do aplicativo." />
         <FramePanel>
           <form onSubmit={create} className="flex flex-col gap-4">
             <div className="flex flex-col gap-3 sm:flex-row">
             <Input.Root size="small" className="flex-1">
               <Input.Wrapper>
                 <Input.Input
-                  aria-label="Key name"
-                  placeholder="Key name"
+                  aria-label="Nome da chave"
+                  placeholder="Nome da chave"
                   maxLength={100}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -136,11 +159,11 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
               </Input.Wrapper>
             </Input.Root>
             <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={busy === "create" || !name.trim() || scopes.size === 0}>
-              {busy === "create" ? "Creating…" : "Create key"}
+              {busy === "create" ? "Criando…" : "Criar chave"}
             </Button.Root>
             </div>
             <fieldset className="flex flex-col gap-2">
-              <legend className="mb-1 text-label-xs text-text-sub-600">What the key may do</legend>
+              <legend className="mb-1 text-label-xs text-text-sub-600">O que a chave pode fazer</legend>
               {ALL_API_SCOPES.map((scope) => (
                 <label key={scope} className="flex cursor-pointer items-start gap-2.5">
                   <Checkbox.Root
@@ -155,9 +178,9 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
                   />
                   <span className="min-w-0">
                     <span className="block text-label-sm text-text-strong-950">
-                      {API_SCOPES[scope].label} <code className="text-paragraph-xs text-text-soft-400">{scope}</code>
+                      {SCOPE_COPY_PT[scope].label} <code className="text-paragraph-xs text-text-sub-600">{scope}</code>
                     </span>
-                    <span className="block text-paragraph-xs text-text-sub-600">{API_SCOPES[scope].description}</span>
+                    <span className="block text-paragraph-xs text-text-sub-600">{SCOPE_COPY_PT[scope].description}</span>
                   </span>
                 </label>
               ))}
@@ -167,10 +190,10 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
       </Frame>
 
       <Frame>
-        <FrameHeader title="Keys" description={`${keys.filter((k) => !k.revokedAt).length} active`} />
+        <FrameHeader title="Chaves" description={`${keys.filter((k) => !k.revokedAt).length} ${keys.filter((k) => !k.revokedAt).length === 1 ? "ativa" : "ativas"}`} />
         <FramePanel>
           {keys.length === 0 ? (
-            <p className="text-paragraph-sm text-text-sub-600">No keys yet.</p>
+            <p className="text-paragraph-sm text-text-sub-600">Ainda não há chaves.</p>
           ) : (
             <ul className="divide-y divide-stroke-soft-200">
               {keys.map((key) => (
@@ -178,15 +201,15 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
                   <div className="min-w-0">
                     <p className="truncate text-label-sm text-text-strong-950">
                       {key.name}
-                      {key.revokedAt && <span className="ml-2 text-paragraph-xs text-text-soft-400">Revoked</span>}
+                      {key.revokedAt && <span className="ml-2 text-paragraph-xs text-text-sub-600">Revogada</span>}
                     </p>
                     <p className="text-paragraph-xs text-text-sub-600">
-                      <code>{key.keyPrefix}…</code> · Created {when(key.createdAt)} · Last used {when(key.lastUsedAt)}
+                      <code>{key.keyPrefix}…</code> · Criada em {when(key.createdAt)} · Último uso {when(key.lastUsedAt)}
                     </p>
-                    <p className="text-paragraph-xs text-text-soft-400">
+                    <p className="text-paragraph-xs text-text-sub-600">
                       {key.scopes.length === ALL_API_SCOPES.length
-                        ? "Full access"
-                        : key.scopes.map((scope) => API_SCOPES[scope].label).join(" · ") || "No access"}
+                        ? "Acesso completo"
+                        : key.scopes.map((scope) => SCOPE_COPY_PT[scope].label).join(" · ") || "Sem acesso"}
                     </p>
                   </div>
                   {!key.revokedAt && (
@@ -197,7 +220,7 @@ export function ApiKeysSettings({ initialKeys }: { initialKeys: ApiKeySummary[] 
                       disabled={busy === `revoke-${key.id}`}
                       onClick={() => void revoke(key)}
                     >
-                      Revoke
+                      Revogar
                     </Button.Root>
                   )}
                 </li>

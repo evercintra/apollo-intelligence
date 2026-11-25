@@ -62,7 +62,7 @@ function TabMenuVerticalIcon<T extends React.ElementType>({
     <Component
       className={cn(
         "size-5 text-text-sub-600 transition duration-200 ease-out",
-        "group-data-[state=active]/tab-item:text-primary-base",
+        "group-data-[state=active]/tab-item:text-accent-strong",
         className,
       )}
       {...rest}

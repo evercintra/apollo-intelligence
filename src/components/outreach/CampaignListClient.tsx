@@ -230,29 +230,29 @@ export default function CampaignListClient({ campaigns }: { campaigns: Campaign[
   return (
     <PageContainer>
       <PageHeader
-        title="Send campaigns"
-        description="Email sequences sent from your mailboxes, and how each one is landing."
+        title="Campanhas de envio"
+        description="Sequências de e-mail enviadas das suas caixas e o desempenho de cada uma."
         actions={
           <Button.Root variant="primary" mode="filled" size="small" asChild>
             <Link href="/outreach/campaigns/new">
               <Button.Icon as={RiAddLine} />
-              Create campaign
+              Criar campanha
             </Link>
           </Button.Root>
         }
       />
 
       <KpiStrip className="mt-6" columns={4}>
-        <KpiCell icon={RiSendPlaneLine} label="Active campaigns" value={formatCompact(counts.active ?? 0)} context={`${counts.paused ?? 0} paused · ${counts.draft ?? 0} draft · ${counts.completed ?? 0} completed`} />
-        <KpiCell icon={RiTeamLine} label="Leads" value={formatCompact(totals.leads)} context={`across ${campaigns.length} ${campaigns.length === 1 ? "campaign" : "campaigns"}`} />
-        <KpiCell icon={RiMailSendLine} label="Emails sent" value={formatCompact(totals.sent)} context={totals.lastSend ? `Last send ${ago(new Date(totals.lastSend), now)}` : "Nothing sent yet"} />
-        <KpiCell icon={RiReplyLine} label="Replies" value={formatCompact(totals.replied)} context={totals.leads > 0 ? `${formatPercent(totals.replied / totals.leads, 2)} of leads replied` : undefined} hint="Leads who replied to any email in the campaign, all time." />
+        <KpiCell icon={RiSendPlaneLine} label="Campanhas ativas" value={formatCompact(counts.active ?? 0)} context={`${counts.paused ?? 0} pausadas · ${counts.draft ?? 0} rascunhos · ${counts.completed ?? 0} concluídas`} />
+        <KpiCell icon={RiTeamLine} label="Leads" value={formatCompact(totals.leads)} context={`em ${campaigns.length} ${campaigns.length === 1 ? "campanha" : "campanhas"}`} />
+        <KpiCell icon={RiMailSendLine} label="E-mails enviados" value={formatCompact(totals.sent)} context={totals.lastSend ? `Último envio ${ago(new Date(totals.lastSend), now)}` : "Nenhum envio ainda"} />
+        <KpiCell icon={RiReplyLine} label="Respostas" value={formatCompact(totals.replied)} context={totals.leads > 0 ? `${formatPercent(totals.replied / totals.leads, 2)} dos leads responderam` : undefined} hint="Leads que responderam a qualquer e-mail da campanha, desde sempre." />
       </KpiStrip>
 
       <Frame className="mt-5">
         <FrameHeader
-          title="Campaigns"
-          description="All time. Select a campaign to see its sends, leads and sequence."
+          title="Campanhas"
+          description="Desde sempre. Selecione uma campanha para ver envios, leads e sequência."
           actions={
             <div className="flex flex-wrap items-center gap-2">
               <SegmentedControl.Root value={tab} onValueChange={(v) => setTab(v as Tab)}>
@@ -268,7 +268,7 @@ export default function CampaignListClient({ campaigns }: { campaigns: Campaign[
               <Input.Root size="small" className="w-56">
                 <Input.Wrapper>
                   <Input.Icon as={RiSearchLine} />
-                  <Input.Input type="search" aria-label="Search campaigns" placeholder="Search campaigns…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                  <Input.Input type="search" aria-label="Buscar campanhas" placeholder="Buscar campanhas…" value={search} onChange={(e) => setSearch(e.target.value)} />
                 </Input.Wrapper>
               </Input.Root>
             </div>
@@ -284,12 +284,12 @@ export default function CampaignListClient({ campaigns }: { campaigns: Campaign[
             <Table.Root className="min-w-[860px]">
               <Table.Header>
                 <Table.Row>
-                  <Table.Head scope="col" className="px-4">Campaign</Table.Head>
+                  <Table.Head scope="col" className="px-4">Campanha</Table.Head>
                   <Table.Head scope="col" className="w-28 px-4 text-right">Leads</Table.Head>
-                  <Table.Head scope="col" className="w-28 px-4 text-right">Sent</Table.Head>
-                  <Table.Head scope="col" className="w-64 px-4">Replies</Table.Head>
-                  <Table.Head scope="col" className="w-32 px-4">Last send</Table.Head>
-                  <Table.Head scope="col" className="w-16 px-4"><span className="sr-only">Actions</span></Table.Head>
+                  <Table.Head scope="col" className="w-28 px-4 text-right">Enviados</Table.Head>
+                  <Table.Head scope="col" className="w-64 px-4">Respostas</Table.Head>
+                  <Table.Head scope="col" className="w-32 px-4">Último envio</Table.Head>
+                  <Table.Head scope="col" className="w-16 px-4"><span className="sr-only">Ações</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>

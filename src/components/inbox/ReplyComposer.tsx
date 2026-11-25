@@ -77,8 +77,8 @@ function RecipientChips({
             }
           }}
           onBlur={addFromInput}
-          aria-label={`${label} recipients`}
-          placeholder={values.length === 0 ? "Add recipient…" : ""}
+          aria-label={`Destinatários ${label}`}
+          placeholder={values.length === 0 ? "Adicionar destinatário…" : ""}
           className="min-w-24 flex-1 bg-transparent py-0.5 text-paragraph-sm text-text-strong-950 outline-none placeholder:text-text-soft-400"
         />
       </div>
@@ -169,7 +169,7 @@ export default function ReplyComposer({
   // block, so inside it the quote showed in full and its "Show quoted text"
   // label went out with the reply. It is shown collapsed under the editor and
   // appended to what is sent.
-  const quoteHeader = quotedText != null && quotedFrom ? `On ${quotedDate ?? ""}, ${quotedFrom} wrote:` : "";
+  const quoteHeader = quotedText != null && quotedFrom ? `Em ${quotedDate ?? ""}, ${quotedFrom} escreveu:` : "";
   const quoteHtml =
     quotedText != null
       ? `<blockquote>${quoteHeader ? `${escapeHtml(quoteHeader)}<br/>` : ""}${escapeHtml(quotedText).replace(/\n/g, "<br/>")}</blockquote>`
@@ -244,8 +244,8 @@ export default function ReplyComposer({
       >
         <RiReplyLine className="size-4 shrink-0" aria-hidden="true" />
         <span className="min-w-0 flex-1 truncate">
-          {replyToName ? `Reply to ${replyToName}…` : "Reply…"}
-          <span className="ml-2 hidden text-paragraph-xs sm:inline">from {from}</span>
+          {replyToName ? `Responder a ${replyToName}…` : "Responder…"}
+          <span className="ml-2 hidden text-paragraph-xs sm:inline">de {from}</span>
         </span>
         <kbd className="hidden shrink-0 rounded-md bg-bg-weak-50 px-1.5 py-0.5 font-sans text-[11px] text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200 sm:inline">R</kbd>
       </button>
@@ -277,13 +277,13 @@ export default function ReplyComposer({
           {isDraftApproval && (
             <>
               <RiSparkling2Line className="size-4 shrink-0 text-primary-base" aria-hidden="true" />
-              <span className="text-label-xs text-text-strong-950">AI-generated draft</span>
-              <span className="truncate text-paragraph-xs text-text-sub-600">Review, edit and approve to send</span>
+              <span className="text-label-xs text-text-strong-950">Rascunho gerado por IA</span>
+              <span className="truncate text-paragraph-xs text-text-sub-600">Revise, edite e aprove para enviar</span>
             </>
           )}
           <span className="flex-1" />
           {onCancel && (
-            <button type="button" onClick={onCancel} className="flex size-6 items-center justify-center rounded-md text-text-soft-400 outline-none hover:bg-bg-white-0 hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base" aria-label="Close composer">
+            <button type="button" onClick={onCancel} className="flex size-6 items-center justify-center rounded-md text-text-soft-400 outline-none hover:bg-bg-white-0 hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base" aria-label="Fechar compositor">
               <RiCloseLine className="size-4" />
             </button>
           )}
@@ -291,12 +291,12 @@ export default function ReplyComposer({
       )}
 
       <div className={fieldRow}>
-        <span className={fieldLabel}>From</span>
+        <span className={fieldLabel}>De</span>
         <span className="min-w-0 flex-1 truncate py-0.5 text-paragraph-sm text-text-sub-600">{from}</span>
       </div>
 
       <RecipientChips
-        label="To"
+        label="Para"
         values={to}
         onChange={setTo}
         trailing={
@@ -308,7 +308,7 @@ export default function ReplyComposer({
             )}
             {!showBcc && (
               <button type="button" onClick={() => setShowBcc(true)} className={linkish}>
-                Bcc
+                Cco
               </button>
             )}
           </>
@@ -329,7 +329,7 @@ export default function ReplyComposer({
                 setShowCc(false);
               }}
               className={linkish}
-              aria-label="Remove Cc"
+              aria-label="Remover Cc"
             >
               <RiCloseLine className="size-3.5" />
             </button>
@@ -338,7 +338,7 @@ export default function ReplyComposer({
       )}
       {showBcc && (
         <RecipientChips
-          label="Bcc"
+          label="Cco"
           values={bcc}
           onChange={setBcc}
           trailing={
@@ -349,7 +349,7 @@ export default function ReplyComposer({
                 setShowBcc(false);
               }}
               className={linkish}
-              aria-label="Remove Bcc"
+              aria-label="Remover Cco"
             >
               <RiCloseLine className="size-3.5" />
             </button>
@@ -358,22 +358,22 @@ export default function ReplyComposer({
       )}
 
       <div className={fieldRow}>
-        <span className={fieldLabel}>Subject</span>
+        <span className={fieldLabel}>Assunto</span>
         <input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          aria-label="Subject"
-          placeholder="Subject"
+          aria-label="Assunto"
+          placeholder="Assunto"
           className="min-w-0 flex-1 bg-transparent py-0.5 text-paragraph-sm text-text-strong-950 outline-none placeholder:text-text-soft-400"
         />
       </div>
 
       {editor && (
         <div className="flex items-center gap-0.5 border-b border-stroke-soft-200 px-2 py-1">
-          <ToolbarButton title="Bold" icon={RiBold} active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} />
-          <ToolbarButton title="Italic" icon={RiItalic} active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} />
-          <ToolbarButton title="Bullet list" icon={RiListUnordered} active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} />
-          <ToolbarButton title="Highlight" icon={RiMarkPenLine} active={editor.isActive("highlight")} onClick={() => editor.chain().focus().toggleHighlight().run()} />
+          <ToolbarButton title="Negrito" icon={RiBold} active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} />
+          <ToolbarButton title="Itálico" icon={RiItalic} active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} />
+          <ToolbarButton title="Lista com marcadores" icon={RiListUnordered} active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} />
+          <ToolbarButton title="Destaque" icon={RiMarkPenLine} active={editor.isActive("highlight")} onClick={() => editor.chain().focus().toggleHighlight().run()} />
           <div className="relative">
             <ToolbarButton title="Link" icon={RiLink} active={editor.isActive("link")} onClick={() => setLinkPromptOpen((o) => !o)} />
             {linkPromptOpen && (
@@ -382,7 +382,7 @@ export default function ReplyComposer({
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
                   placeholder="https://…"
-                  aria-label="Link URL"
+                  aria-label="URL do link"
                   className="w-40 bg-transparent px-1.5 text-paragraph-xs text-text-strong-950 outline-none placeholder:text-text-soft-400"
                   autoFocus
                 />
@@ -395,7 +395,7 @@ export default function ReplyComposer({
                   }}
                   className="rounded px-1.5 text-label-xs text-primary-base outline-none hover:underline focus-visible:underline"
                 >
-                  Add
+                  Adicionar
                 </button>
               </div>
             )}
@@ -411,7 +411,7 @@ export default function ReplyComposer({
         {quotedText != null && (
           <div className="mt-2">
             <button type="button" onClick={() => setShowQuote((v) => !v)} aria-expanded={showQuote} className={linkish}>
-              {showQuote ? "Hide quoted text" : "Show quoted text"}
+              {showQuote ? "Ocultar texto citado" : "Mostrar texto citado"}
             </button>
             {showQuote && (
               <blockquote className="mt-1.5 whitespace-pre-wrap border-l-2 border-stroke-soft-200 pl-3 text-paragraph-xs text-text-sub-600">
@@ -425,10 +425,10 @@ export default function ReplyComposer({
 
       <div className="flex shrink-0 items-center justify-between gap-3 rounded-b-2xl border-t border-stroke-soft-200 bg-bg-weak-50 px-3 py-2">
         <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={onCancel ?? (() => setExpanded(false))}>
-          {isDraftApproval ? "Don't use draft" : "Close"}
+          {isDraftApproval ? "Não usar rascunho" : "Fechar"}
         </Button.Root>
         <Button.Root variant="primary" mode="filled" size="xsmall" onClick={() => void handleSend()} disabled={!canSend} title="⌘⏎ / Ctrl+Enter">
-          {sending ? "Sending…" : isDraftApproval ? "Approve & send" : "Send"}
+          {sending ? "Enviando…" : isDraftApproval ? "Aprovar e enviar" : "Enviar"}
           {!sending && <kbd className="font-sans text-paragraph-xs opacity-70">⌘⏎</kbd>}
         </Button.Root>
       </div>

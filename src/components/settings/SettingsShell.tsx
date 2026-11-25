@@ -18,7 +18,7 @@ const ITEMS = SETTINGS_NAV.flatMap((group) => group.items);
 const rowBase =
   "flex w-full items-center gap-2.5 rounded-lg text-label-sm outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-primary-base";
 const rowState = (active: boolean) =>
-  active ? "bg-bg-weak-50 text-text-strong-950" : "text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950";
+  active ? "bg-accent-soft text-accent-strong" : "text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950";
 
 /**
  * A channel's pages as underline tabs across the top of the section — the
@@ -27,7 +27,7 @@ const rowState = (active: boolean) =>
  */
 function SectionTabs({ tabs, activeHref, modal, label }: { tabs: SettingsTab[]; activeHref: string; modal: boolean; label: string }) {
   return (
-    <nav aria-label={`${label} pages`} className={cn("shrink-0 border-b border-stroke-soft-200 px-4 sm:px-6 lg:px-8 lg:pt-3", modal && "lg:pr-16")}>
+    <nav aria-label={`${label}: páginas`} className={cn("shrink-0 border-b border-stroke-soft-200 px-4 sm:px-6 lg:px-8 lg:pt-3", modal && "lg:pr-16")}>
       <div className="-mb-px flex gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tabs.map(({ href, label: tabLabel, icon: Icon }) => {
           const active = href === activeHref;
@@ -42,7 +42,7 @@ function SectionTabs({ tabs, activeHref, modal, label }: { tabs: SettingsTab[]; 
             >
               <Icon className={cn("size-[18px] shrink-0", active ? "text-text-strong-950" : "text-text-soft-400")} aria-hidden="true" />
               {tabLabel}
-              <span className={cn("absolute inset-x-0 bottom-0 h-0.5 rounded-full", active ? "bg-primary-base" : "bg-transparent")} aria-hidden="true" />
+              <span className={cn("absolute inset-x-0 bottom-0 h-0.5 rounded-full", active ? "bg-accent-base" : "bg-transparent")} aria-hidden="true" />
             </Link>
           );
         })}
@@ -54,7 +54,7 @@ function SectionTabs({ tabs, activeHref, modal, label }: { tabs: SettingsTab[]; 
 function CloseButton({ className }: { className?: string }) {
   return (
     <Modal.Close
-      aria-label="Close settings"
+      aria-label="Fechar configurações"
       className={cn(
         "flex size-8 shrink-0 items-center justify-center rounded-lg text-text-soft-400 outline-none transition hover:bg-bg-weak-50 hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base",
         className,
@@ -100,18 +100,18 @@ function SettingsFrame({ children, modal }: { children: React.ReactNode; modal: 
       {/* Wide screens: the rail. */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-stroke-soft-200 lg:flex">
         <div className="flex items-center gap-2.5 px-5 pb-4 pt-5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-bg-weak-50 ring-1 ring-inset ring-stroke-soft-200">
-            <RiSettings3Line className="size-4 text-text-sub-600" aria-hidden="true" />
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-complement-surface ring-1 ring-inset ring-complement-light">
+            <RiSettings3Line className="size-4 text-complement-deep" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <Title className="text-label-md text-text-strong-950">Settings</Title>
-            <Description className="sr-only">Connected accounts, AI, CRM and your preferences.</Description>
+            <Title className="text-label-md text-text-strong-950">Configurações</Title>
+            <Description className="sr-only">Contas conectadas, IA, CRM e suas preferências.</Description>
           </div>
         </div>
-        <nav aria-label="Settings sections" className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+        <nav aria-label="Seções de configurações" className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
           {SETTINGS_NAV.map((group, index) => (
             <div key={group.label} className={cn(index > 0 && "mt-4")}>
-              <p className="mb-1 px-2 text-paragraph-xs text-text-soft-400">{group.label}</p>
+              <p className="mb-1 px-2 text-paragraph-xs text-complement-deep">{group.label}</p>
               <ul className="space-y-0.5">
                 {group.items.map(({ href, label, icon: Icon }) => {
                   const active = href === activeHref;
@@ -124,7 +124,7 @@ function SettingsFrame({ children, modal }: { children: React.ReactNode; modal: 
                         aria-current={active ? "page" : undefined}
                         className={cn(rowBase, rowState(active), "h-9 px-2")}
                       >
-                        <Icon className={cn("size-[18px] shrink-0", active ? "text-text-strong-950" : "text-text-soft-400")} aria-hidden="true" />
+                        <Icon className={cn("size-[18px] shrink-0", active ? "text-accent-strong" : "text-text-soft-400")} aria-hidden="true" />
                         <span className="min-w-0 flex-1 truncate">{label}</span>
                       </Link>
                     </li>
@@ -140,16 +140,16 @@ function SettingsFrame({ children, modal }: { children: React.ReactNode; modal: 
       <div className="shrink-0 border-b border-stroke-soft-200 lg:hidden">
         <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-2.5">
-            <RiSettings3Line className="size-5 shrink-0 text-text-soft-400" aria-hidden="true" />
+            <RiSettings3Line className="size-5 shrink-0 text-complement-deep" aria-hidden="true" />
             {/* The rail's title is hidden here; one Title per dialog is enough for screen readers. */}
-            <p className="text-label-md text-text-strong-950" aria-hidden="true">Settings</p>
+            <p className="text-label-md text-text-strong-950" aria-hidden="true">Configurações</p>
           </div>
           {modal && <CloseButton />}
         </div>
-        <nav aria-label="Settings sections">
+        <nav aria-label="Seções de configurações">
           <div
             ref={stripRef}
-            className="flex gap-1 overflow-x-auto px-3 pb-2.5 sm:px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex gap-1 overflow-x-auto px-4 pb-2.5 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {ITEMS.map(({ href, label, icon: Icon }) => {
               const active = href === activeHref;
@@ -163,11 +163,11 @@ function SettingsFrame({ children, modal }: { children: React.ReactNode; modal: 
                   className={cn(
                     "flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-label-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-base",
                     active
-                      ? "bg-bg-white-0 text-text-strong-950 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200"
+                      ? "bg-accent-soft text-accent-strong"
                       : "text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950",
                   )}
                 >
-                  <Icon className={cn("size-4 shrink-0", active ? "text-text-strong-950" : "text-text-soft-400")} aria-hidden="true" />
+                  <Icon className={cn("size-4 shrink-0", active ? "text-accent-strong" : "text-text-soft-400")} aria-hidden="true" />
                   {label}
                 </Link>
               );

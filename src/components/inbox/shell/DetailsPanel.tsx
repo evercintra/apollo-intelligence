@@ -106,7 +106,7 @@ export function DetailsPanel({ open, wide, onClose, children }: { open: boolean;
     <>
       {!wide && <div aria-hidden="true" onClick={onClose} className="absolute inset-0 z-20 bg-bg-strong-950/10 backdrop-blur-[1px]" />}
       <aside
-        aria-label="Contact details"
+        aria-label="Detalhes do contato"
         onKeyDown={onKeyDown}
         className={cn(
           "flex flex-col bg-bg-white-0",
@@ -114,8 +114,8 @@ export function DetailsPanel({ open, wide, onClose, children }: { open: boolean;
         )}
       >
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-stroke-soft-200 pl-5 pr-3">
-          <h2 className="text-label-sm text-text-strong-950">Details</h2>
-          <Button.Root variant="neutral" mode="ghost" size="xxsmall" onClick={onClose} aria-label="Close details" title="Close details" autoFocus={!wide}>
+          <h2 className="text-label-sm text-text-strong-950">Detalhes</h2>
+          <Button.Root variant="neutral" mode="ghost" size="xxsmall" onClick={onClose} aria-label="Fechar detalhes" title="Fechar detalhes" autoFocus={!wide}>
             <Button.Icon as={RiCloseLine} />
           </Button.Root>
         </div>
@@ -188,13 +188,13 @@ export function ContactDetails({
             <Button.Root variant="neutral" mode="stroke" size="xxsmall" asChild>
               <Link href={`/crm/records/${links.recordId}`}>
                 <Button.Icon as={RiUserSearchLine} />
-                CRM record
+                Registro no CRM
               </Link>
             </Button.Root>
           )}
-          {linkedinHref && <QuickLink href={linkedinHref} icon={RiLinkedinBoxLine} label="LinkedIn profile" external />}
-          {links.email && <QuickLink href={`mailto:${links.email}`} icon={RiMailLine} label={`Email ${links.email}`} />}
-          {links.phone && <QuickLink href={`tel:${links.phone}`} icon={RiPhoneLine} label={`Phone ${links.phone}`} />}
+          {linkedinHref && <QuickLink href={linkedinHref} icon={RiLinkedinBoxLine} label="Perfil no LinkedIn" external />}
+          {links.email && <QuickLink href={`mailto:${links.email}`} icon={RiMailLine} label={`E-mail ${links.email}`} />}
+          {links.phone && <QuickLink href={`tel:${links.phone}`} icon={RiPhoneLine} label={`Telefone ${links.phone}`} />}
           {actions}
         </div>
       </section>
@@ -207,22 +207,22 @@ export function ContactDetails({
               {crm.doNotContact && (
                 <p className="mb-3 flex items-start gap-1.5 rounded-lg bg-error-lighter px-2.5 py-2 text-paragraph-xs text-error-dark ring-1 ring-inset ring-error-light">
                   <RiErrorWarningLine className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-                  Do not contact — this lead opted out.
+                  Não contatar — este lead optou por sair.
                 </p>
               )}
               <dl className="space-y-2.5">
-                <Fact label="Category">
+                <Fact label="Categoria">
                   <span className="inline-flex min-w-0 items-center gap-1.5">
                     <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ backgroundColor: categoryColor(crm.categoryKey).color }} />
                     <span className="truncate">{crm.categoryLabel}</span>
                   </span>
                 </Fact>
-                {crm.stage && <Fact label="Stage">{crm.stage}</Fact>}
-                {crm.sequence && <Fact label="Sequence">{crm.sequence}</Fact>}
-                {crm.step && <Fact label="Next step">{crm.step}</Fact>}
-                {crm.nextActionAt && <Fact label="Next action"><When iso={crm.nextActionAt} /></Fact>}
-                {crm.lastInboundAt && <Fact label="Last reply"><When iso={crm.lastInboundAt} /></Fact>}
-                {crm.lastOutboundAt && <Fact label="Last sent"><When iso={crm.lastOutboundAt} /></Fact>}
+                {crm.stage && <Fact label="Estágio">{crm.stage}</Fact>}
+                {crm.sequence && <Fact label="Sequência">{crm.sequence}</Fact>}
+                {crm.step && <Fact label="Próxima etapa">{crm.step}</Fact>}
+                {crm.nextActionAt && <Fact label="Próxima ação"><When iso={crm.nextActionAt} /></Fact>}
+                {crm.lastInboundAt && <Fact label="Última resposta"><When iso={crm.lastInboundAt} /></Fact>}
+                {crm.lastOutboundAt && <Fact label="Último envio"><When iso={crm.lastOutboundAt} /></Fact>}
               </dl>
             </>
           ) : (
@@ -236,9 +236,9 @@ export function ContactDetails({
       )}
 
       <section className="px-5 py-4">
-        <SectionTitle>Conversation</SectionTitle>
+        <SectionTitle>Conversa</SectionTitle>
         <dl className="space-y-2.5">
-          <Fact label="Channel">
+          <Fact label="Canal">
             <ChannelTag channel={channel} />
           </Fact>
           {facts.map((fact) => (
@@ -251,15 +251,15 @@ export function ContactDetails({
 
       {(links.email || links.phone || linkedinHref) && (
         <section className="px-5 py-4">
-          <SectionTitle>Contact</SectionTitle>
+          <SectionTitle>Contato</SectionTitle>
           <dl className="space-y-2.5">
             {links.email && (
-              <Fact label="Email" title={links.email}>
+              <Fact label="E-mail" title={links.email}>
                 <a href={`mailto:${links.email}`} className="truncate text-text-strong-950 underline-offset-2 hover:underline">{links.email}</a>
               </Fact>
             )}
             {links.phone && (
-              <Fact label="Phone">
+              <Fact label="Telefone">
                 <a href={`tel:${links.phone}`} className="tabular-nums text-text-strong-950 underline-offset-2 hover:underline">{links.phone}</a>
               </Fact>
             )}
@@ -318,9 +318,9 @@ export function relativeWhen(date: Date, now = Date.now()): string {
   const delta = date.getTime() - now;
   const abs = Math.abs(delta);
   const minutes = Math.round(abs / 60_000);
-  if (minutes < 1) return "just now";
-  const unit = minutes < 60 ? `${minutes}m` : minutes < 60 * 24 ? `${Math.round(minutes / 60)}h` : `${Math.round(minutes / (60 * 24))}d`;
-  return delta > 0 ? `in ${unit}` : `${unit} ago`;
+  if (minutes < 1) return "agora";
+  const unit = minutes < 60 ? `${minutes}min` : minutes < 60 * 24 ? `${Math.round(minutes / 60)}h` : `${Math.round(minutes / (60 * 24))}d`;
+  return delta > 0 ? `em ${unit}` : `há ${unit}`;
 }
 
 export function toLinkedinHref(value: string): string {
@@ -334,14 +334,14 @@ function linkedinHandle(href: string): string {
 }
 
 const WORKFLOW_LABEL: Record<string, string> = {
-  unclassified: "Unclassified",
-  classifying: "Classifying",
-  action_required: "Action required",
-  waiting: "Waiting",
-  idle: "Idle",
-  paused: "Paused",
-  closed: "Closed",
-  error: "Needs attention",
+  unclassified: "Sem classificação",
+  classifying: "Classificando",
+  action_required: "Ação necessária",
+  waiting: "Aguardando",
+  idle: "Inativo",
+  paused: "Pausado",
+  closed: "Encerrado",
+  error: "Precisa de atenção",
 };
 
 export function workflowLabel(state: string | null | undefined): string | null {

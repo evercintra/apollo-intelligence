@@ -77,7 +77,7 @@ export function actionDueState(action: Action): CrmDueState {
   return value in CRM_DUE_STATE_LABELS ? value as CrmDueState : "none";
 }
 export function actionChannel(action: Action) { return String(action.channel ?? asObject(action.conversation).channel ?? "none"); }
-function actionType(action: Action) { return String(action.actionType ?? "Human review"); }
+function actionType(action: Action) { return String(action.actionType ?? "Revisão humana"); }
 export function actionId(action: Action) { return String(action.id ?? action.recordId ?? asObject(action.record).id ?? ""); }
 
 /** Rows per request on the Action required table; more load as the list scrolls. */
@@ -85,6 +85,24 @@ export const PAGE_SIZE = 30;
 
 const CATEGORY_KEYS = ["interested", "customer", "not_interested", "other"] as const;
 const CHANNELS = ["email", "linkedin", "whatsapp"] as const;
+
+const DUE_LABEL_PT: Record<string, string> = {
+  "Immediate reply": "Resposta imediata",
+  "Follow-up ready": "Follow-up pronto",
+  "Sending automatically": "Enviando automaticamente",
+  "Past due": "Vencido",
+  "Follow-up": "Follow-up",
+  Pending: "Pendente",
+};
+
+const ACTION_GROUP_LABEL_PT: Record<string, string> = {
+  "Immediate reply": "Resposta imediata",
+  "Follow-up due": "Follow-up vencido",
+  "Confirm classification": "Confirmar classificação",
+  "Needs a next step": "Precisa de próximo passo",
+  "Did they show up?": "Eles compareceram?",
+  "Error or failed": "Erro ou falha",
+};
 
 export function CompactSelect({ label, value, onChange, placeholder, children, className }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; children: React.ReactNode; className?: string }) {
   return <Select.Root size="xsmall" value={value} onValueChange={onChange}>
@@ -226,50 +244,50 @@ export function CrmActionsClient() {
 
   const refresh = () => { void load(0); void reloadSummary(); };
   const shown = actions.length;
-  const detail = !loaded ? "Loading…"
-    : total !== null && !(postFiltered && hasMore) ? `${(postFiltered ? shown : total).toLocaleString()} ${(postFiltered ? shown : total) === 1 ? "item" : "items"}${activeFilterCount ? " match these filters" : ""} · newest reply first`
-    : `${shown}+ items · newest reply first`;
+  const detail = !loaded ? "Carregando…"
+    : total !== null && !(postFiltered && hasMore) ? `${(postFiltered ? shown : total).toLocaleString("pt-BR")} ${(postFiltered ? shown : total) === 1 ? "item" : "itens"}${activeFilterCount ? " com estes filtros" : ""} · resposta mais recente primeiro`
+    : `${shown.toLocaleString("pt-BR")}+ itens · resposta mais recente primeiro`;
 
   return <>
     <PageHeader
-      title="Action required"
-      description="Replies, drafts and follow-ups that need a person's decision before the CRM moves on."
+      title="Ação necessária"
+      description="Respostas, rascunhos e follow-ups que precisam de decisão humana antes de o CRM avançar."
       actions={<Button.Root variant="neutral" mode="stroke" size="small" onClick={refresh} disabled={loading}>
-        <Button.Icon as={RiRefreshLine} className={cn(loading && loaded && "animate-spin")} />Refresh
+        <Button.Icon as={RiRefreshLine} className={cn(loading && loaded && "animate-spin")} />Atualizar
       </Button.Root>}
     />
 
     <KpiStrip className="mt-6" columns={4}>
-      <KpiCell icon={RiInboxLine} label="In the queue" value={summary ? summary.queue.toLocaleString() : "—"} context={summary ? `${summary.needsDecision.toLocaleString()} awaiting a decision` : undefined} hint="Every record waiting on a person: new replies, drafts to approve, AI changes to confirm, follow-ups past due and processing errors." selected={activeFilterCount === 0} onSelect={clearFilters} />
-      <KpiCell icon={RiDraftLine} label="Drafts to review" value={summary?.drafts != null ? summary.drafts.toLocaleString() : "—"} context="AI-written replies waiting for approval" hint="Drafts the AI has written that nobody has sent, edited or discarded yet. Hover a row's draft to read it, then Edit or Send." />
-      <KpiCell icon={RiTimerLine} label="Follow-ups due" value={summary ? summary.followUpsDue.toLocaleString() : "—"} context="Drafted or past their scheduled time" hint="Follow-ups waiting on a person: drafts to approve, and scheduled steps past their time with nothing drafted yet. Select to show only these." selected={filters.actionGroup === "follow_up"} onSelect={() => setFilter("actionGroup", filters.actionGroup === "follow_up" ? "" : "follow_up")} />
-      <KpiCell icon={RiErrorWarningLine} label="Errors" value={summary ? summary.errors.toLocaleString() : "—"} context={summary?.errors ? "Processing failed — open the record to retry" : "Nothing failed"} hint="Records whose classification, drafting or sending failed. Select to show only these." selected={Boolean(filters.error)} onSelect={() => setFilter("error", filters.error ? "" : "true")} />
+      <KpiCell icon={RiInboxLine} label="Na fila" value={summary ? summary.queue.toLocaleString("pt-BR") : "—"} context={summary ? `${summary.needsDecision.toLocaleString("pt-BR")} aguardando decisão` : undefined} hint="Todo registro aguardando uma pessoa: novas respostas, rascunhos para aprovar, alterações da IA para confirmar, follow-ups vencidos e erros de processamento." selected={activeFilterCount === 0} onSelect={clearFilters} />
+      <KpiCell icon={RiDraftLine} label="Rascunhos para revisar" value={summary?.drafts != null ? summary.drafts.toLocaleString("pt-BR") : "—"} context="Respostas escritas pela IA aguardando aprovação" hint="Rascunhos que a IA escreveu e ninguém enviou, editou ou descartou. Passe o mouse sobre o rascunho para ler e depois Edite ou Envie." />
+      <KpiCell icon={RiTimerLine} label="Follow-ups vencidos" value={summary ? summary.followUpsDue.toLocaleString("pt-BR") : "—"} context="Redigidos ou além do horário previsto" hint="Follow-ups aguardando uma pessoa: rascunhos para aprovar e etapas agendadas cujo horário passou sem rascunho. Selecione para ver só estes." selected={filters.actionGroup === "follow_up"} onSelect={() => setFilter("actionGroup", filters.actionGroup === "follow_up" ? "" : "follow_up")} />
+      <KpiCell icon={RiErrorWarningLine} label="Erros" value={summary ? summary.errors.toLocaleString("pt-BR") : "—"} context={summary?.errors ? "Falha no processamento — abra o registro para tentar de novo" : "Nenhuma falha"} hint="Registros cuja classificação, redação ou envio falhou. Selecione para ver só estes." selected={Boolean(filters.error)} onSelect={() => setFilter("error", filters.error ? "" : "true")} />
     </KpiStrip>
 
     <Frame className="mt-5">
-      <FrameHeader title="Queue" description={detail} actions={<>
-          <CompactSelect label="Category" placeholder="All categories" value={filters.category} onChange={(value) => setFilter("category", value)}><Select.Item value="">All categories</Select.Item>{categoryItems()}</CompactSelect>
-          <CompactSelect label="Channel" placeholder="All channels" value={filters.channel} onChange={(value) => setFilter("channel", value)}><Select.Item value="">All channels</Select.Item>{channelItems()}</CompactSelect>
-          <CompactSelect label="Action type" placeholder="All action types" value={filters.actionGroup} onChange={(value) => setFilter("actionGroup", value)}><Select.Item value="">All action types</Select.Item>{CRM_ACTION_GROUPS.map((group) => <Select.Item key={group} value={group}>{CRM_ACTION_GROUP_LABELS[group]}</Select.Item>)}</CompactSelect>
-          <CompactSelect label="Due time" placeholder="Any due time" value={filters.due} onChange={(value) => setFilter("due", value)}><Select.Item value="">Any due time</Select.Item><Select.Item value="overdue">Overdue</Select.Item><Select.Item value="today">Due today</Select.Item><Select.Item value="upcoming">Upcoming</Select.Item></CompactSelect>
+      <FrameHeader title="Fila" description={detail} actions={<>
+          <CompactSelect label="Categoria" placeholder="Todas as categorias" value={filters.category} onChange={(value) => setFilter("category", value)}><Select.Item value="">Todas as categorias</Select.Item>{categoryItems()}</CompactSelect>
+          <CompactSelect label="Canal" placeholder="Todos os canais" value={filters.channel} onChange={(value) => setFilter("channel", value)}><Select.Item value="">Todos os canais</Select.Item>{channelItems()}</CompactSelect>
+          <CompactSelect label="Tipo de ação" placeholder="Todos os tipos de ação" value={filters.actionGroup} onChange={(value) => setFilter("actionGroup", value)}><Select.Item value="">Todos os tipos de ação</Select.Item>{CRM_ACTION_GROUPS.map((group) => <Select.Item key={group} value={group}>{ACTION_GROUP_LABEL_PT[CRM_ACTION_GROUP_LABELS[group]] ?? CRM_ACTION_GROUP_LABELS[group]}</Select.Item>)}</CompactSelect>
+          <CompactSelect label="Prazo" placeholder="Qualquer prazo" value={filters.due} onChange={(value) => setFilter("due", value)}><Select.Item value="">Qualquer prazo</Select.Item><Select.Item value="overdue">Vencido</Select.Item><Select.Item value="today">Vence hoje</Select.Item><Select.Item value="upcoming">Próximo</Select.Item></CompactSelect>
           <Popover.Root>
             <Popover.Trigger asChild>
               <Button.Root variant="neutral" mode="stroke" size="xsmall" className={cn(secondaryFilterCount > 0 && "text-text-strong-950")}>
-                <Button.Icon as={RiEqualizer2Line} />More filters
+                <Button.Icon as={RiEqualizer2Line} />Mais filtros
                 {secondaryFilterCount > 0 && <span className="flex size-4 items-center justify-center rounded-full bg-primary-base text-label-xs text-static-white">{secondaryFilterCount}</span>}
               </Button.Root>
             </Popover.Trigger>
             <Popover.Content align="start" showArrow={false} sideOffset={8} className="w-80 max-w-[calc(100vw-2rem)] p-4">
-              <p className="text-label-sm text-text-strong-950">More filters</p>
+              <p className="text-label-sm text-text-strong-950">Mais filtros</p>
               <div className="mt-3 grid gap-3">
-                <FilterField label="Subcategory"><CompactSelect label="Subcategory" placeholder="All subcategories" className="w-full" value={filters.subcategoryId} onChange={(value) => setFilter("subcategoryId", value)}><Select.Item value="">All subcategories</Select.Item>{subcategories.map((value) => <Select.Item key={String(value.id)} value={String(value.id)}><ItemLabel><CategoryDot categoryKey={String(value.categoryKey ?? "")} className="size-2" />{String(value.name)}</ItemLabel></Select.Item>)}</CompactSelect></FilterField>
-                <FilterField label="AI classification"><CompactSelect label="Classification review" placeholder="Any classification" className="w-full" value={filters.classificationReview} onChange={(value) => setFilter("classificationReview", value)}><Select.Item value="">Any classification</Select.Item><Select.Item value="true">Needs review</Select.Item><Select.Item value="false">Reviewed</Select.Item></CompactSelect></FilterField>
-                <FilterField label="Sequence"><CompactSelect label="Sequence" placeholder="All sequences" className="w-full" value={filters.sequenceId} onChange={(value) => setFilter("sequenceId", value)}><Select.Item value="">All sequences</Select.Item>{sequences.map((value) => <Select.Item key={String(value.id)} value={String(value.id)}>{String(value.name)}</Select.Item>)}</CompactSelect></FilterField>
-                <FilterField label="Errors"><CompactSelect label="Error state" placeholder="All states" className="w-full" value={filters.error} onChange={(value) => setFilter("error", value)}><Select.Item value="">All states</Select.Item><Select.Item value="true">Errors only</Select.Item></CompactSelect></FilterField>
+                <FilterField label="Subcategoria"><CompactSelect label="Subcategoria" placeholder="Todas as subcategorias" className="w-full" value={filters.subcategoryId} onChange={(value) => setFilter("subcategoryId", value)}><Select.Item value="">Todas as subcategorias</Select.Item>{subcategories.map((value) => <Select.Item key={String(value.id)} value={String(value.id)}><ItemLabel><CategoryDot categoryKey={String(value.categoryKey ?? "")} className="size-2" />{String(value.name)}</ItemLabel></Select.Item>)}</CompactSelect></FilterField>
+                <FilterField label="Classificação da IA"><CompactSelect label="Revisão da classificação" placeholder="Qualquer classificação" className="w-full" value={filters.classificationReview} onChange={(value) => setFilter("classificationReview", value)}><Select.Item value="">Qualquer classificação</Select.Item><Select.Item value="true">Precisa de revisão</Select.Item><Select.Item value="false">Revisado</Select.Item></CompactSelect></FilterField>
+                <FilterField label="Sequência"><CompactSelect label="Sequência" placeholder="Todas as sequências" className="w-full" value={filters.sequenceId} onChange={(value) => setFilter("sequenceId", value)}><Select.Item value="">Todas as sequências</Select.Item>{sequences.map((value) => <Select.Item key={String(value.id)} value={String(value.id)}>{String(value.name)}</Select.Item>)}</CompactSelect></FilterField>
+                <FilterField label="Erros"><CompactSelect label="Estado de erro" placeholder="Todos os estados" className="w-full" value={filters.error} onChange={(value) => setFilter("error", value)}><Select.Item value="">Todos os estados</Select.Item><Select.Item value="true">Somente erros</Select.Item></CompactSelect></FilterField>
               </div>
             </Popover.Content>
           </Popover.Root>
-          {activeFilterCount > 0 && <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={clearFilters}><Button.Icon as={RiCloseLine} />Clear {activeFilterCount === 1 ? "filter" : `${activeFilterCount} filters`}</Button.Root>}
+          {activeFilterCount > 0 && <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={clearFilters}><Button.Icon as={RiCloseLine} />Limpar {activeFilterCount === 1 ? "filtro" : `${activeFilterCount} filtros`}</Button.Root>}
       </>} />
       <FramePanel className="overflow-hidden p-0 sm:p-0">
         {!loaded && loading ? <RowsSkeleton rows={8} />
@@ -285,8 +303,8 @@ export function CrmActionsClient() {
               hasMore={hasMore && !loadingMore}
               onLoadMore={loadMore}
               empty={activeFilterCount
-                ? { icon: RiFilterOffLine, title: "Nothing matches these filters", detail: "The queue has items, just none that fit every filter you picked.", action: <Button.Root variant="neutral" mode="stroke" size="small" onClick={clearFilters}>Clear filters</Button.Root> }
-                : { icon: RiCheckDoubleLine, title: "You're all caught up", detail: "New replies, drafts to approve and due follow-ups will show up here." }}
+                ? { icon: RiFilterOffLine, title: "Nada corresponde a estes filtros", detail: "A fila tem itens, mas nenhum atende a todos os filtros escolhidos.", action: <Button.Root variant="neutral" mode="stroke" size="small" onClick={clearFilters}>Limpar filtros</Button.Root> }
+                : { icon: RiCheckDoubleLine, title: "Tudo em dia", detail: "Novas respostas, rascunhos para aprovar e follow-ups vencidos aparecem aqui." }}
             />
             {hasMore && <LoadMoreOnScroll onLoadMore={loadMore} busy={loadingMore} />}
           </>}
@@ -321,7 +339,7 @@ export function LoadMoreOnScroll({ onLoadMore, busy, className }: { onLoadMore: 
   return <div className={cn("flex items-center justify-center border-t border-stroke-soft-200 p-3", className)}>
     <div ref={sentinel} aria-hidden="true" className="h-px w-px" />
     <Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={onLoadMore} disabled={busy}>
-      {busy ? "Loading…" : "Load more"}
+      {busy ? "Carregando…" : "Carregar mais"}
     </Button.Root>
   </div>;
 }
@@ -368,7 +386,7 @@ export function useRowMutations({ onActionsChange, pipeline, onMutated, onRowGon
     try {
       await crmFetch(path, { method, body: JSON.stringify(body) });
       const fresh = await refreshRow(id);
-      setNotice({ tone: "success", text: fresh ? success : `${success} — this contact no longer needs attention.` });
+      setNotice({ tone: "success", text: fresh ? success : `${success} — este contato não precisa mais de atenção.` });
       onMutated?.();
       return true;
     } catch (cause) {
@@ -393,7 +411,7 @@ export function useRowMutations({ onActionsChange, pipeline, onMutated, onRowGon
   const classify = useCallback(async (action: Action, choice: { categoryKey: string; subcategoryId: string | null }, extra?: StageChangeExtra) => {
     const id = actionId(action);
     const record = asObject(action.record);
-    const success = !extra || extra.next === "reply" ? "Stage updated — a new draft is being written" : "Stage updated — follow-ups scheduled";
+    const success = !extra || extra.next === "reply" ? "Estágio atualizado — um novo rascunho está sendo escrito" : "Estágio atualizado — follow-ups agendados";
     const ok = await mutateRow(id, `/records/${id}/classification`, { ...choice, expectedContextVersion: record.contextVersion, classificationId: asObject(action.classification).id, ...(extra ?? {}) }, "PATCH", success);
     if (ok) refreshLater(id);
   }, [mutateRow, refreshLater]);
@@ -446,7 +464,7 @@ export function NoticeBar({ notice, onDismiss, className }: { notice: Notice | n
   return <div role="status" className={cn("flex items-center gap-2 px-4 py-2 text-paragraph-sm", notice.tone === "error" ? "bg-error-lighter text-error-dark" : "bg-success-lighter text-success-dark", className)}>
     {notice.tone === "error" ? <RiCloseLine className="size-4 shrink-0" aria-hidden="true" /> : <RiCheckLine className="size-4 shrink-0" aria-hidden="true" />}
     <span className="min-w-0 flex-1 truncate">{notice.text}</span>
-    <button type="button" onClick={onDismiss} className="text-label-xs opacity-70 hover:opacity-100">Dismiss</button>
+    <button type="button" onClick={onDismiss} className="text-label-xs opacity-70 hover:opacity-100">Dispensar</button>
   </div>;
 }
 
@@ -499,18 +517,18 @@ export function ActionRows({ actions, categories, onActionsChange, pipeline, ref
     </div>
     <div aria-busy={refreshing || undefined} className={cn("hidden overflow-x-auto p-2 transition-opacity md:block", refreshing && "pointer-events-none opacity-60")}>
       <Table.Root className="min-w-[1000px]" style={{ tableLayout: "fixed" }}>
-        <caption className="sr-only">People and CRM actions requiring review</caption>
+        <caption className="sr-only">Pessoas e ações do CRM que precisam de revisão</caption>
         <Table.Header>
           <Table.Row>
             {/* The queue has no Due column: nearly every row read "Immediate
                 reply", so its width goes to the reply and the draft. The
                 pipeline keeps its Status column. */}
-            <Table.Head scope="col" className="w-[19%] px-4">Contact</Table.Head>
-            <Table.Head scope="col" className={cn("px-4", pipeline ? "w-[18%]" : "w-[17%]")}>Classification</Table.Head>
-            <Table.Head scope="col" className={cn("px-4", pipeline ? "w-[20%]" : "w-[29%]")}>Latest reply</Table.Head>
-            <Table.Head scope="col" className={cn("px-4", pipeline ? "w-[23%]" : "w-[31%]")}>Draft reply</Table.Head>
+            <Table.Head scope="col" className="w-[19%] px-4">Contato</Table.Head>
+            <Table.Head scope="col" className={cn("px-4", pipeline ? "w-[18%]" : "w-[17%]")}>Classificação</Table.Head>
+            <Table.Head scope="col" className={cn("px-4", pipeline ? "w-[20%]" : "w-[29%]")}>Última resposta</Table.Head>
+            <Table.Head scope="col" className={cn("px-4", pipeline ? "w-[23%]" : "w-[31%]")}>Rascunho de resposta</Table.Head>
             {pipeline && <Table.Head scope="col" className="w-[17%] px-3 text-right">Status</Table.Head>}
-            <Table.Head scope="col" className="w-12 px-2"><span className="sr-only">More actions</span></Table.Head>
+            <Table.Head scope="col" className="w-12 px-2"><span className="sr-only">Mais ações</span></Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body spacing={4}>{actions.map((action, index) => {
@@ -546,7 +564,7 @@ export function ActionRows({ actions, categories, onActionsChange, pipeline, ref
 
 /** Contact avatar with the reply channel's mark on its corner, in the channel's own colour. */
 export function ChannelAvatar({ src, name, channel, className }: { src: string | null; name: string; channel: string; className?: string }) {
-  const avatarText = name === "Unknown contact" ? "?" : name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  const avatarText = name === "Contato desconhecido" ? "?" : name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
   const meta = CHANNEL_META[channel as keyof typeof CHANNEL_META];
   const Icon = channel === "whatsapp" ? RiWhatsappFill : channel === "linkedin" ? RiLinkedinFill : RiMailFill;
   return <span className="relative shrink-0">
@@ -565,9 +583,9 @@ type IconType = React.ComponentType<{ className?: string }>;
  * do now, a wait, and a sequence that has run out.
  */
 export const STAGE_META = {
-  needs_action: { label: "Needs action", short: "Needs action", color: HUE.amber, badge: "orange", icon: RiFlashlightFill as IconType, detail: "A reply, draft or follow-up is due" },
-  waiting: { label: "Waiting on them", short: "Waiting", color: HUE.purple, badge: "purple", icon: RiHourglass2Fill as IconType, detail: "Replied to, or a follow-up is scheduled" },
-  exhausted: { label: "Follow-ups exhausted", short: "Exhausted", color: MUTED_STRONG, badge: "gray", icon: RiArchiveStackFill as IconType, detail: "Every follow-up sent, no reply yet" },
+  needs_action: { label: "Precisa de ação", short: "Precisa de ação", color: HUE.amber, badge: "orange", icon: RiFlashlightFill as IconType, detail: "Uma resposta, rascunho ou follow-up está pendente" },
+  waiting: { label: "Aguardando o lead", short: "Aguardando", color: HUE.purple, badge: "purple", icon: RiHourglass2Fill as IconType, detail: "Respondido ou com follow-up agendado" },
+  exhausted: { label: "Follow-ups esgotados", short: "Esgotado", color: MUTED_STRONG, badge: "gray", icon: RiArchiveStackFill as IconType, detail: "Todos os follow-ups enviados, sem resposta" },
 } as const;
 export type PipelineStage = keyof typeof STAGE_META;
 
@@ -601,20 +619,20 @@ type DraftState = { label: string; tone: Tone; icon: IconType; hint?: string };
 
 function draftStateOf({ editable, draftFull, status, dnc, sendable, actionText }: { editable: boolean; draftFull: string; status: string; dnc: boolean; sendable: boolean; actionText: string }): DraftState {
   if (editable) {
-    if (status === "failed") return { label: "Draft failed", tone: "error", icon: RiErrorWarningFill, hint: "Edit it or regenerate" };
-    if (dnc) return { label: "Do not contact", tone: "error", icon: RiForbid2Line, hint: "Sending is blocked" };
-    if (!sendable) return { label: "Out of date", tone: "warning", icon: RiErrorWarningFill, hint: "A newer reply arrived — edit before sending" };
-    return { label: "Ready to send", tone: "success", icon: RiCheckboxCircleFill };
+    if (status === "failed") return { label: "Rascunho falhou", tone: "error", icon: RiErrorWarningFill, hint: "Edite ou gere novamente" };
+    if (dnc) return { label: "Não contatar", tone: "error", icon: RiForbid2Line, hint: "Envio bloqueado" };
+    if (!sendable) return { label: "Desatualizado", tone: "warning", icon: RiErrorWarningFill, hint: "Chegou uma resposta nova — edite antes de enviar" };
+    return { label: "Pronto para enviar", tone: "success", icon: RiCheckboxCircleFill };
   }
-  if (draftFull) return { label: humanize(status || "draft"), tone: "neutral", icon: RiDraftLine };
+  if (draftFull) return { label: humanize(status || "rascunho"), tone: "neutral", icon: RiDraftLine };
   switch (actionText) {
-    case "Processing error": return { label: "Processing error", tone: "error", icon: RiErrorWarningFill, hint: "Open the record to retry" };
-    case "Classification review": return { label: "Needs classification", tone: "warning", icon: RiPriceTag3Line, hint: "Confirm the classification first" };
-    case "No sequence assigned": return { label: "No sequence", tone: "neutral", icon: RiLinkUnlink, hint: "Nothing runs for this classification" };
-    case "Delivery reconciliation": return { label: "Confirm delivery", tone: "warning", icon: RiQuestionLine, hint: "Open the record to confirm the last send" };
+    case "Processing error": return { label: "Erro de processamento", tone: "error", icon: RiErrorWarningFill, hint: "Abra o registro para tentar de novo" };
+    case "Classification review": return { label: "Precisa de classificação", tone: "warning", icon: RiPriceTag3Line, hint: "Confirme a classificação primeiro" };
+    case "No sequence assigned": return { label: "Sem sequência", tone: "neutral", icon: RiLinkUnlink, hint: "Nada está programado para esta classificação" };
+    case "Delivery reconciliation": return { label: "Confirmar envio", tone: "warning", icon: RiQuestionLine, hint: "Abra o registro para confirmar o último envio" };
     case "Reply review":
-    case "Human review": return { label: "Needs a reply", tone: "info", icon: RiReplyLine, hint: "No draft yet — write one on the record" };
-    default: return { label: actionText, tone: "neutral", icon: RiTimeLine };
+    case "Human review": return { label: "Precisa de resposta", tone: "info", icon: RiReplyLine, hint: "Ainda sem rascunho — escreva no registro" };
+    default: return { label: actionText === "Revisão humana" ? "Precisa de resposta" : actionText, tone: "neutral", icon: RiTimeLine };
   }
 }
 
@@ -662,22 +680,22 @@ export function describeAction(action: Action, categories: Data[], pipeline: boo
   // On the pipeline, a record off the queue has no due action to name; the
   // column says which stage it is in and the next or last thing that happened.
   const stage = (pipeline ? String(action.stage ?? "needs_action") : "needs_action") as PipelineStage;
-  const lastSent = record.lastOutboundAt ? `Sent ${timeAgo(record.lastOutboundAt)}` : "";
-  const dueLabel = stage === "exhausted" ? "Exhausted"
-    : stage === "waiting" ? "Waiting"
-    : followUpOverdue ? "Follow-up due" : CRM_DUE_STATE_LABELS[dueState];
+  const lastSent = record.lastOutboundAt ? `Enviado ${timeAgo(record.lastOutboundAt)}` : "";
+  const dueLabel = stage === "exhausted" ? "Esgotado"
+    : stage === "waiting" ? "Aguardando"
+    : followUpOverdue ? "Follow-up vencido" : (DUE_LABEL_PT[CRM_DUE_STATE_LABELS[dueState]] ?? CRM_DUE_STATE_LABELS[dueState]);
   // "Immediate reply" is already the whole story; a timestamp next to it
   // just repeats "now". The scheduled states are the ones worth dating.
   const dueDetail = stage === "exhausted" ? lastSent
-    : stage === "waiting" ? due ? `Next ${relativeDate(due)}` : lastSent
+    : stage === "waiting" ? due ? `Próx. ${relativeDate(due)}` : lastSent
     : dueState === "past_due" || dueState === "follow_up" || followUpOverdue ? relativeDate(due) : "";
   const urgent = dueState === "immediate_reply" || dueState === "past_due" || followUpOverdue;
   const dueColor: React.ComponentProps<typeof Badge.Root>["color"] = stage === "exhausted" ? "gray"
     : stage === "waiting" ? "purple"
     : urgent ? "red"
     : dueState === "follow_up_ready" ? "orange"
-    : dueState === "auto_follow_up" ? "blue"
-    : dueState === "follow_up" ? "blue"
+    : dueState === "auto_follow_up" ? "purple"
+    : dueState === "follow_up" ? "purple"
     : "gray";
   const dueIcon: IconType = stage === "exhausted" ? STAGE_META.exhausted.icon
     : stage === "waiting" ? STAGE_META.waiting.icon
@@ -710,7 +728,7 @@ export function describeAction(action: Action, categories: Data[], pipeline: boo
   const stepLabel = action.draftStepLabel ? String(action.draftStepLabel) : step.name ? String(step.name) : "";
   const lastRun = asObject(action.lastRun);
   const sequenceLabel = sequence.name ? `${String(sequence.name)}${stepLabel ? ` · ${stepLabel}` : ""}`
-    : stage === "exhausted" && lastRun.sequenceName ? `${String(lastRun.sequenceName)} · completed` : "";
+    : stage === "exhausted" && lastRun.sequenceName ? `${String(lastRun.sequenceName)} · concluído` : "";
   // Send-as-written needs a draft the server will accept unchanged: not
   // stale against the conversation and not to a Do-Not-Contact person.
   const dnc = Boolean(asObject(action.contactPolicy).doNotContact);
@@ -757,14 +775,14 @@ export function useRecordPrefetch(id: string, href: string) {
 export function ProposalInline({ label, busy, onAccept, onKeep, className }: { label: string; busy: boolean; onAccept: () => void; onKeep: () => void; className?: string }) {
   const button = "flex h-full w-6 shrink-0 items-center justify-center transition hover:bg-bg-white-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stroke-strong-950 disabled:opacity-60";
   return <div className={cn("inline-flex h-6 max-w-full items-stretch overflow-hidden rounded-md bg-warning-lighter text-warning-dark ring-1 ring-inset ring-warning-light", className)}>
-    <span className="flex min-w-0 items-center gap-1 pl-1.5 pr-1.5 text-label-xs" title={`AI suggests: ${label}`}>
+    <span className="flex min-w-0 items-center gap-1 pl-1.5 pr-1.5 text-label-xs" title={`A IA sugere: ${label}`}>
       <RiSparklingFill className="size-3 shrink-0" aria-hidden="true" />
-      <span className="truncate"><span className="sr-only">AI suggests </span>{label}</span>
+      <span className="truncate"><span className="sr-only">A IA sugere </span>{label}</span>
     </span>
-    <button type="button" disabled={busy} onClick={onAccept} aria-label={`Accept AI suggestion: ${label}`} title={`Accept: move to ${label}`} className={cn(button, "border-l border-warning-light")}>
+    <button type="button" disabled={busy} onClick={onAccept} aria-label={`Aceitar sugestão da IA: ${label}`} title={`Aceitar: mover para ${label}`} className={cn(button, "border-l border-warning-light")}>
       <RiCheckLine className="size-3.5" aria-hidden="true" />
     </button>
-    <button type="button" disabled={busy} onClick={onKeep} aria-label="Keep the current classification" title="Keep current classification" className={cn(button, "border-l border-warning-light")}>
+    <button type="button" disabled={busy} onClick={onKeep} aria-label="Manter a classificação atual" title="Manter classificação atual" className={cn(button, "border-l border-warning-light")}>
       <RiCloseLine className="size-3.5" aria-hidden="true" />
     </button>
   </div>;
@@ -808,12 +826,12 @@ function ChannelMark({ channel, className }: { channel: string; className?: stri
 /** Their last message as a quote, with where and when it arrived underneath. */
 function ReplyQuote({ row, lines = 1 }: { row: Row; lines?: 1 | 2 }) {
   return <div className="min-w-0 border-l-2 border-stroke-soft-200 pl-2.5">
-    <p className={cn("text-paragraph-sm", lines === 1 ? "truncate" : "line-clamp-2", row.latestReply ? "text-text-strong-950" : "italic text-text-soft-400")}>{row.latestReply || "No message text"}</p>
+    <p className={cn("text-paragraph-sm", lines === 1 ? "truncate" : "line-clamp-2", row.latestReply ? "text-text-strong-950" : "italic text-text-soft-400")}>{row.latestReply || "Sem texto de mensagem"}</p>
     <p className="mt-0.5 flex items-center gap-1.5 text-paragraph-xs text-text-sub-600">
       <ChannelMark channel={row.channel} />
       <span title={formatDate(row.repliedAt)}>{timeAgo(row.repliedAt)}</span>
     </p>
-    {row.followUpNote && <p className="mt-1 truncate text-paragraph-xs text-text-sub-600" title={row.followUpNote}><span className="text-label-xs text-text-strong-950">Your note</span> {row.followUpNote}</p>}
+    {row.followUpNote && <p className="mt-1 truncate text-paragraph-xs text-text-sub-600" title={row.followUpNote}><span className="text-label-xs text-text-strong-950">Sua nota</span> {row.followUpNote}</p>}
   </div>;
 }
 
@@ -853,7 +871,7 @@ function DraftSummary({ row }: { row: Row }) {
 
 /** Due (or, on the pipeline, stage) as one chip with an icon; the when, if any, underneath. */
 function DueChip({ row, align = "end" }: { row: Row; align?: "start" | "end" }) {
-  if (row.dueLabel === "—") return <span className="text-paragraph-sm text-text-soft-400" title="Nothing scheduled">—</span>;
+  if (row.dueLabel === "—") return <span className="text-paragraph-sm text-text-soft-400" title="Nada agendado">—</span>;
   return <div className={cn("flex min-w-0 flex-col gap-1", align === "end" ? "items-end" : "items-start")}>
     <Badge.Root variant="lighter" size="medium" color={row.dueColor} className="h-6 max-w-full shrink-0 gap-1 whitespace-nowrap px-2" title={row.dueLabel}>
       <Badge.Icon as={row.dueIcon} className="-ml-0.5 mr-0 size-3.5" /><span>{row.dueLabel}</span>
@@ -865,7 +883,7 @@ function DueChip({ row, align = "end" }: { row: Row; align?: "start" | "end" }) 
 function sendDraft(row: Row, onMutate: RowMutation) {
   const editable = row.editable;
   if (!editable) return;
-  void onMutate(`/drafts/${String(editable.id)}/send`, { revision: Number(editable.revision ?? 1) }, "POST", "Reply queued for sending");
+  void onMutate(`/drafts/${String(editable.id)}/send`, { revision: Number(editable.revision ?? 1) }, "POST", "Resposta enfileirada para envio");
 }
 
 function ActionRow({ action, categories, busy, editing, pipeline, now, onOpen, onToggleEdit, onMutate, onClassify }: {
@@ -891,7 +909,7 @@ function ActionRow({ action, categories, busy, editing, pipeline, now, onOpen, o
     if (window.getSelection()?.toString()) return;
     onOpen();
   };
-  const sendTitle = sendable ? "Send this draft as written" : "This draft cannot be sent as-is; edit it first";
+  const sendTitle = sendable ? "Enviar este rascunho como está" : "Este rascunho não pode ser enviado assim; edite primeiro";
 
   return <>
     <Table.Row
@@ -930,21 +948,21 @@ function ActionRow({ action, categories, busy, editing, pipeline, now, onOpen, o
             hovered or focused, so a ready draft is one click from sent. */}
         {row.dueMeeting ? <MeetingOutcomeTools recordId={id} meeting={row.dueMeeting} busy={busy} onMutate={onMutate} /> : <HoverPreview
           className="min-w-0"
-          title={String(row.draft.subject ?? "").trim() || (row.draftFull ? "Draft reply" : "")}
+          title={String(row.draft.subject ?? "").trim() || (row.draftFull ? "Rascunho de resposta" : "")}
           meta={row.draftState.label}
           body={row.draftFull}
           disabled={editing}
           onActivate={editable ? onToggleEdit : undefined}
           actions={editable && <>
-            <button type="button" className={cn(secondaryButtonClass, "h-8")} onClick={onToggleEdit}><RiPencilLine className="size-4" aria-hidden="true" />{editing ? "Close editor" : "Edit"}</button>
-            <button type="button" className={cn(primaryButtonClass, "h-8")} disabled={!sendable} onClick={() => sendDraft(row, onMutate)} title={sendTitle}><RiSendPlaneLine className="size-4" aria-hidden="true" />Send</button>
+            <button type="button" className={cn(secondaryButtonClass, "h-8")} onClick={onToggleEdit}><RiPencilLine className="size-4" aria-hidden="true" />{editing ? "Fechar editor" : "Editar"}</button>
+            <button type="button" className={cn(primaryButtonClass, "h-8")} disabled={!sendable} onClick={() => sendDraft(row, onMutate)} title={sendTitle}><RiSendPlaneLine className="size-4" aria-hidden="true" />Enviar</button>
           </>}
         >
           <DraftSummary row={row} />
         </HoverPreview>}
         {editable && !editing && <div data-row-tools className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-lg bg-bg-white-0 p-1 opacity-0 shadow-regular-md ring-1 ring-inset ring-stroke-soft-200 transition-opacity group-hover/row:pointer-events-auto group-hover/row:opacity-100 group-focus-within/row:pointer-events-auto group-focus-within/row:opacity-100">
-          <Button.Root variant="neutral" mode="ghost" size="xxsmall" onClick={onToggleEdit} aria-label={`Edit the draft to ${row.name}`} title="Edit the draft here"><Button.Icon as={RiPencilLine} /></Button.Root>
-          <Button.Root variant="primary" mode="filled" size="xxsmall" disabled={!sendable} onClick={() => sendDraft(row, onMutate)} aria-label={`Send the draft to ${row.name}`} title={sendTitle}><Button.Icon as={RiSendPlaneFill} />Send</Button.Root>
+          <Button.Root variant="neutral" mode="ghost" size="xxsmall" onClick={onToggleEdit} aria-label={`Editar o rascunho para ${row.name}`} title="Editar o rascunho aqui"><Button.Icon as={RiPencilLine} /></Button.Root>
+          <Button.Root variant="primary" mode="filled" size="xxsmall" disabled={!sendable} onClick={() => sendDraft(row, onMutate)} aria-label={`Enviar o rascunho para ${row.name}`} title={sendTitle}><Button.Icon as={RiSendPlaneFill} />Enviar</Button.Root>
         </div>}
       </Table.Cell>
       {pipeline && <Table.Cell className="px-3 py-3 text-right">
@@ -956,7 +974,7 @@ function ActionRow({ action, categories, busy, editing, pipeline, now, onOpen, o
           recordId={id}
           name={row.name}
           onMutate={onMutate}
-          label={`More actions for ${row.name}`}
+          label={`Mais ações para ${row.name}`}
         />
       </Table.Cell>
     </Table.Row>
@@ -983,16 +1001,16 @@ export function RowMenu({ draft, recordId, name, onMutate, label, className }: {
   return <>
     <DiscardLeadDialog open={discardOpen} onOpenChange={setDiscardOpen} name={name} onConfirm={() => onMutate(`/records/${recordId}/close`, { reason: DISCARD_LEAD_REASON }, "POST", DISCARD_LEAD_SUCCESS)} />
     <FollowUpDialog open={followUpOpen} onOpenChange={setFollowUpOpen} onSubmit={(at, note, onError) => onMutate(`/records/${recordId}/follow-up`, { at: at.toISOString(), note }, "POST", followUpSuccessMessage(at), onError)} />
-    {draft && <RegenerateDraftDialog open={regenerateOpen} onOpenChange={setRegenerateOpen} onSubmit={(feedback) => onMutate(`/drafts/${String(draft.id)}/regenerate`, { feedback }, "POST", "Draft rewritten with your notes")} />}
+    {draft && <RegenerateDraftDialog open={regenerateOpen} onOpenChange={setRegenerateOpen} onSubmit={(feedback) => onMutate(`/drafts/${String(draft.id)}/regenerate`, { feedback }, "POST", "Rascunho reescrito com suas notas")} />}
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
         <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label={label} className={className}><Button.Icon as={RiMoreLine} /></Button.Root>
       </Dropdown.Trigger>
       <Dropdown.Content align="end">
-        <Dropdown.Item onSelect={() => setFollowUpOpen(true)}><Dropdown.ItemIcon as={RiCalendarScheduleLine} />Follow up later…</Dropdown.Item>
-        {draft && <Dropdown.Item onSelect={() => setRegenerateOpen(true)}><Dropdown.ItemIcon as={RiRefreshLine} />Regenerate draft…</Dropdown.Item>}
+        <Dropdown.Item onSelect={() => setFollowUpOpen(true)}><Dropdown.ItemIcon as={RiCalendarScheduleLine} />Fazer follow-up depois…</Dropdown.Item>
+        {draft && <Dropdown.Item onSelect={() => setRegenerateOpen(true)}><Dropdown.ItemIcon as={RiRefreshLine} />Gerar rascunho novamente…</Dropdown.Item>}
         <Dropdown.Separator />
-        <Dropdown.Item destructive onSelect={() => setDiscardOpen(true)}><Dropdown.ItemIcon as={RiCloseCircleLine} />Discard lead</Dropdown.Item>
+        <Dropdown.Item destructive onSelect={() => setDiscardOpen(true)}><Dropdown.ItemIcon as={RiCloseCircleLine} />Descartar lead</Dropdown.Item>
       </Dropdown.Content>
     </Dropdown.Root>
   </>;
@@ -1031,7 +1049,7 @@ export function ActionCard({ action, categories, now, busy, onOpen, onMutate, on
     if (window.getSelection()?.toString()) return;
     onOpen();
   };
-  const sendTitle = sendable ? "Send this draft as written" : "This draft cannot be sent as-is; edit it first";
+  const sendTitle = sendable ? "Enviar este rascunho como está" : "Este rascunho não pode ser enviado assim; edite primeiro";
   // Off the queue (pipeline Waiting / Exhausted) the chip names what the
   // record is waiting for rather than a due action it does not have.
   const chipRow = row.stage === "needs_action" ? row : { ...row, dueLabel: row.actionText };
@@ -1062,7 +1080,7 @@ export function ActionCard({ action, categories, now, busy, onOpen, onMutate, on
           recordId={id}
           name={row.name}
           onMutate={onMutate}
-          label={`More actions for ${row.name}`}
+          label={`Mais ações para ${row.name}`}
         />
       </div>
     </div>
@@ -1076,7 +1094,7 @@ export function ActionCard({ action, categories, now, busy, onOpen, onMutate, on
         subcategoryId={record.subcategoryId ? String(record.subcategoryId) : null}
         subcategoryName={row.subcategory.name ? String(row.subcategory.name) : null}
         disabled={busy}
-        title="Fix classification — the AI misread this reply"
+        title="Corrigir classificação — a IA interpretou mal esta resposta"
         confirm={{ inboundAnswered: row.inboundAnswered }}
       onChange={(choice, extra) => onClassify(choice, extra)}
       />
@@ -1095,13 +1113,13 @@ export function ActionCard({ action, categories, now, busy, onOpen, onMutate, on
     {row.dueMeeting ? <div className="mt-3 rounded-lg bg-bg-weak-50 p-2.5 ring-1 ring-inset ring-stroke-soft-200"><MeetingOutcomeTools recordId={id} meeting={row.dueMeeting} busy={busy} onMutate={onMutate} /></div>
       : row.draftReply ? <div className="mt-3 rounded-lg bg-bg-weak-50 p-2.5 ring-1 ring-inset ring-stroke-soft-200">
       <HoverPreview
-        title={String(row.draft.subject ?? "").trim() || "Draft reply"}
+        title={String(row.draft.subject ?? "").trim() || "Rascunho de resposta"}
         meta={row.draftState.label}
         body={row.draftFull}
         onActivate={onOpen}
         actions={editable && <>
-          <Link href={href} className={cn(secondaryButtonClass, "h-8")}>Open to edit</Link>
-          <button type="button" className={cn(primaryButtonClass, "h-8")} disabled={!sendable} onClick={() => sendDraft(row, onMutate)} title={sendTitle}><RiSendPlaneLine className="size-4" aria-hidden="true" />Send</button>
+          <Link href={href} className={cn(secondaryButtonClass, "h-8")}>Abrir para editar</Link>
+          <button type="button" className={cn(primaryButtonClass, "h-8")} disabled={!sendable} onClick={() => sendDraft(row, onMutate)} title={sendTitle}><RiSendPlaneLine className="size-4" aria-hidden="true" />Enviar</button>
         </>}
       >
         <p className="line-clamp-2 text-paragraph-xs text-text-sub-600">{row.draftReply}</p>
@@ -1109,8 +1127,8 @@ export function ActionCard({ action, categories, now, busy, onOpen, onMutate, on
       <div className="mt-2 flex items-center justify-between gap-2">
         <DraftStateLabel state={row.draftState} className="min-w-0 truncate" />
         {editable && <div data-row-tools className="flex shrink-0 items-center gap-1">
-          <Button.Root variant="neutral" mode="stroke" size="xxsmall" asChild><Link href={href} aria-label={`Open ${row.name} to edit the draft`}><Button.Icon as={RiPencilLine} />Edit</Link></Button.Root>
-          <Button.Root variant="primary" mode="filled" size="xxsmall" disabled={!sendable} onClick={() => sendDraft(row, onMutate)} aria-label={`Send the draft to ${row.name}`} title={sendTitle}><Button.Icon as={RiSendPlaneFill} />Send</Button.Root>
+          <Button.Root variant="neutral" mode="stroke" size="xxsmall" asChild><Link href={href} aria-label={`Abrir ${row.name} para editar o rascunho`}><Button.Icon as={RiPencilLine} />Editar</Link></Button.Root>
+          <Button.Root variant="primary" mode="filled" size="xxsmall" disabled={!sendable} onClick={() => sendDraft(row, onMutate)} aria-label={`Enviar o rascunho para ${row.name}`} title={sendTitle}><Button.Icon as={RiSendPlaneFill} />Enviar</Button.Root>
         </div>}
       </div>
     </div>
@@ -1118,7 +1136,7 @@ export function ActionCard({ action, categories, now, busy, onOpen, onMutate, on
 
     <div className="mt-3 flex items-center justify-between gap-2 border-t border-stroke-soft-200 pt-3">
       <Badge.Root variant="lighter" size="medium" color={chipRow.dueColor} className="h-6 min-w-0 shrink gap-1 px-2" title={chipRow.dueLabel}>
-        <Badge.Icon as={chipRow.dueIcon} className="-ml-0.5 mr-0 size-3.5" /><span className="truncate">{chipRow.dueLabel === "—" ? "Nothing due" : chipRow.dueLabel}</span>
+        <Badge.Icon as={chipRow.dueIcon} className="-ml-0.5 mr-0 size-3.5" /><span className="truncate">{chipRow.dueLabel === "—" ? "Nada pendente" : chipRow.dueLabel}</span>
       </Badge.Root>
       {/* The quote above already says when they replied; this is the when of the chip. */}
       <span className="shrink-0 text-paragraph-xs tabular-nums text-text-sub-600" title={formatDate(row.repliedAt)}>{row.dueDetail && row.dueDetail !== "—" ? row.dueDetail : row.latestReply ? "" : timeAgo(row.repliedAt)}</span>

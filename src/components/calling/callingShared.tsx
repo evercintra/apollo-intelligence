@@ -19,13 +19,24 @@ import { cn } from "@/utils/cn";
 /** Total calls the retry schedule allows before a lead is done: the first plus one per retry step, plus the last unanswered one. */
 export const MAX_UNANSWERED_ATTEMPTS = RETRY_AFTER_DAYS.length + 1;
 
+export const CALL_STATUS_LABELS_PT: Record<ContactCallStatus, string> = {
+  new: "Não ligado",
+  calling: "Ligando…",
+  no_answer: "Não atendeu",
+  busy: "Ocupado / recusou",
+  connected: "Conectado",
+  not_on_whatsapp: "Sem WhatsApp",
+  wrong_number: "Número errado",
+  failed: "Falha na ligação",
+};
+
 /** Where the lead is in the calling flow, spelled out; the colour only reinforces it. */
 export function CallStatusBadge({ status }: { status: ContactCallStatus }) {
   const definition = CONTACT_CALL_STATUS_DEFINITIONS[status];
   return (
     <Badge.Root variant="lighter" size="medium" color={definition.tone} className="shrink-0 whitespace-nowrap">
       <Badge.Dot />
-      {definition.label}
+      {CALL_STATUS_LABELS_PT[status]}
     </Badge.Root>
   );
 }
@@ -36,7 +47,7 @@ export function CampaignStatusBadge({ status }: { status: CallCampaignStatus }) 
   return (
     <Badge.Root variant="lighter" size="medium" color={paused ? "orange" : "green"} className="shrink-0">
       <Badge.Dot />
-      {paused ? "Paused" : "Active"}
+      {paused ? "Pausada" : "Ativa"}
     </Badge.Root>
   );
 }
@@ -45,7 +56,7 @@ export function CampaignStatusBadge({ status }: { status: CallCampaignStatus }) 
 export function attemptHint(contact: Pick<CampaignContact, "callStatus" | "unansweredAttempts">): string | null {
   if (contact.callStatus !== "no_answer" && contact.callStatus !== "busy") return null;
   if (contact.unansweredAttempts <= 0) return null;
-  return `attempt ${Math.min(contact.unansweredAttempts, MAX_UNANSWERED_ATTEMPTS)} of ${MAX_UNANSWERED_ATTEMPTS}`;
+  return `Tentativa ${Math.min(contact.unansweredAttempts, MAX_UNANSWERED_ATTEMPTS)} de ${MAX_UNANSWERED_ATTEMPTS}`;
 }
 
 /** The company's favicon; one that fails to load is dropped, not left broken. */
@@ -124,7 +135,7 @@ export function LeadStagePicker({
           }}
         />
         {byModel && crm?.categoryKey && (
-          <span title="Set by the AI from the call transcript" className={cn("inline-flex h-5 shrink-0 items-center gap-0.5 rounded px-1 text-label-xs text-feature-dark ring-1 ring-inset ring-feature-light bg-feature-lighter")}>
+          <span title="Definido pela IA a partir da transcrição da ligação" className={cn("inline-flex h-5 shrink-0 items-center gap-0.5 rounded px-1 text-label-xs text-feature-dark ring-1 ring-inset ring-feature-light bg-feature-lighter")}>
             <RiSparklingLine className="size-3" aria-hidden="true" />AI
           </span>
         )}
@@ -194,10 +205,10 @@ export function followUpHint(
   const day = (date: Date) => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
   const days = Math.round((day(due) - day(now)) / 86_400_000);
   if (days < 0) {
-    const short = due.toLocaleDateString(undefined, { day: "numeric", month: "short" });
-    return { text: `Overdue \u00b7 ${short}`, overdue: true };
+    const short = due.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
+    return { text: `Atrasado \u00b7 ${short}`, overdue: true };
   }
-  if (days === 0) return { text: "Due today", overdue: false };
-  if (days === 1) return { text: "Due tomorrow", overdue: false };
-  return { text: `Due in ${days} days`, overdue: false };
+  if (days === 0) return { text: "Vence hoje", overdue: false };
+  if (days === 1) return { text: "Vence amanhã", overdue: false };
+  return { text: `Vence em ${days} dias`, overdue: false };
 }

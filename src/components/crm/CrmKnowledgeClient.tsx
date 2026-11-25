@@ -41,14 +41,14 @@ type Document = Record<string, unknown>;
 type View = "active" | "archived";
 
 const KINDS: { value: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { value: "custom", label: "Custom", icon: RiFileTextLine },
-  { value: "company", label: "Company", icon: RiBuilding2Line },
-  { value: "product", label: "Product", icon: RiBox3Line },
-  { value: "pricing", label: "Pricing", icon: RiPriceTag3Line },
+  { value: "custom", label: "Personalizado", icon: RiFileTextLine },
+  { value: "company", label: "Empresa", icon: RiBuilding2Line },
+  { value: "product", label: "Produto", icon: RiBox3Line },
+  { value: "pricing", label: "Preços", icon: RiPriceTag3Line },
   { value: "faq", label: "FAQ", icon: RiQuestionLine },
-  { value: "scheduling", label: "Scheduling", icon: RiCalendarLine },
-  { value: "objection", label: "Objection", icon: RiShieldCheckLine },
-  { value: "case_study", label: "Case study", icon: RiTrophyLine },
+  { value: "scheduling", label: "Agendamento", icon: RiCalendarLine },
+  { value: "objection", label: "Objeção", icon: RiShieldCheckLine },
+  { value: "case_study", label: "Estudo de caso", icon: RiTrophyLine },
 ];
 
 function kindMeta(kind: unknown) {
@@ -157,21 +157,21 @@ export default function CrmKnowledgeClient() {
   const addButton = (
     <Button.Root variant="primary" mode="filled" size="small" onClick={addDocument}>
       <Button.Icon as={RiAddLine} />
-      Add document
+      Adicionar documento
     </Button.Root>
   );
 
   return (
     <SettingsPage
-      title="Knowledge"
-      description="Product facts, pricing and policies the AI grounds its drafts in. Documents marked Always included go into every draft."
+      title="Conhecimento"
+      description="Fatos sobre o produto, preços e políticas que a IA usa como base nos rascunhos. Documentos marcados como Sempre incluídos entram em todos os rascunhos."
       actions={addButton}
     >
       <div className="space-y-5">
         {error && (
           <Callout
             tone="error"
-            action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void load()}>Try again</Button.Root>}
+            action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void load()}>Tentar novamente</Button.Root>}
           >
             {error}
           </Callout>
@@ -184,8 +184,8 @@ export default function CrmKnowledgeClient() {
             <FramePanel>
               <EmptyState
                 icon={RiBookOpenLine}
-                title="No knowledge yet"
-                description="Add product, pricing, scheduling and company context, and the AI uses it when it drafts replies."
+                title="Ainda não há conhecimento"
+                description="Adicione contexto sobre produto, preços, agendamento e empresa para a IA usar ao criar respostas."
                 action={addButton}
               />
             </FramePanel>
@@ -194,16 +194,16 @@ export default function CrmKnowledgeClient() {
           <Frame>
             <header className="flex flex-col gap-3 px-4 pb-3 pt-3 md:flex-row md:items-center md:justify-between">
               <div className="min-w-0">
-                <h3 className="text-label-sm text-text-strong-950">Documents</h3>
-                <p className="mt-0.5 text-paragraph-xs text-text-sub-600">Every saved edit creates a new version. Archived documents are left out of drafts.</p>
+                <h3 className="text-label-sm text-text-strong-950">Documentos</h3>
+                <p className="mt-0.5 text-paragraph-xs text-text-sub-600">Cada edição salva cria uma nova versão. Documentos arquivados ficam fora dos rascunhos.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2 md:shrink-0 md:flex-nowrap">
                 <SegmentedControl.Root value={view} onValueChange={(v) => setView(v as View)}>
                   <SegmentedControl.List className="w-auto auto-cols-auto">
                     {(["active", "archived"] as const).map((v) => (
                       <SegmentedControl.Trigger key={v} value={v} className="gap-1.5 px-3">
-                        {v === "active" ? "Active" : "Archived"}
-                        <span className="tabular-nums text-text-soft-400">{counts[v]}</span>
+                        {v === "active" ? "Ativos" : "Arquivados"}
+                        <span className="tabular-nums text-text-sub-600">{counts[v]}</span>
                       </SegmentedControl.Trigger>
                     ))}
                   </SegmentedControl.List>
@@ -211,7 +211,7 @@ export default function CrmKnowledgeClient() {
                 <Input.Root size="small" className="w-full sm:w-48">
                   <Input.Wrapper>
                     <Input.Icon as={RiSearchLine} />
-                    <Input.Input type="search" aria-label="Search documents" placeholder="Search documents…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                    <Input.Input type="search" aria-label="Buscar documentos" placeholder="Buscar documentos…" value={search} onChange={(e) => setSearch(e.target.value)} />
                   </Input.Wrapper>
                 </Input.Root>
               </div>
@@ -221,8 +221,8 @@ export default function CrmKnowledgeClient() {
                 <EmptyState
                   compact
                   icon={search.trim() ? RiSearchLine : RiArchiveLine}
-                  title={search.trim() ? "No documents match" : view === "archived" ? "Nothing archived" : "No active documents"}
-                  description={search.trim() ? "Try another search." : view === "archived" ? "Archived documents appear here and can be restored." : "Restore an archived document or add a new one."}
+                  title={search.trim() ? "Nenhum documento corresponde" : view === "archived" ? "Nada arquivado" : "Nenhum documento ativo"}
+                  description={search.trim() ? "Tente outra busca." : view === "archived" ? "Documentos arquivados aparecem aqui e podem ser restaurados." : "Restaure um documento arquivado ou adicione um novo."}
                 />
               ) : (
                 <ul className="divide-y divide-stroke-soft-200">
@@ -231,7 +231,7 @@ export default function CrmKnowledgeClient() {
                     const text = snippet(contentOf(document));
                     const tags = Array.isArray(document.tags) ? (document.tags as unknown[]).map(String) : [];
                     const archived = document.active === false;
-                    const title = String(document.title ?? "Untitled document");
+                    const title = String(document.title ?? "Documento sem título");
                     const busy = busyId === String(document.id);
                     return (
                       <li
@@ -254,15 +254,15 @@ export default function CrmKnowledgeClient() {
                           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                             <p className={cn("min-w-0 truncate text-label-sm", archived ? "text-text-sub-600" : "text-text-strong-950")} title={title}>{title}</p>
                             {alwaysIncluded(document) && !archived && (
-                              <Badge.Root size="small" variant="lighter" color="blue">Always included</Badge.Root>
+                              <Badge.Root size="small" variant="lighter" color="purple">Sempre incluído</Badge.Root>
                             )}
-                            {archived && <Badge.Root size="small" variant="lighter" color="gray">Archived</Badge.Root>}
+                            {archived && <Badge.Root size="small" variant="lighter" color="gray">Arquivado</Badge.Root>}
                           </div>
-                          <p className="mt-1 line-clamp-2 text-paragraph-sm text-text-sub-600">{text || "No content"}</p>
-                          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 text-paragraph-xs text-text-soft-400" suppressHydrationWarning>
-                            <span className="text-text-sub-600">{kind.label}</span>
+                          <p className="mt-1 line-clamp-2 text-paragraph-sm text-text-sub-600">{text || "Sem conteúdo"}</p>
+                          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 text-paragraph-xs text-text-sub-600" suppressHydrationWarning>
+                            <span className="text-text-strong-950">{kind.label}</span>
                             <span aria-hidden="true">·</span>
-                            <span>Updated {formatDate(document.updatedAt ?? document.updated_at)}</span>
+                            <span>Atualizado em {formatDate(document.updatedAt ?? document.updated_at)}</span>
                             {tags.length > 0 && (
                               <>
                                 <span aria-hidden="true">·</span>
@@ -274,18 +274,18 @@ export default function CrmKnowledgeClient() {
                         <div className="shrink-0" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                           <Dropdown.Root>
                             <Dropdown.Trigger asChild>
-                              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Actions for ${title}`}>
+                              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Ações para ${title}`}>
                                 <Button.Icon as={RiMoreLine} />
                               </Button.Root>
                             </Dropdown.Trigger>
                             <Dropdown.Content align="end">
                               <Dropdown.Item onSelect={() => openEditor(document)}>
                                 <Dropdown.ItemIcon as={RiPencilLine} />
-                                Edit
+                                Editar
                               </Dropdown.Item>
                               <Dropdown.Item onSelect={() => void archive(document)}>
                                 <Dropdown.ItemIcon as={archived ? RiArrowGoBackLine : RiArchiveLine} />
-                                {archived ? "Restore" : "Archive"}
+                                {archived ? "Restaurar" : "Arquivar"}
                               </Dropdown.Item>
                             </Dropdown.Content>
                           </Dropdown.Root>
@@ -349,21 +349,21 @@ function KnowledgeEditor({
       <Modal.Content size="max-w-2xl" className="max-h-[calc(100dvh-2rem)]">
         <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
           <Modal.Header icon={RiBookOpenLine}>
-            <Modal.Title>{document.id ? "Edit document" : "New document"}</Modal.Title>
-            <Modal.Description>Every saved edit creates a new version.</Modal.Description>
+            <Modal.Title>{document.id ? "Editar documento" : "Novo documento"}</Modal.Title>
+            <Modal.Description>Cada edição salva cria uma nova versão.</Modal.Description>
           </Modal.Header>
           <Modal.Body className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_12rem]">
-              <Field label="Title" htmlFor="knowledge-title" required error={missingTitle ? "Give the document a title." : undefined}>
+              <Field label="Título" htmlFor="knowledge-title" required error={missingTitle ? "Dê um título ao documento." : undefined}>
                 <Input.Root size="small" hasError={missingTitle}>
                   <Input.Wrapper>
-                    <Input.Input id="knowledge-title" autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Pricing and plans" />
+                    <Input.Input id="knowledge-title" autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Preços e planos" />
                   </Input.Wrapper>
                 </Input.Root>
               </Field>
-              <Field label="Kind">
+              <Field label="Tipo">
                 <Select.Root size="small" value={kind} onValueChange={setKind}>
-                  <Select.Trigger aria-label="Kind">
+                  <Select.Trigger aria-label="Tipo">
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
@@ -375,11 +375,11 @@ function KnowledgeEditor({
               </Field>
             </div>
             <Field
-              label="Content"
+              label="Conteúdo"
               htmlFor="knowledge-content"
               required
-              description="Markdown. Headings and lists help the AI find the right part."
-              error={missingContent ? "Add the content the AI should know." : undefined}
+              description="Markdown. Títulos e listas ajudam a IA a encontrar a parte certa."
+              error={missingContent ? "Adicione o conteúdo que a IA deve conhecer." : undefined}
             >
               <Textarea.Root
                 id="knowledge-content"
@@ -389,31 +389,31 @@ function KnowledgeEditor({
                 onChange={(event) => setContent(event.target.value)}
                 rows={12}
                 className="min-h-48 resize-y font-mono text-paragraph-xs"
-                placeholder={"# Pricing\n\n- Starter: $49/month\n- Growth: $199/month"}
+                placeholder={"# Preços\n\n- Inicial: R$ 49/mês\n- Crescimento: R$ 199/mês"}
               />
             </Field>
-            <Field label="Tags" htmlFor="knowledge-tags" optional description="Comma separated, e.g. pricing, onboarding.">
+            <Field label="Tags" htmlFor="knowledge-tags" optional description="Separadas por vírgula, ex.: preços, onboarding.">
               <Input.Root size="small">
                 <Input.Wrapper>
-                  <Input.Input id="knowledge-tags" value={tags} onChange={(event) => setTags(event.target.value)} placeholder="pricing, onboarding" />
+                  <Input.Input id="knowledge-tags" value={tags} onChange={(event) => setTags(event.target.value)} placeholder="preços, onboarding" />
                 </Input.Wrapper>
               </Input.Root>
             </Field>
             <label className="flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 ring-inset ring-stroke-soft-200">
               <Checkbox.Root className="mt-0.5" checked={alwaysInclude} onCheckedChange={(checked) => setAlwaysInclude(checked === true)} />
               <span>
-                <span className="block text-label-sm text-text-strong-950">Always include in draft context</span>
-                <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">Sent with every draft the AI writes, so keep these short.</span>
+                <span className="block text-label-sm text-text-strong-950">Sempre incluir no contexto do rascunho</span>
+                <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">Enviado com todos os rascunhos que a IA cria, então mantenha curto.</span>
               </span>
             </label>
             {error && <Callout tone="error">{error}</Callout>}
           </Modal.Body>
           <Modal.Footer>
             <Button.Root type="button" variant="neutral" mode="stroke" size="small" disabled={saving} onClick={onCancel}>
-              Cancel
+              Cancelar
             </Button.Root>
             <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={saving}>
-              {saving ? "Saving…" : "Save document"}
+              {saving ? "Salvando…" : "Salvar documento"}
             </Button.Root>
           </Modal.Footer>
         </form>

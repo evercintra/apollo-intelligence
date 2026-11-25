@@ -90,23 +90,23 @@ function Badge({ link, badges, collapsed }: { link: NavLink; badges: NavBadges |
   const value = link.badge && badges ? badges[link.badge] : 0;
   if (!value) return null;
   if (collapsed || link.badgeStyle === "dot") {
-    return <span aria-label={`${value} need attention`} className={cn("size-2 shrink-0 rounded-full bg-warning-base", collapsed && "absolute right-1.5 top-1.5 ring-2 ring-bg-white-0")} />;
+    return <span aria-label={`${value} ${value === 1 ? "precisa" : "precisam"} de atenção`} className={cn("size-2 shrink-0 rounded-full bg-warning-base", collapsed && "absolute right-1.5 top-1.5 ring-2 ring-chrome-surface")} />;
   }
   return (
-    <span className="ml-auto shrink-0 rounded-md bg-bg-weak-50 px-1.5 py-0.5 text-label-xs tabular-nums text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200">
-      {value > 999 ? "999+" : value.toLocaleString("en-US")}
+    <span className="ml-auto shrink-0 rounded-md bg-accent-base px-1.5 py-0.5 text-label-xs tabular-nums text-accent-contrast">
+      {value > 999 ? "999+" : value.toLocaleString("pt-BR")}
     </span>
   );
 }
 
-const rowBase = "flex w-full items-center gap-2.5 rounded-lg text-label-sm outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-primary-base";
-const rowState = (active: boolean) => (active ? "bg-bg-weak-50 text-text-strong-950" : "text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950");
+const rowBase = "flex w-full items-center gap-2.5 rounded-lg text-label-sm outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-chrome-active";
+const rowState = (active: boolean) => (active ? "bg-chrome-active-bg text-chrome-active" : "text-chrome-text-muted hover:bg-chrome-hover-bg hover:text-chrome-text");
 
 function RailTip({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <Tooltip.Root>
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
-      <Tooltip.Content side="right" sideOffset={10}>{label}</Tooltip.Content>
+      <Tooltip.Content side="right" sideOffset={10} variant="light">{label}</Tooltip.Content>
     </Tooltip.Root>
   );
 }
@@ -117,7 +117,7 @@ function LinkRow({ link, active, badges, collapsed, compact }: { link: NavLink; 
     return (
       <RailTip label={link.label}>
         <Link href={link.href} aria-label={link.label} aria-current={active ? "page" : undefined} className={cn(rowBase, rowState(active), "relative h-9 justify-center")}>
-          <Icon className={cn("size-[18px] shrink-0", active ? "text-text-strong-950" : "text-text-soft-400")} />
+          <Icon className={cn("size-[18px] shrink-0", active ? "text-chrome-active" : "text-chrome-icon")} />
           <Badge link={link} badges={badges} collapsed />
         </Link>
       </RailTip>
@@ -125,7 +125,7 @@ function LinkRow({ link, active, badges, collapsed, compact }: { link: NavLink; 
   }
   return (
     <Link href={link.href} aria-current={active ? "page" : undefined} className={cn(rowBase, rowState(active), compact ? "h-8 px-2 text-paragraph-sm" : "h-9 px-2")}>
-      <Icon className={cn("shrink-0", compact ? "size-4" : "size-[18px]", active ? "text-text-strong-950" : "text-text-soft-400")} />
+      <Icon className={cn("shrink-0", compact ? "size-4" : "size-[18px]", active ? "text-chrome-active" : "text-chrome-icon")} />
       <span className="min-w-0 flex-1 truncate">{link.label}</span>
       <Badge link={link} badges={badges} />
     </Link>
@@ -133,11 +133,11 @@ function LinkRow({ link, active, badges, collapsed, compact }: { link: NavLink; 
 }
 
 const HELP_LINKS = [
-  { label: "Documentation", href: SUPPORT_LINKS.docs, icon: RiBookOpenLine },
-  { label: "Report a bug", href: bugReportUrl(APP_VERSION), icon: RiBugLine },
-  { label: "Request a feature", href: SUPPORT_LINKS.featureRequest, icon: RiLightbulbLine },
-  { label: "Ask the community", href: SUPPORT_LINKS.community, icon: RiChat3Line },
-  { label: "Report a security issue", href: SUPPORT_LINKS.security, icon: RiShieldCheckLine },
+  { label: "Documentação", href: SUPPORT_LINKS.docs, icon: RiBookOpenLine },
+  { label: "Reportar um problema", href: bugReportUrl(APP_VERSION), icon: RiBugLine },
+  { label: "Sugerir uma funcionalidade", href: SUPPORT_LINKS.featureRequest, icon: RiLightbulbLine },
+  { label: "Perguntar à comunidade", href: SUPPORT_LINKS.community, icon: RiChat3Line },
+  { label: "Reportar uma falha de segurança", href: SUPPORT_LINKS.security, icon: RiShieldCheckLine },
 ];
 
 /** Help: a menu of external links (docs, bug, feature, community, security), each in a new tab. */
@@ -145,23 +145,23 @@ function HelpRow({ collapsed, compact }: { collapsed: boolean; compact?: boolean
   return (
     <Dropdown.Root>
       {collapsed ? (
-        <RailTip label="Help">
+        <RailTip label="Ajuda">
           <Dropdown.Trigger asChild>
-            <button type="button" aria-label="Help" className={cn(rowBase, rowState(false), "h-9 justify-center")}>
-              <RiQuestionLine className="size-[18px] shrink-0 text-text-soft-400" />
+            <button type="button" aria-label="Ajuda" className={cn(rowBase, rowState(false), "h-9 justify-center")}>
+              <RiQuestionLine className="size-[18px] shrink-0 text-chrome-icon" />
             </button>
           </Dropdown.Trigger>
         </RailTip>
       ) : (
         <Dropdown.Trigger asChild>
           <button type="button" className={cn(rowBase, rowState(false), compact ? "h-8 px-2 text-paragraph-sm" : "h-9 px-2")}>
-            <RiQuestionLine className={cn("shrink-0 text-text-soft-400", compact ? "size-4" : "size-[18px]")} />
-            <span className="min-w-0 flex-1 truncate text-left">Help</span>
+            <RiQuestionLine className={cn("shrink-0 text-chrome-icon", compact ? "size-4" : "size-[18px]")} />
+            <span className="min-w-0 flex-1 truncate text-left">Ajuda</span>
           </button>
         </Dropdown.Trigger>
       )}
       <Dropdown.Content side={collapsed ? "right" : "top"} align={collapsed ? "end" : "start"} sideOffset={collapsed ? 10 : undefined} className="w-56">
-        <p className="px-2 pb-1 pt-1.5 text-paragraph-xs text-text-soft-400">Help</p>
+        <p className="px-2 pb-1 pt-1.5 text-paragraph-xs text-text-soft-400">Ajuda</p>
         {HELP_LINKS.map((l) => (
           <Dropdown.Item key={l.href} asChild>
             <a href={l.href} target="_blank" rel="noopener noreferrer">
@@ -176,10 +176,13 @@ function HelpRow({ collapsed, compact }: { collapsed: boolean; compact?: boolean
   );
 }
 
-function GroupIcon({ group, className }: { group: NavGroup; className?: string }) {
+function GroupIcon({ group, className, active }: { group: NavGroup; className?: string; active?: boolean }) {
   const Icon = group.icon;
   return (
-    <span className={cn("flex shrink-0", !group.color && "text-text-soft-400")} style={group.color ? { color: group.color } : undefined}>
+    <span
+      className={cn("flex shrink-0", active ? "text-chrome-active" : group.color ? undefined : "text-chrome-icon")}
+      style={!active && group.color ? { color: group.color } : undefined}
+    >
       <Icon className={className} />
     </span>
   );
@@ -195,8 +198,8 @@ function GroupRow({ group, current, open, onToggle, badges, collapsed, compact }
         <RailTip label={group.label}>
           <Dropdown.Trigger asChild>
             <button type="button" aria-label={group.label} className={cn(rowBase, rowState(holdsActive), "relative h-9 justify-center")}>
-              <GroupIcon group={group} className="size-[18px]" />
-              {childBadge > 0 && <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-warning-base ring-2 ring-bg-white-0" />}
+              <GroupIcon group={group} className="size-[18px]" active={holdsActive} />
+              {childBadge > 0 && <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-warning-base ring-2 ring-chrome-surface" />}
             </button>
           </Dropdown.Trigger>
         </RailTip>
@@ -218,11 +221,11 @@ function GroupRow({ group, current, open, onToggle, badges, collapsed, compact }
 
   return (
     <div>
-      <button type="button" onClick={onToggle} aria-expanded={open} className={cn(rowBase, rowState(false), compact ? "h-8 px-2 text-paragraph-sm" : "h-9 px-2", holdsActive && !open && "text-text-strong-950")}>
-        <GroupIcon group={group} className={compact ? "size-4" : "size-[18px]"} />
+      <button type="button" onClick={onToggle} aria-expanded={open} className={cn(rowBase, rowState(false), compact ? "h-8 px-2 text-paragraph-sm" : "h-9 px-2", holdsActive && !open && "text-chrome-active")}>
+        <GroupIcon group={group} className={compact ? "size-4" : "size-[18px]"} active={holdsActive} />
         <span className="min-w-0 flex-1 truncate text-left">{group.label}</span>
-        {!open && childBadge > 0 && <span className="size-2 shrink-0 rounded-full bg-warning-base" aria-label="Needs attention" />}
-        <RiArrowDownSLine className={cn("size-4 shrink-0 text-text-soft-400 transition-transform duration-200", !open && "-rotate-90")} aria-hidden="true" />
+        {!open && childBadge > 0 && <span className="size-2 shrink-0 rounded-full bg-warning-base" aria-label="Precisa de atenção" />}
+        <RiArrowDownSLine className={cn("size-4 shrink-0 text-chrome-icon transition-transform duration-200", !open && "-rotate-90")} aria-hidden="true" />
       </button>
       {open && (
         <ul className="mt-0.5 space-y-0.5 pl-3">
@@ -232,7 +235,7 @@ function GroupRow({ group, current, open, onToggle, badges, collapsed, compact }
             return (
               <li key={c.href}>
                 <Link href={c.href} aria-current={active ? "page" : undefined} className={cn(rowBase, rowState(active), "h-8 gap-2 px-2 text-paragraph-sm", active && "text-label-sm")}>
-                  <ChildIcon className={cn("size-4 shrink-0", active ? "text-text-strong-950" : "text-text-soft-400")} />
+                  <ChildIcon className={cn("size-4 shrink-0", active ? "text-chrome-active" : "text-chrome-icon")} />
                   <span className="min-w-0 flex-1 truncate">{c.label}</span>
                   <Badge link={c} badges={badges} />
                 </Link>
@@ -300,14 +303,14 @@ export default function Sidebar({ mobile = false, onClose }: { mobile?: boolean;
   const demo = useDemoMode();
   const [switchError, setSwitchError] = useState("");
   const wsLoading = sessionPending || orgPending;
-  const wsName = activeOrg?.name ?? "No organization";
+  const wsName = activeOrg?.name ?? "Sem organização";
   const wsUser = session?.user.name || session?.user.email || "";
 
   async function switchOrg(organizationId: string) {
     if (organizationId === activeOrg?.id) return;
     setSwitchError("");
     const { error } = await authClient.organization.setActive({ organizationId });
-    if (error) return setSwitchError(error.message || "Could not switch organization.");
+    if (error) return setSwitchError(error.message || "Não foi possível trocar de organização.");
     // A full load, so nothing cached from the previous organization survives.
     window.location.assign("/analytics");
   }
@@ -327,33 +330,33 @@ export default function Sidebar({ mobile = false, onClose }: { mobile?: boolean;
 
   return (
     <Tooltip.Provider delayDuration={200}>
-      <aside className={cn("flex h-full shrink-0 flex-col bg-bg-white-0", mobile ? "w-full" : "border-r border-stroke-soft-200 transition-[width] duration-200 ease-out", !mobile && (collapsed ? "w-[68px]" : "w-64"))}>
+      <aside className={cn("flex h-full shrink-0 flex-col bg-chrome-surface text-chrome-text", mobile ? "w-full" : "border-r border-chrome-border transition-[width] duration-200 ease-out", !mobile && (collapsed ? "w-[68px]" : "w-64"))}>
         {/* Brand + collapse */}
         <div className={cn("flex h-14 shrink-0 items-center", collapsed ? "justify-center" : "justify-between pl-4 pr-2.5")}>
           {!collapsed && (
-            <Link href="/analytics" aria-label="AgentSDR home" className="group rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary-base">
-              <Logo className="text-text-strong-950" walk="step" walkOn="hover" />
+            <Link href="/analytics" aria-label="Início do Apollo Intelligence" className="group rounded-md outline-none focus-visible:ring-2 focus-visible:ring-chrome-active">
+              <Logo className="text-chrome-text" walk="step" walkOn="hover" />
             </Link>
           )}
           <div className={cn("flex items-center", collapsed && "hidden")}>
-          <RailTip label="Light or dark">
+          <RailTip label="Claro ou escuro">
             <span><ThemeToggleButton /></span>
           </RailTip>
           {mobile ? (
-            <button type="button" onClick={onClose} aria-label="Close menu" className="flex size-8 items-center justify-center rounded-lg text-text-soft-400 outline-none transition hover:bg-bg-weak-50 hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base">
+            <button type="button" onClick={onClose} aria-label="Fechar menu" className="flex size-8 items-center justify-center rounded-lg text-chrome-icon outline-none transition hover:bg-chrome-hover-bg hover:text-chrome-text focus-visible:ring-2 focus-visible:ring-chrome-active">
               <RiCloseLine className="size-5" />
             </button>
           ) : (
-          <RailTip label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
-            <button type="button" onClick={toggleCollapsed} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} className="flex size-8 items-center justify-center rounded-lg text-text-soft-400 outline-none transition hover:bg-bg-weak-50 hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base">
+          <RailTip label={collapsed ? "Expandir barra lateral" : "Recolher barra lateral"}>
+            <button type="button" onClick={toggleCollapsed} aria-label={collapsed ? "Expandir barra lateral" : "Recolher barra lateral"} aria-expanded={!collapsed} className="flex size-8 items-center justify-center rounded-lg text-chrome-icon outline-none transition hover:bg-chrome-hover-bg hover:text-chrome-text focus-visible:ring-2 focus-visible:ring-chrome-active">
               <RiSideBarLine className="size-[18px]" />
             </button>
           </RailTip>
           )}
           </div>
-          {/* Collapsed, the brand stays as Shade's icon, linking home. */}
+          {/* Collapsed, the brand stays as the Apollo tile, linking home. */}
           {collapsed && (
-            <Link href="/analytics" aria-label="AgentSDR home" className="group rounded-md outline-none focus-visible:ring-2 focus-visible:ring-primary-base">
+            <Link href="/analytics" aria-label="Início do Apollo Intelligence" className="group rounded-md outline-none focus-visible:ring-2 focus-visible:ring-chrome-active">
               <AppIcon small className="size-7" walk="step" walkOn="hover" />
             </Link>
           )}
@@ -362,9 +365,9 @@ export default function Sidebar({ mobile = false, onClose }: { mobile?: boolean;
         {/* Collapsed: the expand control, always visible under the brand. */}
         {collapsed && (
           <div className="shrink-0 px-3 pb-2">
-            <RailTip label="Expand sidebar">
-              <button type="button" onClick={toggleCollapsed} aria-label="Expand sidebar" aria-expanded={false} className={cn(rowBase, rowState(false), "h-9 justify-center")}>
-                <RiSideBarLine className="size-[18px] text-text-soft-400" />
+            <RailTip label="Expandir barra lateral">
+              <button type="button" onClick={toggleCollapsed} aria-label="Expandir barra lateral" aria-expanded={false} className={cn(rowBase, rowState(false), "h-9 justify-center")}>
+                <RiSideBarLine className="size-[18px] text-chrome-icon" />
               </button>
             </RailTip>
           </div>
@@ -373,71 +376,71 @@ export default function Sidebar({ mobile = false, onClose }: { mobile?: boolean;
         {/* Jump to */}
         <div className={cn("shrink-0 pb-2", collapsed ? "px-3" : "px-3")}>
           {collapsed ? (
-            <RailTip label="Search (⌘K)">
-              <button type="button" onClick={() => setPaletteOpen(true)} aria-label="Search or jump to" className={cn(rowBase, rowState(false), "h-9 justify-center")}>
-                <RiSearchLine className="size-[18px] text-text-soft-400" />
+            <RailTip label="Buscar (⌘K)">
+              <button type="button" onClick={() => setPaletteOpen(true)} aria-label="Buscar ou ir para" className={cn(rowBase, rowState(false), "h-9 justify-center")}>
+                <RiSearchLine className="size-[18px] text-chrome-icon" />
               </button>
             </RailTip>
           ) : (
-            <button type="button" onClick={() => setPaletteOpen(true)} className="flex h-9 w-full items-center gap-2 rounded-lg bg-bg-white-0 px-2.5 text-paragraph-sm text-text-soft-400 shadow-regular-xs outline-none ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-bg-weak-50 focus-visible:ring-2 focus-visible:ring-primary-base">
+            <button type="button" onClick={() => setPaletteOpen(true)} className="flex h-9 w-full items-center gap-2 rounded-lg bg-chrome-raised px-2.5 text-paragraph-sm text-chrome-text-muted shadow-regular-xs outline-none ring-1 ring-inset ring-chrome-border transition hover:bg-chrome-hover-bg focus-visible:ring-2 focus-visible:ring-chrome-active">
               <RiSearchLine className="size-4 shrink-0" />
-              <span className="flex-1 text-left">Search or jump to…</span>
-              <kbd className="rounded bg-bg-weak-50 px-1.5 text-label-xs text-text-soft-400 ring-1 ring-inset ring-stroke-soft-200">⌘K</kbd>
+              <span className="flex-1 text-left">Buscar ou ir para…</span>
+              <kbd className="rounded bg-chrome-surface px-1.5 text-label-xs text-chrome-text-muted ring-1 ring-inset ring-chrome-border">⌘K</kbd>
             </button>
           )}
         </div>
 
         {/* Sections */}
-        <nav aria-label="Main" className={cn("flex-1 overflow-y-auto pb-3", collapsed ? "px-3" : "px-3")}>
+        <nav aria-label="Principal" className={cn("flex-1 overflow-y-auto pb-3", collapsed ? "px-3" : "px-3")}>
           {NAV_SECTIONS.map((section, i) => (
             <div key={section.label ?? i} className={cn(i > 0 && "mt-4")}>
-              {section.label && (collapsed ? <div className="mx-2 mb-2 border-t border-stroke-soft-200" /> : <p className="mb-1 px-2 text-paragraph-xs text-text-soft-400">{section.label}</p>)}
+              {section.label && (collapsed ? <div className="mx-2 mb-2 border-t border-chrome-border" /> : <p className="mb-1 px-2 text-paragraph-xs text-chrome-text-muted">{section.label}</p>)}
               <div className="space-y-0.5">{section.entries.map((e) => renderEntry(e))}</div>
             </div>
           ))}
         </nav>
 
         {/* Pinned: developer links, settings, workspace */}
-        <div className={cn("shrink-0 space-y-0.5 border-t border-stroke-soft-200 pt-2", collapsed ? "px-3" : "px-3")}>
+        <div className={cn("shrink-0 space-y-0.5 border-t border-chrome-border pt-2", collapsed ? "px-3" : "px-3")}>
           {NAV_FOOTER.map((e) => renderEntry(e, true))}
           <HelpRow collapsed={collapsed} compact />
         </div>
         <div className={cn("shrink-0 p-3", collapsed && "flex justify-center")}>
           <Dropdown.Root>
             <Dropdown.Trigger asChild>
-              <button type="button" aria-label="Workspace menu" className={cn("flex items-center gap-2.5 rounded-xl text-left outline-none transition hover:bg-bg-weak-50 focus-visible:ring-2 focus-visible:ring-primary-base", collapsed ? "size-9 justify-center" : "w-full p-2 ring-1 ring-inset ring-stroke-soft-200")}>
+              <button type="button" aria-label="Menu do espaço de trabalho" className={cn("flex items-center gap-2.5 rounded-xl text-left outline-none transition hover:bg-chrome-hover-bg focus-visible:ring-2 focus-visible:ring-chrome-active", collapsed ? "size-9 justify-center" : "w-full p-2 ring-1 ring-inset ring-chrome-border")}>
                 <AppIcon small className="size-8" />
                 {!collapsed && (
                   <>
                     <span className="min-w-0 flex-1">
                       {wsLoading ? (
                         <>
-                          <span className="block h-3.5 w-24 animate-pulse rounded bg-bg-soft-200" />
-                          <span className="mt-1.5 block h-3 w-32 animate-pulse rounded bg-bg-soft-200" />
+                          <span className="block h-3.5 w-24 animate-pulse rounded bg-chrome-border" />
+                          <span className="mt-1.5 block h-3 w-32 animate-pulse rounded bg-chrome-border" />
                         </>
                       ) : (
                         <>
-                          <span className="block truncate text-label-sm text-text-strong-950">{wsName}</span>
-                          <span className="block truncate text-paragraph-xs text-text-sub-600">{wsUser}</span>
+                          <span className="block truncate text-label-sm text-chrome-text">{wsName}</span>
+                          <span className="block truncate text-paragraph-xs text-chrome-text-muted">{wsUser}</span>
                         </>
                       )}
                     </span>
-                    <RiMore2Line className="size-4 shrink-0 text-text-soft-400" aria-hidden="true" />
+                    <RiMore2Line className="size-4 shrink-0 text-chrome-icon" aria-hidden="true" />
                   </>
                 )}
               </button>
             </Dropdown.Trigger>
             <Dropdown.Content side={collapsed ? "right" : "top"} align={collapsed ? "end" : "start"} className="w-64">
               <div className="px-2 pb-1.5 pt-1.5">
-                <p className="truncate text-label-sm text-text-strong-950">{wsUser || "Account"}</p>
+                <p className="truncate text-label-sm text-text-strong-950">{wsUser || "Conta"}</p>
                 {session?.user.email && session.user.name && <p className="truncate text-paragraph-xs text-text-sub-600">{session.user.email}</p>}
               </div>
               <Dropdown.Separator />
-              <p className="px-2 pb-1 pt-1.5 text-paragraph-xs text-text-soft-400">Organizations</p>
+              <p className="px-2 pb-1 pt-1.5 text-paragraph-xs text-text-soft-400">Organizações</p>
               {(orgs ?? []).map((o) => (
                 <Dropdown.Item key={o.id} onSelect={() => void switchOrg(o.id)}>
                   <span className="min-w-0 flex-1 truncate">{o.name}</span>
-                  {o.id === activeOrg?.id && <RiCheckLine className="size-4 shrink-0 text-text-strong-950" aria-label="Active" />}
+                  {o.id === activeOrg?.id && <RiCheckLine className="size-4 shrink-0 text-text-strong-950" aria-label="Ativa" />}
                 </Dropdown.Item>
               ))}
               {switchError && <p role="alert" className="px-2 py-1 text-paragraph-xs text-error-base">{switchError}</p>}
@@ -445,7 +448,7 @@ export default function Sidebar({ mobile = false, onClose }: { mobile?: boolean;
                 <Dropdown.Item asChild>
                   <Link href="/onboarding?new=1">
                     <Dropdown.ItemIcon as={RiAddLine} />
-                    Create organization
+                    Criar organização
                   </Link>
                 </Dropdown.Item>
               )}
@@ -453,12 +456,12 @@ export default function Sidebar({ mobile = false, onClose }: { mobile?: boolean;
               <Dropdown.Item asChild>
                 <Link href={SETTINGS_HOME}>
                   <Dropdown.ItemIcon as={RiSettings3Line} />
-                  Settings
+                  Configurações
                 </Link>
               </Dropdown.Item>
               <Dropdown.Item onSelect={() => setPaletteOpen(true)}>
                 <Dropdown.ItemIcon as={RiSearchLine} />
-                Search or jump to
+                Buscar ou ir para
                 <span className="ml-auto text-paragraph-xs text-text-soft-400">⌘K</span>
               </Dropdown.Item>
               {/* The demo signs every visitor in as the demo user; there is nothing to sign out of. */}
@@ -467,7 +470,7 @@ export default function Sidebar({ mobile = false, onClose }: { mobile?: boolean;
                   <Dropdown.Separator />
                   <Dropdown.Item onSelect={() => void signOut()}>
                     <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
-                    Sign out
+                    Sair
                   </Dropdown.Item>
                 </>
               )}

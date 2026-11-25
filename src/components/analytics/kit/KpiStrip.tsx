@@ -64,7 +64,7 @@ export function KpiCell({
 }) {
   return (
     <div className={cn("relative flex flex-col gap-3 bg-bg-white-0 p-4 sm:p-5", selected && "bg-bg-weak-50")}>
-      {onSelect && <button type="button" onClick={onSelect} aria-pressed={Boolean(selected)} aria-label={`Show ${label}`} className="absolute inset-0 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-base" />}
+      {onSelect && <button type="button" onClick={onSelect} aria-pressed={Boolean(selected)} aria-label={`Mostrar ${label}`} className="absolute inset-0 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-base" />}
       <div className="flex items-center justify-between gap-2">
         {Icon ? (
           <span className="flex size-8 items-center justify-center rounded-lg bg-bg-weak-50 ring-1 ring-inset ring-stroke-soft-200">

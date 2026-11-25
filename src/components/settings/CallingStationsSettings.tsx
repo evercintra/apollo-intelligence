@@ -45,17 +45,17 @@ import { cn } from "@/utils/cn";
 
 const LAUNCHER_LABEL: Record<StationLauncher, string> = {
   cloak: "CloakBrowser",
-  local: "Local Chromium",
-  gologin_sdk: "GoLogin (this server)",
+  local: "Chromium local",
+  gologin_sdk: "GoLogin (este servidor)",
   gologin_cloud: "GoLogin Cloud",
 };
 
 const STATUS_LABEL: Record<StationStatus, string> = {
-  onboarding: "Not linked yet",
-  active: "Active",
-  paused: "Paused",
-  logged_out: "Logged out",
-  banned: "Banned",
+  onboarding: "Ainda não vinculado",
+  active: "Ativo",
+  paused: "Pausado",
+  logged_out: "Sessão encerrada",
+  banned: "Bloqueado",
 };
 const STATUS_COLOR: Record<StationStatus, React.ComponentProps<typeof Badge.Root>["color"]> = {
   onboarding: "gray",
@@ -204,11 +204,11 @@ export function CallingStationsSettings() {
     const callsPerDay = draft.callsPerDay.trim() === "" ? null : Number(draft.callsPerDay);
     if (callsPerDay !== null && (!Number.isInteger(callsPerDay) || callsPerDay < 1 || callsPerDay > 100)) {
       setSaving(false);
-      return setFormError("AI calls a day must be a whole number from 1 to 100, or blank to use the organization's rule.");
+      return setFormError("As ligações de IA por dia devem ser um número inteiro de 1 a 100; deixe em branco para usar a regra da organização.");
     }
     if (draft.callingHours && hoursInvalid(draft.callingHours)) {
       setSaving(false);
-      return setFormError("Calling hours need at least one day and an end after the start.");
+      return setFormError("O horário de ligações precisa de pelo menos um dia e um fim posterior ao início.");
     }
     try {
       let savedId = formFor;
@@ -264,8 +264,8 @@ export function CallingStationsSettings() {
 
   const saveProxy = async () => {
     const port = Number(proxyDraft.port);
-    if (!proxyDraft.host.trim()) return setProxyFormError("Host is required.");
-    if (!Number.isInteger(port) || port < 1 || port > 65535) return setProxyFormError("Port must be a number from 1 to 65535.");
+    if (!proxyDraft.host.trim()) return setProxyFormError("O host é obrigatório.");
+    if (!Number.isInteger(port) || port < 1 || port > 65535) return setProxyFormError("A porta deve ser um número de 1 a 65535.");
     setSaving(true);
     setProxyFormError("");
     const request = {
@@ -327,7 +327,7 @@ export function CallingStationsSettings() {
   const addButton = (
     <Button.Root variant="primary" mode="filled" size="small" onClick={openAdd}>
       <Button.Icon as={RiAddLine} />
-      Add number
+      Adicionar número
     </Button.Root>
   );
 
@@ -340,23 +340,23 @@ export function CallingStationsSettings() {
 
   return (
     <SettingsPage
-      title="Calling numbers"
-      description="WhatsApp numbers the AI agent calls from, with WhatsApp Web running in a remote browser instead of a rep's laptop."
+      title="Números de ligação"
+      description="Números de WhatsApp usados pelo agente de IA para ligar, com o WhatsApp Web rodando em um navegador remoto em vez do computador de um representante."
       actions={addButton}
     >
       <div className="space-y-5">
-        <Callout tone="info" title="How cloud calling works">
-          A calling number is a WhatsApp number linked to a browser profile that a call worker opens for each call. It needs a call worker running
-          {" "}and, for GoLogin profiles, the GoLogin integration connected in{" "}
-          <Link href="/settings/whatsapp-connection" className="underline">Settings → WhatsApp → Integrations</Link>.{" "}
-          <DocsLink page="whatsapp/calling#what-you-need">What you need</DocsLink>
+        <Callout tone="info" title="Como funciona a ligação em nuvem">
+          Um número de ligação é um número de WhatsApp vinculado a um perfil de navegador que um worker abre a cada chamada. É preciso ter um worker ativo
+          {" "}e, para perfis GoLogin, a integração GoLogin conectada em{" "}
+          <Link href="/settings/whatsapp-connection" className="underline">Configurações → WhatsApp → Integrações</Link>.{" "}
+          <DocsLink page="whatsapp/calling#what-you-need">O que é necessário</DocsLink>
         </Callout>
         {error && <Callout tone="error">{error}</Callout>}
 
         {stations === null ? (
           !error && (
-            <div className="flex justify-center py-12" aria-busy="true" aria-label="Loading calling numbers">
-              <RiLoader4Line className="size-5 animate-spin text-text-soft-400" aria-hidden="true" />
+            <div className="flex justify-center py-12" aria-busy="true" aria-label="Carregando números de ligação">
+              <RiLoader4Line className="size-5 animate-spin text-text-sub-600" aria-hidden="true" />
             </div>
           )
         ) : stations.length === 0 ? (
@@ -364,8 +364,8 @@ export function CallingStationsSettings() {
             <FramePanel>
               <EmptyState
                 icon={RiCloudLine}
-                title="No calling numbers yet"
-                description="Add a WhatsApp number and its browser profile, then link it to WhatsApp Web from here."
+                title="Ainda não há números de ligação"
+                description="Adicione um número de WhatsApp e seu perfil de navegador, depois vincule-o ao WhatsApp Web por aqui."
                 action={addButton}
               />
             </FramePanel>
@@ -396,15 +396,15 @@ export function CallingStationsSettings() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="space-y-0.5">
                 <h2 className="text-label-md text-text-strong-950">IPs</h2>
-                <p className="text-paragraph-sm text-text-sub-600">Each number goes out from its own IP. Static Indian ISP proxies; one number per IP.</p>
+                <p className="text-paragraph-sm text-text-sub-600">Cada número sai por seu próprio IP. Proxies estáticos de ISP indiano; um número por IP.</p>
               </div>
               <Button.Root variant="neutral" mode="stroke" size="small" onClick={openAddProxy}>
                 <Button.Icon as={RiAddLine} />
-                Add IP
+                Adicionar IP
               </Button.Root>
             </div>
             {proxies.length === 0 ? (
-              <p className="text-paragraph-sm text-text-soft-400">No IPs yet. Numbers without one use the worker&apos;s own IP.</p>
+              <p className="text-paragraph-sm text-text-sub-600">Ainda não há IPs. Números sem IP usam o IP do worker.</p>
             ) : (
               <div className="space-y-3">
                 {proxies.map((proxy) => (
@@ -419,21 +419,21 @@ export function CallingStationsSettings() {
       <Modal.Root open={formFor !== null} onOpenChange={(open) => { if (!open && !saving) setFormFor(null); }}>
         <Modal.Content>
           <Modal.Header icon={RiCloudLine}>
-            <Modal.Title>{formFor === "new" ? "Add a calling number" : "Edit calling number"}</Modal.Title>
+            <Modal.Title>{formFor === "new" ? "Adicionar número de ligação" : "Editar número de ligação"}</Modal.Title>
             <Modal.Description>
               {formFor === "new"
-                ? "After adding it, use Link WhatsApp to sign the number into WhatsApp Web."
-                : `${editing?.phone ?? "The number"} can't be changed here; delete and add it again for a different number.`}
+                ? "Depois de adicionar, use Vincular WhatsApp para entrar com o número no WhatsApp Web."
+                : `${editing?.phone ?? "O número"} não pode ser alterado aqui; exclua e adicione novamente para usar outro número.`}
             </Modal.Description>
           </Modal.Header>
           <Modal.Body className="space-y-3">
             {formError && <FormError>{formError}</FormError>}
-            <TextField label="Name" autoFocus value={draft.name} onChange={(name) => setDraft((d) => ({ ...d, name }))} placeholder="Sales line 1" disabled={saving} />
+            <TextField label="Nome" autoFocus value={draft.name} onChange={(name) => setDraft((d) => ({ ...d, name }))} placeholder="Linha de vendas 1" disabled={saving} />
             {formFor === "new" && (
-              <TextField label="WhatsApp number" value={draft.phone} onChange={(phone) => setDraft((d) => ({ ...d, phone }))} placeholder="+91 98765 43210" disabled={saving} />
+              <TextField label="Número de WhatsApp" value={draft.phone} onChange={(phone) => setDraft((d) => ({ ...d, phone }))} placeholder="+91 98765 43210" disabled={saving} />
             )}
             <div>
-              <label className="mb-1.5 block text-label-sm text-text-strong-950">Browser</label>
+              <label className="mb-1.5 block text-label-sm text-text-strong-950">Navegador</label>
               <Select.Root size="small" value={draft.launcher} onValueChange={(launcher) => setDraft((d) => ({ ...d, launcher: launcher as StationLauncher }))} disabled={saving}>
                 <Select.Trigger><Select.Value /></Select.Trigger>
                 <Select.Content>
@@ -448,7 +448,7 @@ export function CallingStationsSettings() {
               <Select.Root size="small" value={draft.proxyId} onValueChange={(proxyId) => setDraft((d) => ({ ...d, proxyId }))} disabled={saving}>
                 <Select.Trigger><Select.Value /></Select.Trigger>
                 <Select.Content>
-                  <Select.Item value={NO_PROXY}>None (worker&apos;s own IP)</Select.Item>
+                  <Select.Item value={NO_PROXY}>Nenhum (IP do próprio worker)</Select.Item>
                   {proxyChoices.map((proxy) => (
                     <Select.Item key={proxy.id} value={proxy.id}>{proxy.label} · {proxy.host}</Select.Item>
                   ))}
@@ -457,51 +457,51 @@ export function CallingStationsSettings() {
             </div>
             {usesGoLogin(draft.launcher) && (
               <TextField
-                label="GoLogin profile ID"
+                label="ID do perfil no GoLogin"
                 value={draft.gologinProfileId}
                 onChange={(gologinProfileId) => setDraft((d) => ({ ...d, gologinProfileId }))}
-                placeholder="The profile's ID from GoLogin"
+                placeholder="O ID do perfil no GoLogin"
                 disabled={saving}
               />
             )}
             <div className="border-t border-stroke-soft-200 pt-3">
-              <p className="mb-2 text-label-sm text-text-strong-950">AI campaigns</p>
+              <p className="mb-2 text-label-sm text-text-strong-950">Campanhas de IA</p>
               <TextField
-                label="AI calls a day"
+                label="Ligações de IA por dia"
                 inputMode="numeric"
                 value={draft.callsPerDay}
                 onChange={(callsPerDay) => setDraft((d) => ({ ...d, callsPerDay }))}
-                placeholder={aiSettings ? `Blank: the organization's rule (${aiSettings.rules.callsPerDay})` : "Blank: the organization's rule"}
+                placeholder={aiSettings ? `Em branco: regra da organização (${aiSettings.rules.callsPerDay})` : "Em branco: regra da organização"}
                 disabled={saving}
               />
               <div className="mt-3">
                 <div className="mb-1.5 flex items-center justify-between gap-3">
-                  <label className="text-label-sm text-text-strong-950">Calling hours</label>
+                  <label className="text-label-sm text-text-strong-950">Horário de ligações</label>
                   {draft.callingHours ? (
                     <button type="button" disabled={saving} onClick={() => setDraft((d) => ({ ...d, callingHours: null }))} className="text-paragraph-xs text-text-sub-600 underline-offset-2 hover:underline disabled:opacity-50">
-                      Use the organization&apos;s hours
+                      Usar o horário da organização
                     </button>
                   ) : (
                     <button type="button" disabled={saving} onClick={() => setDraft((d) => ({ ...d, callingHours: aiSettings?.rules.callingHours ?? FALLBACK_HOURS }))} className="text-paragraph-xs text-text-sub-600 underline-offset-2 hover:underline disabled:opacity-50">
-                      Set hours for this number
+                      Definir horário para este número
                     </button>
                   )}
                 </div>
                 {draft.callingHours ? (
                   <StationHoursEditor value={draft.callingHours} onChange={(callingHours) => setDraft((d) => ({ ...d, callingHours }))} disabled={saving} />
                 ) : (
-                  <p className="text-paragraph-xs text-text-sub-600">{aiSettings ? `The organization's hours: ${hoursSummary(aiSettings.rules.callingHours)}` : "The organization's calling hours (Settings → WhatsApp → Sending rules)."}</p>
+                  <p className="text-paragraph-xs text-text-sub-600">{aiSettings ? `Horário da organização: ${hoursSummary(aiSettings.rules.callingHours)}` : "Horário de ligações da organização (Configurações → WhatsApp → Regras de envio)."}</p>
                 )}
               </div>
             </div>
           </Modal.Body>
           <Modal.Footer>
             <Modal.Close asChild>
-              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancel</Button.Root>
+              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancelar</Button.Root>
             </Modal.Close>
             <Button.Root variant="primary" mode="filled" size="small" disabled={saving || !canSave} onClick={() => void save()}>
               {saving && <RiLoader4Line className="size-4 animate-spin" aria-hidden="true" />}
-              {formFor === "new" ? "Add number" : "Save"}
+              {formFor === "new" ? "Adicionar número" : "Salvar"}
             </Button.Root>
           </Modal.Footer>
         </Modal.Content>
@@ -510,15 +510,15 @@ export function CallingStationsSettings() {
       <Modal.Root open={proxyFormFor !== null} onOpenChange={(open) => { if (!open && !saving) setProxyFormFor(null); }}>
         <Modal.Content>
           <Modal.Header icon={RiGlobalLine}>
-            <Modal.Title>{proxyFormFor === "new" ? "Add an IP" : "Edit IP"}</Modal.Title>
-            <Modal.Description>A proxy a calling number&apos;s browser goes out through. It can be assigned to one number.</Modal.Description>
+            <Modal.Title>{proxyFormFor === "new" ? "Adicionar IP" : "Editar IP"}</Modal.Title>
+            <Modal.Description>Um proxy pelo qual o navegador de um número de ligação acessa a internet. Pode ser atribuído a um número.</Modal.Description>
           </Modal.Header>
           <Modal.Body className="space-y-3">
             {proxyFormError && <FormError>{proxyFormError}</FormError>}
-            <TextField label="Label" autoFocus value={proxyDraft.label} onChange={(label) => setProxyDraft((d) => ({ ...d, label }))} placeholder="Mumbai ISP 1" disabled={saving} />
+            <TextField label="Rótulo" autoFocus value={proxyDraft.label} onChange={(label) => setProxyDraft((d) => ({ ...d, label }))} placeholder="ISP Mumbai 1" disabled={saving} />
             <div className="grid grid-cols-[8rem_1fr_6rem] gap-3">
               <div>
-                <label className="mb-1.5 block text-label-sm text-text-strong-950">Protocol</label>
+                <label className="mb-1.5 block text-label-sm text-text-strong-950">Protocolo</label>
                 <Select.Root size="small" value={proxyDraft.protocol} onValueChange={(protocol) => setProxyDraft((d) => ({ ...d, protocol: protocol as ProxyProtocol }))} disabled={saving}>
                   <Select.Trigger><Select.Value /></Select.Trigger>
                   <Select.Content>
@@ -529,35 +529,35 @@ export function CallingStationsSettings() {
                 </Select.Root>
               </div>
               <TextField label="Host" value={proxyDraft.host} onChange={(host) => setProxyDraft((d) => ({ ...d, host }))} placeholder="203.0.113.10" disabled={saving} />
-              <TextField label="Port" inputMode="numeric" value={proxyDraft.port} onChange={(port) => setProxyDraft((d) => ({ ...d, port }))} placeholder="1080" disabled={saving} />
+              <TextField label="Porta" inputMode="numeric" value={proxyDraft.port} onChange={(port) => setProxyDraft((d) => ({ ...d, port }))} placeholder="1080" disabled={saving} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <TextField label="Username" autoComplete="off" value={proxyDraft.username} onChange={(username) => setProxyDraft((d) => ({ ...d, username }))} disabled={saving} />
+              <TextField label="Usuário" autoComplete="off" value={proxyDraft.username} onChange={(username) => setProxyDraft((d) => ({ ...d, username }))} disabled={saving} />
               <TextField
-                label="Password"
+                label="Senha"
                 type="password"
                 autoComplete="new-password"
                 value={proxyDraft.password}
                 onChange={(password) => setProxyDraft((d) => ({ ...d, password }))}
-                placeholder={editingProxy?.hasPassword ? "Saved — leave blank to keep" : ""}
+                placeholder={editingProxy?.hasPassword ? "Salva — deixe em branco para manter" : ""}
                 disabled={saving}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <TextField label="Country" value={proxyDraft.country} onChange={(country) => setProxyDraft((d) => ({ ...d, country }))} placeholder="IN" disabled={saving} />
-              <TextField label="Time zone" value={proxyDraft.timezone} onChange={(timezone) => setProxyDraft((d) => ({ ...d, timezone }))} placeholder="Asia/Kolkata" disabled={saving} />
+              <TextField label="País" value={proxyDraft.country} onChange={(country) => setProxyDraft((d) => ({ ...d, country }))} placeholder="IN" disabled={saving} />
+              <TextField label="Fuso horário" value={proxyDraft.timezone} onChange={(timezone) => setProxyDraft((d) => ({ ...d, timezone }))} placeholder="Asia/Kolkata" disabled={saving} />
             </div>
-            <TextField label="Provider" value={proxyDraft.provider} onChange={(provider) => setProxyDraft((d) => ({ ...d, provider }))} disabled={saving} />
-            <TextField label="Notes" value={proxyDraft.notes} onChange={(notes) => setProxyDraft((d) => ({ ...d, notes }))} disabled={saving} />
+            <TextField label="Provedor" value={proxyDraft.provider} onChange={(provider) => setProxyDraft((d) => ({ ...d, provider }))} disabled={saving} />
+            <TextField label="Observações" value={proxyDraft.notes} onChange={(notes) => setProxyDraft((d) => ({ ...d, notes }))} disabled={saving} />
           </Modal.Body>
           <Modal.Footer>
             <Modal.Close asChild>
-              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancel</Button.Root>
+              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancelar</Button.Root>
             </Modal.Close>
             <Button.Root variant="primary" mode="filled" size="small" disabled={saving || !canSaveProxy} onClick={() => void saveProxy()}>
               {saving && <RiLoader4Line className="size-4 animate-spin" aria-hidden="true" />}
-              {proxyFormFor === "new" ? "Add IP" : "Save"}
+              {proxyFormFor === "new" ? "Adicionar IP" : "Salvar"}
             </Button.Root>
           </Modal.Footer>
         </Modal.Content>
@@ -566,16 +566,16 @@ export function CallingStationsSettings() {
       <Modal.Root open={deletingProxy !== null} onOpenChange={(open) => { if (!open && !saving) setDeletingProxy(null); }}>
         <Modal.Content>
           <Modal.Header icon={RiDeleteBinLine}>
-            <Modal.Title>Delete {deletingProxy?.label}?</Modal.Title>
-            <Modal.Description>The IP is removed from this list. The proxy itself is not cancelled with your provider.</Modal.Description>
+            <Modal.Title>Excluir {deletingProxy?.label}?</Modal.Title>
+            <Modal.Description>O IP é removido desta lista. O contrato do proxy com o provedor não é cancelado.</Modal.Description>
           </Modal.Header>
           <Modal.Footer>
             <Modal.Close asChild>
-              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancel</Button.Root>
+              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancelar</Button.Root>
             </Modal.Close>
             <Button.Root variant="error" mode="filled" size="small" disabled={saving} onClick={() => void confirmDeleteProxy()}>
               {saving && <RiLoader4Line className="size-4 animate-spin" aria-hidden="true" />}
-              Delete
+              Excluir
             </Button.Root>
           </Modal.Footer>
         </Modal.Content>
@@ -584,20 +584,20 @@ export function CallingStationsSettings() {
       <Modal.Root open={wrongAccount !== null} onOpenChange={(open) => { if (!open && wrongAccount) setPutOff((current) => new Set(current).add(wrongAccount.id)); }}>
         <Modal.Content>
           <Modal.Header icon={RiLinkM}>
-            <Modal.Title>Linked to a different WhatsApp number</Modal.Title>
+            <Modal.Title>Vinculado a outro número de WhatsApp</Modal.Title>
             <Modal.Description>
               {wrongAccount
-                ? `${wrongAccount.name}'s WhatsApp Web is logged in as ${wrongAccount.linkedPhone}, not ${wrongAccount.phone}. Calls go out from the logged-in number, so this number won't call until you choose.`
+                ? `O WhatsApp Web de ${wrongAccount.name} está conectado como ${wrongAccount.linkedPhone}, e não como ${wrongAccount.phone}. As ligações saem do número conectado, então este número não ligará até você escolher.`
                 : ""}
             </Modal.Description>
           </Modal.Header>
           {wrongAccount && (
             <Modal.Body className="space-y-2 text-paragraph-sm text-text-sub-600">
               <p>
-                <span className="text-label-sm text-text-strong-950">Use {wrongAccount.linkedPhone}</span> — keep this login and make it this calling number&apos;s number.
+                <span className="text-label-sm text-text-strong-950">Usar {wrongAccount.linkedPhone}</span> — mantenha este login e faça dele o número desta linha de ligação.
               </p>
               <p>
-                <span className="text-label-sm text-text-strong-950">Link {wrongAccount.phone} instead</span> — discard this login (the number keeps its browser fingerprint) and link again from the phone with {wrongAccount.phone}. Afterwards, remove the extra device from {wrongAccount.linkedPhone}&apos;s WhatsApp → Linked devices.
+                <span className="text-label-sm text-text-strong-950">Vincular {wrongAccount.phone}</span> — descarte este login (o número mantém a impressão digital do navegador) e vincule novamente pelo celular com {wrongAccount.phone}. Depois, remova o dispositivo extra em WhatsApp → Dispositivos conectados de {wrongAccount.linkedPhone}.
               </p>
             </Modal.Body>
           )}
@@ -609,7 +609,7 @@ export function CallingStationsSettings() {
               disabled={wrongAccount !== null && busyId === wrongAccount.id}
               onClick={() => wrongAccount && setPutOff((current) => new Set(current).add(wrongAccount.id))}
             >
-              Decide later
+              Decidir depois
             </Button.Root>
             <Button.Root
               variant="neutral"
@@ -618,7 +618,7 @@ export function CallingStationsSettings() {
               disabled={wrongAccount !== null && busyId === wrongAccount.id}
               onClick={() => wrongAccount && void act(wrongAccount, () => startStationLink(wrongAccount.id, { fresh: true }))}
             >
-              Link {wrongAccount?.phone} instead
+              Vincular {wrongAccount?.phone}
             </Button.Root>
             <Button.Root
               variant="primary"
@@ -627,7 +627,7 @@ export function CallingStationsSettings() {
               disabled={wrongAccount !== null && busyId === wrongAccount.id}
               onClick={() => wrongAccount && void act(wrongAccount, () => updateCallingStation(wrongAccount.id, { phone: wrongAccount.linkedPhone! }))}
             >
-              Use {wrongAccount?.linkedPhone}
+              Usar {wrongAccount?.linkedPhone}
             </Button.Root>
           </Modal.Footer>
         </Modal.Content>
@@ -636,18 +636,18 @@ export function CallingStationsSettings() {
       <Modal.Root open={deleting !== null} onOpenChange={(open) => { if (!open && !saving) setDeleting(null); }}>
         <Modal.Content>
           <Modal.Header icon={RiDeleteBinLine}>
-            <Modal.Title>Delete {deleting?.name}?</Modal.Title>
+            <Modal.Title>Excluir {deleting?.name}?</Modal.Title>
             <Modal.Description>
-              {deleting?.phone} stops being available for AI agent calls. Its recordings and call history stay. The browser profile itself is not deleted.
+              {deleting?.phone} deixará de estar disponível para ligações do agente de IA. As gravações e o histórico de ligações permanecem. O perfil do navegador não é excluído.
             </Modal.Description>
           </Modal.Header>
           <Modal.Footer>
             <Modal.Close asChild>
-              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancel</Button.Root>
+              <Button.Root variant="neutral" mode="stroke" size="small" disabled={saving}>Cancelar</Button.Root>
             </Modal.Close>
             <Button.Root variant="error" mode="filled" size="small" disabled={saving} onClick={() => void confirmDelete()}>
               {saving && <RiLoader4Line className="size-4 animate-spin" aria-hidden="true" />}
-              Delete
+              Excluir
             </Button.Root>
           </Modal.Footer>
         </Modal.Content>
@@ -685,12 +685,12 @@ function StationCard({ station, ai, rules, busy, onLink, onCancelLink, onToggle,
               {station.busyCallId && (
                 <Badge.Root variant="light" size="medium" color="blue">
                   <RiLoader4Line className="size-3 animate-spin" aria-hidden="true" />
-                  On a call
+                  Em ligação
                 </Badge.Root>
               )}
               {station.openOn && !station.busyCallId && (
-                <Badge.Root variant="light" size="medium" color="green" title={`WhatsApp Web is kept open on ${station.openOn}, so calls start right away`}>
-                  Ready on {station.openOn}
+                <Badge.Root variant="light" size="medium" color="green" title={`O WhatsApp Web fica aberto em ${station.openOn}, para que as ligações comecem imediatamente`}>
+                  Pronto em {station.openOn}
                 </Badge.Root>
               )}
             </div>
@@ -699,60 +699,60 @@ function StationCard({ station, ai, rules, busy, onLink, onCancelLink, onToggle,
               {station.gologinProfileId ? ` · ${station.gologinProfileId}` : ""}
             </p>
             <p className="text-paragraph-xs text-text-soft-400">
-              {station.lastSeenAt ? `Worker seen ${timeAgo(station.lastSeenAt)}` : "No worker has opened it yet"}
-              {station.lastCallAt ? ` · last call ${timeAgo(station.lastCallAt)}` : ""}
+              {station.lastSeenAt ? `Worker visto ${timeAgo(station.lastSeenAt)}` : "Nenhum worker abriu ainda"}
+              {station.lastCallAt ? ` · última ligação ${timeAgo(station.lastCallAt)}` : ""}
             </p>
-            <p className="text-paragraph-xs text-text-sub-600">{station.proxyLabel ? `IP: ${station.proxyLabel}` : "Own IP"}</p>
+            <p className="text-paragraph-xs text-text-sub-600">{station.proxyLabel ? `IP: ${station.proxyLabel}` : "IP próprio"}</p>
             {rules && (
               <p className="text-paragraph-xs text-text-sub-600">
-                AI campaigns: {ai?.callsPerDay != null ? `${ai.callsPerDay} calls a day` : `${rules.callsPerDay} calls a day (rule)`} ·{" "}
-                {ai?.callingHours ? hoursSummary(ai.callingHours) : "organization's calling hours"}
+                Campanhas de IA: {ai?.callsPerDay != null ? `${ai.callsPerDay} ligações por dia` : `${rules.callsPerDay} ligações por dia (regra)`} ·{" "}
+                {ai?.callingHours ? hoursSummary(ai.callingHours) : "horário de ligações da organização"}
               </p>
             )}
             {station.linkedPhone && (
               <p className={cn("text-paragraph-xs tabular-nums", wrongAccount ? "text-error-base" : "text-text-sub-600")}>
-                WhatsApp: logged in as {station.linkedPhone}
-                {wrongAccount ? " — not this number, so it won't call" : ""}
+                WhatsApp: conectado como {station.linkedPhone}
+                {wrongAccount ? " — não é este número, então não fará ligações" : ""}
               </p>
             )}
             {wrongAccount && (
               <div>
                 <Button.Root variant="neutral" mode="stroke" size="xxsmall" disabled={busy} onClick={onUseLinkedPhone}>
-                  Use {station.linkedPhone} as this number
+                  Usar {station.linkedPhone} como este número
                 </Button.Root>
               </div>
             )}
             {station.launcher === "cloak" && (
               <p className="text-paragraph-xs text-text-soft-400">
                 {station.profile.savedAt
-                  ? `Profile: saved ${timeAgo(station.profile.savedAt)}${station.profile.bytes !== null ? ` · ${(station.profile.bytes / 1_000_000).toFixed(1)} MB` : ""} · v${station.profile.version}`
-                  : "Profile: not saved yet"}
+                  ? `Perfil: salvo ${timeAgo(station.profile.savedAt)}${station.profile.bytes !== null ? ` · ${(station.profile.bytes / 1_000_000).toFixed(1)} MB` : ""} · v${station.profile.version}`
+                  : "Perfil: ainda não salvo"}
               </p>
             )}
             {station.lastError && <p className="text-paragraph-xs text-error-base">{station.lastError}</p>}
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {linking ? (
-              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={busy} onClick={onCancelLink}>Cancel linking</Button.Root>
+              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={busy} onClick={onCancelLink}>Cancelar vinculação</Button.Root>
             ) : (
               <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={busy || station.busyCallId !== null} onClick={onLink}>
                 <Button.Icon as={RiLinkM} />
-                {station.status === "onboarding" ? "Link WhatsApp" : "Relink WhatsApp"}
+                {station.status === "onboarding" ? "Vincular WhatsApp" : "Vincular novamente"}
               </Button.Root>
             )}
             {pausable && (
               <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={busy} onClick={onToggle}>
                 <Button.Icon as={station.status === "paused" ? RiPlayCircleLine : RiPauseCircleLine} />
-                {station.status === "paused" ? "Resume" : "Pause"}
+                {station.status === "paused" ? "Retomar" : "Pausar"}
               </Button.Root>
             )}
             <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={busy} onClick={onEdit}>
               <Button.Icon as={RiPencilLine} />
-              Edit
+              Editar
             </Button.Root>
             <Button.Root variant="error" mode="stroke" size="xsmall" disabled={busy} onClick={onDelete}>
               <Button.Icon as={RiDeleteBinLine} />
-              Delete
+              Excluir
             </Button.Root>
           </div>
         </div>
@@ -773,7 +773,7 @@ function ProxyCard({ proxy, onEdit, onDelete }: { proxy: CallingProxy; onEdit: (
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="truncate text-label-md text-text-strong-950">{proxy.label}</h3>
               <Badge.Root variant="light" size="medium" color={assigned ? "blue" : "gray"}>
-                {assigned ? `Used by ${proxy.stationName ?? "a number"}` : "Unassigned"}
+                {assigned ? `Usado por ${proxy.stationName ?? "um número"}` : "Não atribuído"}
               </Badge.Root>
             </div>
             <p className="font-mono text-paragraph-sm text-text-sub-600">{proxy.protocol}://{proxy.host}:{proxy.port}</p>
@@ -782,18 +782,18 @@ function ProxyCard({ proxy, onEdit, onDelete }: { proxy: CallingProxy; onEdit: (
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={onEdit}>
               <Button.Icon as={RiPencilLine} />
-              Edit
+              Editar
             </Button.Root>
             <Button.Root
               variant="error"
               mode="stroke"
               size="xsmall"
               disabled={assigned}
-              title={assigned ? "Unassign it from its number first" : undefined}
+              title={assigned ? "Desatribua-o do número primeiro" : undefined}
               onClick={onDelete}
             >
               <Button.Icon as={RiDeleteBinLine} />
-              Delete
+              Excluir
             </Button.Root>
           </div>
         </div>
@@ -807,10 +807,10 @@ function LinkPanel({ link }: { link: NonNullable<CallingStation["link"]> }) {
   return (
     <div className="space-y-4 rounded-xl bg-bg-weak-50 p-4 ring-1 ring-inset ring-stroke-soft-200">
       <div className="space-y-3">
-        <p className="text-label-sm text-text-strong-950">Link this number to WhatsApp Web</p>
+        <p className="text-label-sm text-text-strong-950">Vincule este número ao WhatsApp Web</p>
         {link.code ? (
           <p
-            aria-label={`Linking code ${link.code.split("").join(" ")}`}
+            aria-label={`Código de vinculação ${link.code.split("").join(" ")}`}
             className="w-fit rounded-lg bg-bg-white-0 px-4 py-2 font-mono text-title-h4 tracking-[0.25em] text-text-strong-950 ring-1 ring-inset ring-stroke-soft-200"
           >
             {link.code}
@@ -818,11 +818,11 @@ function LinkPanel({ link }: { link: NonNullable<CallingStation["link"]> }) {
         ) : (
           <p className="flex items-center gap-2 text-paragraph-sm text-text-sub-600">
             <RiLoader4Line className="size-4 animate-spin" aria-hidden="true" />
-            {link.screenshot ? "Waiting for a code. If WhatsApp Web shows a QR instead, scan it." : "Waiting for a call worker to open WhatsApp Web…"}
+            {link.screenshot ? "Aguardando um código. Se o WhatsApp Web mostrar um QR, escaneie-o." : "Aguardando um worker abrir o WhatsApp Web…"}
           </p>
         )}
         <p className="text-paragraph-sm text-text-sub-600">
-          On the phone: WhatsApp → Settings → Linked devices → Link a device → Link with phone number instead, then type this code.
+          No celular: WhatsApp → Configurações → Dispositivos conectados → Conectar um dispositivo → Conectar com número de telefone, depois digite este código.
         </p>
       </div>
       {link.screenshot && (
@@ -831,21 +831,21 @@ function LinkPanel({ link }: { link: NonNullable<CallingStation["link"]> }) {
           <button
             type="button"
             onClick={() => setZoomed(true)}
-            aria-label="Open WhatsApp Web's login screen full size"
+            aria-label="Abrir a tela de login do WhatsApp Web em tamanho completo"
             className="block w-full cursor-zoom-in overflow-hidden rounded-lg bg-bg-white-0 ring-1 ring-inset ring-stroke-soft-200"
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- a data: URL screenshot from the worker */}
-            <img src={link.screenshot} alt="WhatsApp Web's login screen in the cloud browser" className="block w-full" />
+            <img src={link.screenshot} alt="Tela de login do WhatsApp Web no navegador em nuvem" className="block w-full" />
           </button>
-          <p className="text-paragraph-xs text-text-soft-400">The screenshot refreshes every few seconds. Click it to open it full size.</p>
+          <p className="text-paragraph-xs text-text-soft-400">A captura é atualizada a cada poucos segundos. Clique para abrir em tamanho completo.</p>
           <Modal.Root open={zoomed} onOpenChange={setZoomed}>
             <Modal.Content className="max-w-[min(96vw,1400px)]">
               <Modal.Header>
-                <Modal.Title>WhatsApp Web login screen</Modal.Title>
+                <Modal.Title>Tela de login do WhatsApp Web</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 {/* eslint-disable-next-line @next/next/no-img-element -- a data: URL screenshot from the worker */}
-                <img src={link.screenshot} alt="WhatsApp Web's login screen in the cloud browser, full size" className="block w-full rounded-lg" />
+                <img src={link.screenshot} alt="Tela de login do WhatsApp Web no navegador em nuvem, em tamanho completo" className="block w-full rounded-lg" />
               </Modal.Body>
             </Modal.Content>
           </Modal.Root>

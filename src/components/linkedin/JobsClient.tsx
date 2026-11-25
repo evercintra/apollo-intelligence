@@ -37,9 +37,9 @@ type JobRun = {
 };
 
 const JOB_LABELS: Record<string, string> = {
-  "run-outreach": "Run Outreach",
-  "reset-daily-limits": "Reset Daily Limits",
-  "run-search-queue": "Run Search Queue",
+  "run-outreach": "Executar abordagem",
+  "reset-daily-limits": "Redefinir limites diários",
+  "run-search-queue": "Executar fila de buscas",
 };
 
 const LEVEL_TEXT: Record<string, string> = {
@@ -69,16 +69,16 @@ function fmt(d: string | Date): string {
 
 function ago(d: string | Date): string {
   const diff = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
-  if (diff < 60) return "just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 60) return "agora mesmo";
+  if (diff < 3600) return `há ${Math.floor(diff / 60)} min`;
+  if (diff < 86400) return `há ${Math.floor(diff / 3600)} h`;
+  return `há ${Math.floor(diff / 86400)} d`;
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === "SUCCESS") return <StatusDotBadge status="good">Success</StatusDotBadge>;
-  if (status === "FAILED") return <StatusDotBadge status="critical">Failed</StatusDotBadge>;
-  return <StatusDotBadge status="info">Running</StatusDotBadge>;
+  if (status === "SUCCESS") return <StatusDotBadge status="good">Sucesso</StatusDotBadge>;
+  if (status === "FAILED") return <StatusDotBadge status="critical">Falhou</StatusDotBadge>;
+  return <StatusDotBadge status="info">Em execução</StatusDotBadge>;
 }
 
 const COLUMNS = 6;
@@ -123,7 +123,7 @@ function RunRows({ run }: { run: JobRun }) {
           <div className="min-w-0">
             <p className="truncate text-label-sm text-text-strong-950" title={run.job}>{label}</p>
             <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">
-              {run.logCount.toLocaleString("en-US")} log line{run.logCount !== 1 ? "s" : ""}
+              {run.logCount.toLocaleString("pt-BR")} {run.logCount === 1 ? "linha de log" : "linhas de log"}
             </p>
           </div>
         </Table.Cell>
@@ -140,16 +140,16 @@ function RunRows({ run }: { run: JobRun }) {
         <Table.Cell className="whitespace-nowrap px-4 text-right text-paragraph-sm tabular-nums">
           {run.errorCount > 0 || run.warnCount > 0 ? (
             <span className="inline-flex items-center gap-2">
-              {run.errorCount > 0 && <span className="text-error-base">{run.errorCount} error{run.errorCount !== 1 ? "s" : ""}</span>}
-              {run.warnCount > 0 && <span className="text-warning-base">{run.warnCount} warn</span>}
+              {run.errorCount > 0 && <span className="text-error-base">{run.errorCount} {run.errorCount === 1 ? "erro" : "erros"}</span>}
+              {run.warnCount > 0 && <span className="text-warning-base">{run.warnCount} {run.warnCount === 1 ? "aviso" : "avisos"}</span>}
             </span>
           ) : (
-            <span className="text-text-soft-400">None</span>
+            <span className="text-text-soft-400">Nenhum</span>
           )}
         </Table.Cell>
         <Table.Cell className="px-4 text-text-sub-600">
           {expanded ? <RiArrowDownSLine className="size-5" aria-hidden="true" /> : <RiArrowRightSLine className="size-5" aria-hidden="true" />}
-          <span className="sr-only">{expanded ? "Hide logs" : "Show logs"}</span>
+          <span className="sr-only">{expanded ? "Ocultar logs" : "Mostrar logs"}</span>
         </Table.Cell>
       </Table.Row>
 
@@ -165,10 +165,10 @@ function RunRows({ run }: { run: JobRun }) {
               <div className="max-h-96 overflow-y-auto rounded-lg bg-bg-weak-50 px-4 py-3 ring-1 ring-inset ring-stroke-soft-200">
                 {loadingLogs ? (
                   <div className="flex justify-center py-6">
-                    <RiLoader4Line className="size-5 animate-spin text-text-soft-400" aria-label="Loading logs" />
+                    <RiLoader4Line className="size-5 animate-spin text-text-soft-400" aria-label="Carregando logs" />
                   </div>
                 ) : (logs?.length ?? 0) === 0 ? (
-                  <p className="text-paragraph-xs italic text-text-sub-600">No logs captured</p>
+                  <p className="text-paragraph-xs italic text-text-sub-600">Nenhum log registrado</p>
                 ) : (
                   <div className="space-y-0.5 font-mono text-paragraph-xs">
                     {logs!.map((log) => (
@@ -226,13 +226,13 @@ export function JobsClient({ runs, footer }: { runs: JobRun[]; footer?: ReactNod
 
   const summary =
     runs.length === 0
-      ? "Every run, with its log lines and errors"
-      : `On this page: ${successCount} succeeded, ${failedCount} failed${runningCount > 0 ? `, ${runningCount} running` : ""}. Select a run to read its logs.`;
+      ? "Todas as execuções, com seus logs e erros"
+      : `Nesta página: ${successCount} com sucesso, ${failedCount} falharam${runningCount > 0 ? `, ${runningCount} em execução` : ""}. Selecione uma execução para ler os logs.`;
 
   return (
     <Frame className="mt-5" aria-busy={isPending}>
       <FrameHeader
-        title="Runs"
+        title="Execuções"
         description={summary}
         actions={
           <>
@@ -244,11 +244,11 @@ export function JobsClient({ runs, footer }: { runs: JobRun[]; footer?: ReactNod
               disabled={!!triggering}
             >
               <Button.Icon as={triggering === "reset-daily-limits" ? RiLoader4Line : RiRefreshLine} className={cn(triggering === "reset-daily-limits" && "animate-spin")} />
-              Reset Daily Limits
+              Redefinir limites diários
             </Button.Root>
             <Button.Root variant="primary" mode="filled" size="xsmall" onClick={() => trigger("run-outreach")} disabled={!!triggering}>
               <Button.Icon as={triggering === "run-outreach" ? RiLoader4Line : RiPlayLine} className={cn(triggering === "run-outreach" && "animate-spin")} />
-              Run Outreach
+              Executar abordagem
             </Button.Root>
           </>
         }
@@ -256,7 +256,7 @@ export function JobsClient({ runs, footer }: { runs: JobRun[]; footer?: ReactNod
 
       {runs.length === 0 ? (
         <FramePanel>
-          <EmptyState icon={RiHistoryLine} title="No jobs run yet" description="Run Outreach above, or wait for the next scheduled run, and its history appears here." />
+          <EmptyState icon={RiHistoryLine} title="Nenhuma execução ainda" description="Execute a abordagem acima ou aguarde a próxima execução agendada para ver o histórico." />
         </FramePanel>
       ) : (
         <>
@@ -264,12 +264,12 @@ export function JobsClient({ runs, footer }: { runs: JobRun[]; footer?: ReactNod
             <Table.Root className="min-w-[760px]">
               <Table.Header>
                 <Table.Row>
-                  <Table.Head scope="col" className="px-4">Job</Table.Head>
+                  <Table.Head scope="col" className="px-4">Tarefa</Table.Head>
                   <Table.Head scope="col" className="w-32 px-4">Status</Table.Head>
-                  <Table.Head scope="col" className="w-40 px-4">Started</Table.Head>
-                  <Table.Head scope="col" className="w-28 px-4 text-right">Duration</Table.Head>
-                  <Table.Head scope="col" className="w-36 px-4 text-right">Problems</Table.Head>
-                  <Table.Head scope="col" className="w-12 px-4"><span className="sr-only">Expand</span></Table.Head>
+                  <Table.Head scope="col" className="w-40 px-4">Início</Table.Head>
+                  <Table.Head scope="col" className="w-28 px-4 text-right">Duração</Table.Head>
+                  <Table.Head scope="col" className="w-36 px-4 text-right">Problemas</Table.Head>
+                  <Table.Head scope="col" className="w-12 px-4"><span className="sr-only">Expandir</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>

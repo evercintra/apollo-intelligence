@@ -8,18 +8,18 @@ import type {
 type BadgeColor = React.ComponentProps<typeof Badge.Root>["color"];
 
 export const CAMPAIGN_STATUS: Record<WhatsappCampaignStatus, { label: string; color: BadgeColor }> = {
-  active: { label: "Active", color: "green" },
-  paused: { label: "Paused", color: "orange" },
+  active: { label: "Ativa", color: "green" },
+  paused: { label: "Pausada", color: "orange" },
 };
 
 /** Every lead status, in sequence order, with its label and badge colour. */
 export const LEAD_STATUS: Record<WhatsappCampaignLeadStatus, { label: string; color: BadgeColor }> = {
-  queued: { label: "Queued", color: "gray" },
-  in_sequence: { label: "In sequence", color: "blue" },
-  completed: { label: "Completed", color: "purple" },
-  replied: { label: "Replied", color: "green" },
-  stopped: { label: "Stopped", color: "orange" },
-  failed: { label: "Failed", color: "red" },
+  queued: { label: "Na fila", color: "gray" },
+  in_sequence: { label: "Em sequência", color: "purple" },
+  completed: { label: "Concluído", color: "purple" },
+  replied: { label: "Respondeu", color: "green" },
+  stopped: { label: "Interrompido", color: "orange" },
+  failed: { label: "Falhou", color: "red" },
 };
 
 /**
@@ -63,18 +63,18 @@ export function campaignFunnel(s: WhatsappCampaignStats): CampaignFunnel {
 
 /** Why a campaign cannot launch yet, or null. Mirrors the API's own checks. */
 export function launchBlocker(input: { connectedSenders: number; leads: number; firstMessage: string | undefined }): string | null {
-  if (input.connectedSenders === 0) return "Choose at least one connected WhatsApp number";
-  if (input.leads === 0) return "Add at least one lead";
-  if (!input.firstMessage?.trim()) return "Write the first message";
+  if (input.connectedSenders === 0) return "Escolha pelo menos um número do WhatsApp conectado";
+  if (input.leads === 0) return "Adicione pelo menos um lead";
+  if (!input.firstMessage?.trim()) return "Escreva a primeira mensagem";
   return null;
 }
 
 export function formatDelay(hours: number): string {
   if (hours % 24 === 0) {
     const days = hours / 24;
-    return `${days} ${days === 1 ? "day" : "days"}`;
+    return `${days} ${days === 1 ? "dia" : "dias"}`;
   }
-  return `${hours} ${hours === 1 ? "hour" : "hours"}`;
+  return `${hours} ${hours === 1 ? "hora" : "horas"}`;
 }
 
 /** "5m ago" / "in 3h", for a timestamp either side of now. */
@@ -86,10 +86,10 @@ export function relativeTime(iso: string | null): string {
   const abs = Math.abs(diffMinutes);
   const past = diffMinutes < 0;
   let text: string;
-  if (abs < 1) return "just now";
+  if (abs < 1) return "agora";
   if (abs < 60) text = `${abs}m`;
   else if (abs < 60 * 24) text = `${Math.round(abs / 60)}h`;
   else if (abs < 60 * 24 * 30) text = `${Math.round(abs / (60 * 24))}d`;
-  else return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  return past ? `${text} ago` : `in ${text}`;
+  else return date.toLocaleDateString("pt-BR", { month: "short", day: "numeric" });
+  return past ? `há ${text}` : `em ${text}`;
 }

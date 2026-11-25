@@ -37,13 +37,13 @@ import { asList, asObject, CATEGORY_LABELS, crmFetch, errorMessage, timeAgo } fr
 type Sequence = Record<string, unknown>;
 type SubcategoryReference = { name: string; categoryKey: string };
 
-const DEFAULT_IMMEDIATE_GOAL = "Respond to the latest inbound message and move the conversation forward naturally.";
+const DEFAULT_IMMEDIATE_GOAL = "Responda à última mensagem recebida e faça a conversa avançar naturalmente.";
 
 type Status = "published" | "draft" | "archived";
 const STATUS_META: Record<Status, { label: string; color: React.ComponentProps<typeof Badge.Root>["color"] }> = {
-  published: { label: "Published", color: "green" },
-  draft: { label: "Draft", color: "gray" },
-  archived: { label: "Archived", color: "orange" },
+  published: { label: "Publicada", color: "green" },
+  draft: { label: "Rascunho", color: "gray" },
+  archived: { label: "Arquivada", color: "orange" },
 };
 const TABS = ["all", "published", "draft", "archived"] as const;
 type Tab = (typeof TABS)[number];
@@ -86,7 +86,7 @@ export default function CrmSequencesClient() {
       for (const category of categories) {
         for (const subcategory of asList<Record<string, unknown>>(category.subcategories)) {
           references[String(subcategory.id)] = {
-            name: String(subcategory.name ?? "Unnamed subcategory"),
+            name: String(subcategory.name ?? "Subcategoria sem nome"),
             categoryKey: String(subcategory.categoryKey ?? category.key ?? "other"),
           };
         }
@@ -113,7 +113,7 @@ export default function CrmSequencesClient() {
         body: JSON.stringify(body),
       }));
       const id = asObject(result.sequence).id;
-      if (!id) throw new Error("The new sequence did not return an ID");
+      if (!id) throw new Error("A nova sequência não retornou um ID");
       router.push(`/crm/sequences/${String(id)}`);
     } catch (cause) {
       setError(errorMessage(cause));
@@ -124,14 +124,14 @@ export default function CrmSequencesClient() {
 
   const remove = async (sequence: Sequence) => {
     const id = String(sequence.id);
-    const name = String(sequence.name ?? "Unnamed sequence");
+    const name = String(sequence.name ?? "Sequência sem nome");
     const assignmentCount = asList<string>(sequence.assignedSubcategoryIds).length;
     const confirmed = await dialogs.confirm({
-      title: "Delete sequence?",
+      title: "Excluir sequência?",
       description: assignmentCount
-        ? `“${name}” will be permanently deleted and removed from ${assignmentCount} subcategor${assignmentCount === 1 ? "y" : "ies"}. Sequences with CRM activity history cannot be deleted.`
-        : `“${name}” will be permanently deleted. This cannot be undone. Sequences with CRM activity history cannot be deleted.`,
-      confirmLabel: "Delete sequence",
+        ? `“${name}” será excluída permanentemente e removida de ${assignmentCount} ${assignmentCount === 1 ? "subcategoria" : "subcategorias"}. Sequências com histórico de atividades no CRM não podem ser excluídas.`
+        : `“${name}” será excluída permanentemente. Isso não pode ser desfeito. Sequências com histórico de atividades no CRM não podem ser excluídas.`,
+      confirmLabel: "Excluir sequência",
       variant: "error",
     });
     if (!confirmed) return;
@@ -202,35 +202,35 @@ export default function CrmSequencesClient() {
   return (
     <>
       <PageHeader
-        title="Sequences"
-        description="Reusable reply flows for CRM subcategories. The immediate reply waits for you unless its sequence sends it after a 15-minute hold; with Auto-send on, a sequence's follow-ups send themselves."
+        title="Sequências"
+        description="Fluxos de resposta reutilizáveis para subcategorias do CRM. A resposta imediata espera por você, a menos que a sequência a envie após 15 minutos; com Envio automático ligado, os acompanhamentos se enviam sozinhos."
         actions={
           <Button.Root variant="primary" mode="filled" size="small" disabled={Boolean(busyKey)} onClick={() => setShowCreate(true)}>
             <Button.Icon as={RiAddLine} />
-            Create sequence
+            Criar sequência
           </Button.Root>
         }
       />
 
       <KpiStrip className="mt-6" columns={3}>
-        <KpiCell icon={RiSendPlaneLine} label="Published" value={loaded ? counts.published.toLocaleString() : "—"} context={loaded ? `${counts.draft} draft · ${counts.archived} archived` : undefined} hint="Only a published version runs. Editing a sequence changes its draft until you publish again." />
-        <KpiCell icon={RiGitBranchLine} label="In use" value={loaded ? inUse.toLocaleString() : "—"} context={loaded ? `Assigned to ${covered} subcategor${covered === 1 ? "y" : "ies"}` : undefined} hint="Sequences assigned to at least one subcategory in CRM Settings. A reply classified into that subcategory starts it." />
-        <KpiCell icon={RiLoopLeftLine} label="Not assigned" value={loaded ? Math.max(counts.all - counts.archived - inUse, 0).toLocaleString() : "—"} context="Built but not started by any subcategory" />
+        <KpiCell icon={RiSendPlaneLine} label="Publicadas" value={loaded ? counts.published.toLocaleString("pt-BR") : "—"} context={loaded ? `${counts.draft} rascunho · ${counts.archived} arquivada` : undefined} hint="Só a versão publicada é executada. Editar uma sequência altera o rascunho até você publicar de novo." />
+        <KpiCell icon={RiGitBranchLine} label="Em uso" value={loaded ? inUse.toLocaleString("pt-BR") : "—"} context={loaded ? `Atribuída a ${covered} ${covered === 1 ? "subcategoria" : "subcategorias"}` : undefined} hint="Sequências atribuídas a pelo menos uma subcategoria nas Configurações do CRM. Uma resposta classificada nela inicia a sequência." />
+        <KpiCell icon={RiLoopLeftLine} label="Não atribuídas" value={loaded ? Math.max(counts.all - counts.archived - inUse, 0).toLocaleString("pt-BR") : "—"} context="Criadas, mas não iniciadas por nenhuma subcategoria" />
       </KpiStrip>
 
       {error && <div className="mt-5"><ErrorState message={error} onRetry={() => void load()} /></div>}
 
       <Frame className="mt-5">
         <FrameHeader
-          title="Sequence library"
-          description="Build once, publish a version, then assign it to subcategories from CRM Settings."
+          title="Biblioteca de sequências"
+          description="Crie uma vez, publique uma versão e atribua às subcategorias nas Configurações do CRM."
           actions={<>
             <SegmentedControl.Root value={tab} onValueChange={(value) => setTab(value as Tab)} className="w-full sm:w-auto">
               <SegmentedControl.List className="w-full sm:w-auto">
                 {TABS.map((value) => (
                   <SegmentedControl.Trigger key={value} value={value} className="gap-1 px-1.5 text-label-xs sm:gap-1.5 sm:px-3 sm:text-label-sm">
-                    {value === "all" ? "All" : STATUS_META[value].label}
-                    <span className="tabular-nums text-text-soft-400">{counts[value]}</span>
+                    {value === "all" ? "Todas" : STATUS_META[value].label}
+                    <span className="tabular-nums text-text-sub-600">{counts[value]}</span>
                   </SegmentedControl.Trigger>
                 ))}
               </SegmentedControl.List>
@@ -238,7 +238,7 @@ export default function CrmSequencesClient() {
             <Input.Root size="small" className="w-full sm:w-56">
               <Input.Wrapper>
                 <Input.Icon as={RiSearchLine} />
-                <Input.Input type="search" aria-label="Search sequences" placeholder="Search sequences…" value={search} onChange={(event) => setSearch(event.target.value)} />
+                <Input.Input type="search" aria-label="Buscar sequências" placeholder="Buscar sequências…" value={search} onChange={(event) => setSearch(event.target.value)} />
               </Input.Wrapper>
             </Input.Root>
           </>}
@@ -247,20 +247,20 @@ export default function CrmSequencesClient() {
           {!loaded && loading ? <RowsSkeleton rows={5} />
             : filtered.length === 0 ? (
               sequences.length === 0
-                ? <EmptyState icon={RiLoopLeftLine} title="No sequences yet" description="Create a sequence, add its follow-up steps, publish it, then assign it from CRM Settings." action={<Button.Root variant="primary" mode="filled" size="small" onClick={() => setShowCreate(true)}><Button.Icon as={RiAddLine} />Create sequence</Button.Root>} />
-                : <EmptyState icon={RiSearchLine} title="No sequences match" description="Try another status or search." />
+                ? <EmptyState icon={RiLoopLeftLine} title="Ainda não há sequências" description="Crie uma sequência, adicione as etapas de acompanhamento, publique-a e atribua nas Configurações do CRM." action={<Button.Root variant="primary" mode="filled" size="small" onClick={() => setShowCreate(true)}><Button.Icon as={RiAddLine} />Criar sequência</Button.Root>} />
+                : <EmptyState icon={RiSearchLine} title="Nenhuma sequência encontrada" description="Tente outro status ou busca." />
             ) : (
               <div aria-busy={loading || undefined} className={cn("overflow-x-auto p-2 transition-opacity", loading && "opacity-60")}>
                 <Table.Root className="min-w-[980px]" style={{ tableLayout: "fixed" }}>
-                  <caption className="sr-only">CRM sequence library</caption>
+                  <caption className="sr-only">Biblioteca de sequências do CRM</caption>
                   <Table.Header>
                     <Table.Row>
-                      <Table.Head scope="col" className="w-[27%] px-4">Sequence</Table.Head>
-                      <Table.Head scope="col" className="w-[18%] px-4">Steps</Table.Head>
-                      <Table.Head scope="col" className="w-[25%] px-4">Used for</Table.Head>
-                      <Table.Head scope="col" className="w-[15%] px-4" title="Follow-ups drafted by the AI send themselves, one per account every 30 minutes, inside sending hours. The second switch sends the immediate reply too, after a 15-minute hold.">Auto-send</Table.Head>
+                      <Table.Head scope="col" className="w-[27%] px-4">Sequência</Table.Head>
+                      <Table.Head scope="col" className="w-[18%] px-4">Etapas</Table.Head>
+                      <Table.Head scope="col" className="w-[25%] px-4">Usada para</Table.Head>
+                      <Table.Head scope="col" className="w-[15%] px-4" title="Os acompanhamentos criados pela IA se enviam sozinhos, um por conta a cada 30 minutos, dentro do horário de envio. A segunda chave envia também a resposta imediata, após 15 minutos.">Envio automático</Table.Head>
                       <Table.Head scope="col" className="w-[12%] px-4">Status</Table.Head>
-                      <Table.Head scope="col" className="w-14 px-2"><span className="sr-only">Actions</span></Table.Head>
+                      <Table.Head scope="col" className="w-14 px-2"><span className="sr-only">Ações</span></Table.Head>
                     </Table.Row>
                   </Table.Header>
                   <Table.Body spacing={4}>
@@ -314,7 +314,7 @@ function SequenceRow({
   onToggleAutoSendReply: (sequence: Sequence, value: boolean) => Promise<void>;
 }) {
   const id = String(sequence.id);
-  const name = String(sequence.name ?? "Unnamed sequence");
+  const name = String(sequence.name ?? "Sequência sem nome");
   const steps = Number(sequence.draftStepCount ?? sequence.stepCount ?? 0);
   const status = sequenceStatus(sequence);
   const archived = status === "archived";
@@ -331,7 +331,7 @@ function SequenceRow({
   return (
     <Table.Row
       tabIndex={0}
-      className={cn("cursor-pointer outline-none focus-visible:[&>td]:bg-bg-weak-50", archived && "[&_td]:text-text-soft-400")}
+      className={cn("cursor-pointer outline-none focus-visible:[&>td]:bg-bg-weak-50", archived && "[&_td]:text-text-sub-600")}
       onClick={(event) => {
         if ((event.target as HTMLElement).closest("a, button, [role='menuitem']")) return;
         onOpen(id);
@@ -342,7 +342,7 @@ function SequenceRow({
         <div className="min-w-0">
           <Link href={`/crm/sequences/${id}`} className={cn("block truncate text-label-sm hover:text-primary-base", archived ? "text-text-sub-600" : "text-text-strong-950")} title={name}>{name}</Link>
           <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600" title={sequence.description ? String(sequence.description) : undefined}>
-            {sequence.description ? String(sequence.description) : updated ? `Updated ${updated}` : "No description"}
+            {sequence.description ? String(sequence.description) : updated ? `Atualizada ${updated}` : "Sem descrição"}
           </p>
         </div>
       </Table.Cell>
@@ -363,12 +363,12 @@ function SequenceRow({
             ))}
             {hidden.length > 0 && (
               <span title={hidden.map((item) => `${categoryLabel(item.categoryKey)} · ${item.name}`).join("\n")} className="inline-flex h-6 items-center rounded-md bg-bg-weak-50 px-2 text-label-xs text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200">
-                +{hidden.length} more
+                +{hidden.length} a mais
               </span>
             )}
           </div>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-paragraph-xs text-text-soft-400"><RiPriceTag3Line className="size-3.5" aria-hidden="true" />Not assigned</span>
+          <span className="inline-flex items-center gap-1.5 text-paragraph-xs text-text-sub-600"><RiPriceTag3Line className="size-3.5" aria-hidden="true" />Não atribuída</span>
         )}
       </Table.Cell>
       <Table.Cell className="px-4 py-3" onKeyDown={(event) => event.stopPropagation()}>
@@ -377,34 +377,34 @@ function SequenceRow({
             checked={autoSend}
             disabled={busy || archived}
             onCheckedChange={(value) => void onToggleAutoSend(sequence, value)}
-            aria-label={`Send ${name}'s follow-ups automatically`}
+            aria-label={`Enviar acompanhamentos de ${name} automaticamente`}
           />
-          <span className={cn("text-label-sm", autoSend ? "text-text-strong-950" : "text-text-sub-600")}>{autoSend ? "On" : "Off"}</span>
+          <span className={cn("text-label-sm", autoSend ? "text-text-strong-950" : "text-text-sub-600")}>{autoSend ? "Ligado" : "Desligado"}</span>
         </div>
         <div className="mt-1.5 flex items-center gap-2">
           <Switch.Root
             checked={autoSendReply}
             disabled={busy || archived}
             onCheckedChange={(value) => void onToggleAutoSendReply(sequence, value)}
-            aria-label={`Send ${name}'s immediate reply automatically`}
+            aria-label={`Enviar resposta imediata de ${name} automaticamente`}
           />
-          <span className={cn("text-paragraph-xs", autoSendReply ? "text-text-strong-950" : "text-text-sub-600")}>{autoSendReply ? "Reply sends after 15 min" : "Reply waits for you"}</span>
+          <span className={cn("text-paragraph-xs", autoSendReply ? "text-text-strong-950" : "text-text-sub-600")}>{autoSendReply ? "Resposta após 15 min" : "Resposta espera por você"}</span>
         </div>
         <p className="mt-1 truncate text-paragraph-xs text-text-sub-600">
-          {archived ? "Archived" : steps <= 1 ? "No follow-ups" : autoSend ? "Sends on its own" : "Waits for you"}
+          {archived ? "Arquivada" : steps <= 1 ? "Sem acompanhamentos" : autoSend ? "Envia sozinha" : "Espera por você"}
         </p>
       </Table.Cell>
       <Table.Cell className="px-4 py-3">
         <Badge.Root variant="lighter" size="medium" color={STATUS_META[status].color}>
           <Badge.Dot />{STATUS_META[status].label}
         </Badge.Root>
-        <p className="mt-1 truncate text-paragraph-xs text-text-sub-600">{status === "published" ? `${version || "Latest"} live` : status === "draft" ? "Not published yet" : updated ? `Archived · updated ${updated}` : "Archived"}</p>
+        <p className="mt-1 truncate text-paragraph-xs text-text-sub-600">{status === "published" ? `${version || "Mais recente"} ativa` : status === "draft" ? "Ainda não publicada" : updated ? `Arquivada · atualizada ${updated}` : "Arquivada"}</p>
       </Table.Cell>
       <Table.Cell className="px-2 py-3" onKeyDown={(event) => event.stopPropagation()}>
         <div className="flex justify-end">
           <Dropdown.Root>
             <Dropdown.Trigger asChild>
-              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Actions for ${name}`}>
+              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Ações para ${name}`}>
                 <Button.Icon as={RiMoreLine} />
               </Button.Root>
             </Dropdown.Trigger>
@@ -412,13 +412,13 @@ function SequenceRow({
               <Dropdown.Item asChild>
                 <Link href={`/crm/sequences/${id}`}>
                   <Dropdown.ItemIcon as={RiEditLine} />
-                  Edit
+                  Editar
                 </Link>
               </Dropdown.Item>
               <Dropdown.Separator />
               <Dropdown.Item destructive onSelect={() => void onDelete(sequence)}>
                 <Dropdown.ItemIcon as={RiDeleteBinLine} />
-                Delete
+                Excluir
               </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown.Root>
@@ -434,7 +434,7 @@ function ago(value: unknown, now: number) {
   if (Number.isNaN(time)) return "";
   const minutes = Math.round((now - time) / 60_000);
   if (minutes < 60 * 24 * 30) return timeAgo(value);
-  return new Date(time).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return new Date(time).toLocaleDateString("pt-BR", { month: "short", day: "numeric", year: "numeric" });
 }
 
 /**
@@ -442,17 +442,17 @@ function ago(value: unknown, now: number) {
  * per follow-up, with the count spelled out — "Reply + 3 follow-ups".
  */
 function StepSummary({ steps }: { steps: number }) {
-  if (steps === 0) return <span className="text-paragraph-xs text-text-soft-400">No steps yet</span>;
+  if (steps === 0) return <span className="text-paragraph-xs text-text-sub-600">Ainda sem etapas</span>;
   const followUps = Math.max(steps - 1, 0);
   return (
     <div className="min-w-0">
-      <p className="text-label-sm tabular-nums text-text-strong-950">{steps} {steps === 1 ? "step" : "steps"}</p>
+      <p className="text-label-sm tabular-nums text-text-strong-950">{steps} {steps === 1 ? "etapa" : "etapas"}</p>
       <div className="mt-1 flex items-center gap-2">
         <span aria-hidden="true" className="flex shrink-0 gap-0.5">
           <span className="h-1.5 w-4 rounded-full bg-primary-base" />
           {Array.from({ length: Math.min(followUps, 8) }, (_, index) => <span key={index} className="h-1.5 w-2.5 rounded-full bg-bg-soft-200" />)}
         </span>
-        <span className="truncate text-paragraph-xs text-text-sub-600">{followUps ? `Reply + ${followUps} follow-up${followUps === 1 ? "" : "s"}` : "Reply only"}</span>
+        <span className="truncate text-paragraph-xs text-text-sub-600">{followUps ? `Resposta + ${followUps} ${followUps === 1 ? "acompanhamento" : "acompanhamentos"}` : "Só resposta"}</span>
       </div>
     </div>
   );
@@ -480,7 +480,7 @@ function CreateSequence({
       name: name.trim(),
       description: description.trim() || null,
       steps: [{
-        name: "Immediate reply",
+        name: "Resposta imediata",
         delayMinutes: 0,
         subjectTemplate: null,
         bodyTemplate: null,
@@ -495,12 +495,12 @@ function CreateSequence({
       <Modal.Content size="max-w-lg">
         <form onSubmit={submit}>
           <Modal.Header icon={RiLoopLeftLine}>
-            <Modal.Title>New sequence</Modal.Title>
-            <Modal.Description>Add the basics now, then shape the message steps on the next screen.</Modal.Description>
+            <Modal.Title>Nova sequência</Modal.Title>
+            <Modal.Description>Preencha o básico agora e ajuste as etapas da mensagem na próxima tela.</Modal.Description>
           </Modal.Header>
           <Modal.Body className="space-y-4">
             <label className="block">
-              <span className="mb-1.5 block text-label-xs text-text-sub-600">Sequence name</span>
+              <span className="mb-1.5 block text-label-xs text-text-sub-600">Nome da sequência</span>
               <input
                 autoFocus
                 required
@@ -508,12 +508,12 @@ function CreateSequence({
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 className={cn(fieldClass, "h-10")}
-                placeholder="e.g. Demo requested"
+                placeholder="Ex.: Demonstração solicitada"
               />
             </label>
             <label className="block">
               <span className="mb-1.5 block text-label-xs text-text-sub-600">
-                Description <span className="font-normal text-text-soft-400">(optional)</span>
+                Descrição <span className="font-normal text-text-sub-600">(opcional)</span>
               </span>
               <textarea
                 maxLength={4000}
@@ -521,16 +521,16 @@ function CreateSequence({
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 className={cn(fieldClass, "resize-y")}
-                placeholder="When should this sequence be used?"
+                placeholder="Quando esta sequência deve ser usada?"
               />
             </label>
           </Modal.Body>
           <Modal.Footer>
             <Modal.Close asChild>
-              <Button.Root type="button" variant="neutral" mode="stroke" size="small" disabled={busy}>Cancel</Button.Root>
+              <Button.Root type="button" variant="neutral" mode="stroke" size="small" disabled={busy}>Cancelar</Button.Root>
             </Modal.Close>
             <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={busy || !name.trim()}>
-              {busy ? "Creating…" : "Create and add steps"}
+              {busy ? "Criando…" : "Criar e adicionar etapas"}
             </Button.Root>
           </Modal.Footer>
         </form>

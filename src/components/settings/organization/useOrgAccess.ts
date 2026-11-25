@@ -22,6 +22,16 @@ export function asOrgRole(role: string | undefined): OrgRole {
   return role && role in roles ? (role as OrgRole) : "member";
 }
 
+const ORG_ROLE_LABELS: Record<OrgRole, string> = {
+  owner: "Proprietário",
+  admin: "Administrador",
+  member: "Membro",
+};
+
+export function orgRoleLabel(role: OrgRole): string {
+  return ORG_ROLE_LABELS[role];
+}
+
 /**
  * The active organization with its members and invitations, plus what the
  * current user's role may do. `can` reads the same role definitions the
@@ -36,7 +46,7 @@ export function useOrgAccess() {
 
   const reload = useCallback(async () => {
     const res = await authClient.organization.getFullOrganization();
-    if (res.error) setError(res.error.message || "Could not load the organization.");
+    if (res.error) setError(res.error.message || "Não foi possível carregar a organização.");
     else {
       setError("");
       setOrg(res.data as unknown as FullOrg | null);
@@ -72,12 +82,12 @@ export function useAsyncAction() {
     try {
       const res = await call();
       if (res.error) {
-        setError(res.error.message || "Something went wrong.");
+        setError(res.error.message || "Algo deu errado.");
         return false;
       }
       return true;
     } catch {
-      setError("Network error. Try again.");
+      setError("Erro de rede. Tente novamente.");
       return false;
     } finally {
       setBusy(null);

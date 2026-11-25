@@ -16,81 +16,70 @@ import { Sparkline } from "../kit/Sparkline";
 import { StatusDotBadge } from "../kit/StatusDotBadge";
 import { TickMeter } from "../kit/TickMeter";
 import { TimeSeriesChart, TimeSeriesTable, type SeriesKeys } from "../kit/TimeSeriesChart";
-import { ACCENT, CHANNEL_META, STATUS, formatCompact, formatPercent, MUTED } from "../theme";
+import { ACCENT, APOLLO, CHANNEL_META, formatCompact, formatPercent, MUTED, STATUS } from "../theme";
 import type { ViewProps } from "./types";
-
-/**
- * LinkedIn: KPI strip, invites/accepts/replies lines beside the period funnel,
- * connected accounts beside daily invite capacity, and the campaigns table.
- */
 
 const LINKEDIN = CHANNEL_META.linkedin.color;
 
-// One channel, three series: LinkedIn blue, then violet and aqua — two blues
-// side by side were too close to tell apart.
 const ACTIVITY_KEYS: SeriesKeys<"invites" | "accepted" | "replied"> = {
-  invites: { label: "Invites", color: LINKEDIN },
-  accepted: { label: "Accepted", color: "#7d52f4" },
-  replied: { label: "Replied", color: CHANNEL_META.whatsapp.color },
+  invites: { label: "Convites", color: LINKEDIN },
+  accepted: { label: "Aceitos", color: APOLLO.lavender },
+  replied: { label: "Responderam", color: CHANNEL_META.whatsapp.color },
 };
 
 const HINTS = {
-  invites: "Connection invitations sent in this period.",
-  accepted: "Connections accepted in this period. Counted when the accept is recorded, which can be for an invite sent earlier.",
-  acceptanceRate: "Accepted divided by invites sent, for the same period.",
-  messages: "Messages sent after a connection: the acceptance message, follow-ups 1 to 3 and custom messages.",
-  replied: "Distinct leads who sent a reply in this period.",
-  replyRate: "Replied divided by accepted connections, not by invites sent.",
+  invites: "Convites de conexão enviados no período.",
+  accepted: "Conexões aceitas no período. Contadas quando a aceitação é registrada, mesmo que o convite tenha sido enviado antes.",
+  acceptanceRate: "Aceitos divididos pelos convites enviados no mesmo período.",
+  messages: "Mensagens enviadas após a conexão: mensagem de aceitação, follow-ups 1 a 3 e mensagens personalizadas.",
+  replied: "Leads distintos que responderam no período.",
+  replyRate: "Respondidos divididos pelas conexões aceitas, não pelos convites enviados.",
 };
 
 const CAMPAIGN_STATUS = {
-  ACTIVE: { tone: "good", label: "Active" },
-  PAUSED: { tone: "warning", label: "Paused" },
+  ACTIVE: { tone: "good", label: "Ativa" },
+  PAUSED: { tone: "warning", label: "Pausada" },
 } as const;
 
 export function LinkedinView({ data, loading }: ViewProps<"linkedin">) {
   const { kpis, range } = data;
-  const unit = range.bucket === "week" ? "week" : "day";
-  const vsPrevious = (m: { previous: number | null }) => (m.previous === null ? undefined : `vs ${formatCompact(m.previous)} previous period`);
-  const vsPreviousRate = (m: { previous: number | null }) => (m.previous === null ? undefined : `vs ${formatPercent(m.previous)} previous period`);
-  const spark = (key: "invites" | "accepted" | "replied") => data.activity.points.map((p) => p[key]);
-  // "Messaged" includes follow-ups to people accepted in earlier periods, so
-  // it can exceed Accepted — it isn't a funnel step; its KPI covers it.
+  const unit = range.bucket === "week" ? "semana" : "dia";
+  const vsPrevious = (metric: { previous: number | null }) => (metric.previous === null ? undefined : `vs ${formatCompact(metric.previous)} no período anterior`);
+  const vsPreviousRate = (metric: { previous: number | null }) => (metric.previous === null ? undefined : `vs ${formatPercent(metric.previous)} no período anterior`);
+  const spark = (key: "invites" | "accepted" | "replied") => data.activity.points.map((point) => point[key]);
   const stages: FunnelStage[] = data.funnel.filter((stage) => stage.key !== "messaged");
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5">
       <KpiStrip className="lg:col-span-12" columns={6}>
-        <KpiCell icon={RiSendPlaneLine} label="Invites sent" value={formatCompact(kpis.invites.value)} metric={kpis.invites} hint={HINTS.invites} context={vsPrevious(kpis.invites)} spark={spark("invites")} />
-        <KpiCell icon={RiUserAddLine} label="Accepted" value={formatCompact(kpis.accepted.value)} metric={kpis.accepted} hint={HINTS.accepted} context={vsPrevious(kpis.accepted)} spark={spark("accepted")} />
-        <KpiCell icon={RiCheckDoubleLine} label="Acceptance rate" value={formatPercent(kpis.acceptanceRate.value)} metric={kpis.acceptanceRate} hint={HINTS.acceptanceRate} context={vsPreviousRate(kpis.acceptanceRate)} />
-        <KpiCell icon={RiMailSendLine} label="Messages sent" value={formatCompact(kpis.messages.value)} metric={kpis.messages} hint={HINTS.messages} context={vsPrevious(kpis.messages)} />
-        <KpiCell icon={RiChat1Line} label="Replied" value={formatCompact(kpis.replied.value)} metric={kpis.replied} hint={HINTS.replied} context={`of ${formatCompact(kpis.accepted.value)} accepted`} spark={spark("replied")} />
-        <KpiCell icon={RiPercentLine} label="Reply rate" value={formatPercent(kpis.replyRate.value)} metric={kpis.replyRate} hint={HINTS.replyRate} context={kpis.replyRate.previous === null ? "replied / accepted" : `replied / accepted, vs ${formatPercent(kpis.replyRate.previous)} before`} />
+        <KpiCell icon={RiSendPlaneLine} label="Convites enviados" value={formatCompact(kpis.invites.value)} metric={kpis.invites} hint={HINTS.invites} context={vsPrevious(kpis.invites)} spark={spark("invites")} />
+        <KpiCell icon={RiUserAddLine} label="Aceitos" value={formatCompact(kpis.accepted.value)} metric={kpis.accepted} hint={HINTS.accepted} context={vsPrevious(kpis.accepted)} spark={spark("accepted")} />
+        <KpiCell icon={RiCheckDoubleLine} label="Taxa de aceite" value={formatPercent(kpis.acceptanceRate.value)} metric={kpis.acceptanceRate} hint={HINTS.acceptanceRate} context={vsPreviousRate(kpis.acceptanceRate)} />
+        <KpiCell icon={RiMailSendLine} label="Mensagens enviadas" value={formatCompact(kpis.messages.value)} metric={kpis.messages} hint={HINTS.messages} context={vsPrevious(kpis.messages)} />
+        <KpiCell icon={RiChat1Line} label="Responderam" value={formatCompact(kpis.replied.value)} metric={kpis.replied} hint={HINTS.replied} context={`de ${formatCompact(kpis.accepted.value)} aceitos`} spark={spark("replied")} />
+        <KpiCell icon={RiPercentLine} label="Taxa de resposta" value={formatPercent(kpis.replyRate.value)} metric={kpis.replyRate} hint={HINTS.replyRate} context={kpis.replyRate.previous === null ? "respondidos / aceitos" : `respondidos / aceitos, vs ${formatPercent(kpis.replyRate.previous)} antes`} />
       </KpiStrip>
 
       <ChartCard
         className="lg:col-span-8"
-        title="Invites, accepts and replies"
-        description={`LinkedIn activity each ${unit}.`}
+        title="Convites, aceites e respostas"
+        description={`Atividade no LinkedIn a cada ${unit}.`}
         legend={
           <SeriesStats
-            items={(Object.keys(ACTIVITY_KEYS) as Array<keyof typeof ACTIVITY_KEYS>).map((k) => ({
-              label: ACTIVITY_KEYS[k].label,
-              color: ACTIVITY_KEYS[k].color,
-              // The KPI totals, not the sum of the points: replied is distinct
-              // leads per day in the series, so summing it double-counts.
-              value: formatCompact(kpis[k].value),
+            items={(Object.keys(ACTIVITY_KEYS) as Array<keyof typeof ACTIVITY_KEYS>).map((key) => ({
+              label: ACTIVITY_KEYS[key].label,
+              color: ACTIVITY_KEYS[key].color,
+              value: formatCompact(kpis[key].value),
             }))}
           />
         }
         loading={loading}
-        table={<TimeSeriesTable series={data.activity} keys={ACTIVITY_KEYS} bucket={range.bucket} caption="LinkedIn invites, accepts and replies" />}
+        table={<TimeSeriesTable series={data.activity} keys={ACTIVITY_KEYS} bucket={range.bucket} caption="Convites, aceites e respostas no LinkedIn" />}
       >
         <TimeSeriesChart series={data.activity} keys={ACTIVITY_KEYS} type="line" bucket={range.bucket} />
       </ChartCard>
 
-      <ChartCard className="self-start lg:col-span-4" title="LinkedIn funnel" description="Invited → accepted → replied." loading={loading} footer="Counts for this period, not one cohort followed through.">
+      <ChartCard className="self-start lg:col-span-4" title="Funil do LinkedIn" description="Convidados → aceitos → responderam." loading={loading} footer="Contagens do período, não o acompanhamento de uma única coorte.">
         <FunnelChart stages={stages} />
       </ChartCard>
 
@@ -103,40 +92,40 @@ export function LinkedinView({ data, loading }: ViewProps<"linkedin">) {
 }
 
 function AccountsTable({ accounts, loading }: { accounts: LinkedinAnalytics["accounts"]; loading: boolean }) {
-  const rows = [...accounts].sort((a, b) => Number(a.status === "CONNECTED") - Number(b.status === "CONNECTED") || a.name.localeCompare(b.name));
+  const rows = [...accounts].sort((first, second) => Number(first.status === "CONNECTED") - Number(second.status === "CONNECTED") || first.name.localeCompare(second.name));
   return (
     <Frame className="self-start lg:col-span-8">
-      <FrameHeader title="Accounts" description="Right now, regardless of the date range. Disconnected accounts first." />
+      <FrameHeader title="Contas" description="Agora, independentemente do período. Contas desconectadas primeiro." />
       <FramePanel className={cn("overflow-x-auto p-2 transition-opacity sm:p-3", loading && "opacity-60")}>
         {rows.length === 0 ? (
-          <p className="py-10 text-center text-paragraph-sm text-text-sub-600">No LinkedIn accounts connected yet.</p>
+          <p className="py-10 text-center text-paragraph-sm text-text-sub-600">Nenhuma conta do LinkedIn conectada ainda.</p>
         ) : (
           <Table.Root>
-            <Table.Caption className="sr-only">LinkedIn accounts</Table.Caption>
+            <Table.Caption className="sr-only">Contas do LinkedIn</Table.Caption>
             <Table.Header>
               <Table.Row>
-                <Table.Head scope="col">Account</Table.Head>
+                <Table.Head scope="col">Conta</Table.Head>
                 <Table.Head scope="col">Status</Table.Head>
-                <Table.Head scope="col" className="min-w-44">Invites today</Table.Head>
-                <Table.Head scope="col" className="text-right">Pending queue</Table.Head>
+                <Table.Head scope="col" className="min-w-44">Convites hoje</Table.Head>
+                <Table.Head scope="col" className="text-right">Fila pendente</Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body spacing={4}>
-              {rows.map((a) => {
-                const connected = a.status === "CONNECTED";
+              {rows.map((account) => {
+                const connected = account.status === "CONNECTED";
                 return (
-                  <Table.Row key={a.id}>
+                  <Table.Row key={account.id}>
                     <Table.Cell className="h-12">
                       <div className="flex items-center gap-2">
-                        <span className="max-w-48 truncate text-label-sm text-text-strong-950">{a.name}</span>
-                        {a.premium && <Badge.Root variant="lighter" color="purple" size="small">Premium</Badge.Root>}
+                        <span className="max-w-48 truncate text-label-sm text-text-strong-950">{account.name}</span>
+                        {account.premium && <Badge.Root variant="lighter" color="purple" size="small">Premium</Badge.Root>}
                       </div>
                     </Table.Cell>
-                    <Table.Cell className="h-12"><StatusDotBadge status={connected ? "good" : "critical"}>{connected ? "Connected" : "Disconnected"}</StatusDotBadge></Table.Cell>
+                    <Table.Cell className="h-12"><StatusDotBadge status={connected ? "good" : "critical"}>{connected ? "Conectada" : "Desconectada"}</StatusDotBadge></Table.Cell>
                     <Table.Cell className="h-12">
-                      {connected ? <InlineMeter used={a.sentToday} limit={a.dailyLimit} /> : <span className="text-paragraph-sm text-text-soft-400">Paused until reconnected</span>}
+                      {connected ? <InlineMeter used={account.sentToday} limit={account.dailyLimit} /> : <span className="text-paragraph-sm text-text-soft-400">Pausada até reconectar</span>}
                     </Table.Cell>
-                    <Table.Cell className="h-12 text-right text-paragraph-sm tabular-nums text-text-strong-950">{formatCompact(a.pending)}</Table.Cell>
+                    <Table.Cell className="h-12 text-right text-paragraph-sm tabular-nums text-text-strong-950">{formatCompact(account.pending)}</Table.Cell>
                   </Table.Row>
                 );
               })}
@@ -144,12 +133,11 @@ function AccountsTable({ accounts, loading }: { accounts: LinkedinAnalytics["acc
           </Table.Root>
         )}
       </FramePanel>
-      <FrameFooterLink href="/settings/linkedin-accounts">Manage LinkedIn accounts</FrameFooterLink>
+      <FrameFooterLink href="/settings/linkedin-accounts">Gerenciar contas do LinkedIn</FrameFooterLink>
     </Frame>
   );
 }
 
-/** Compact one-line used/limit meter for a table cell; the at-limit state is written out, not colour alone. */
 function InlineMeter({ used, limit }: { used: number; limit: number }) {
   const full = limit > 0 && used >= limit;
   const filled = limit > 0 ? Math.min(10, Math.round((used / limit) * 10)) : 0;
@@ -158,32 +146,32 @@ function InlineMeter({ used, limit }: { used: number; limit: number }) {
       <span className="w-14 text-paragraph-sm tabular-nums text-text-strong-950">
         {used} <span className="text-text-soft-400">/ {limit}</span>
       </span>
-      <span role="meter" aria-label="Invites today" aria-valuemin={0} aria-valuemax={limit} aria-valuenow={used} className="flex h-1.5 w-24 gap-0.5">
-        {Array.from({ length: 10 }, (_, i) => (
-          <span key={i} className="h-full flex-1 rounded-[2px]" style={{ backgroundColor: i < filled ? (full ? STATUS.critical : ACCENT) : "var(--color-bg-soft-200)" }} />
+      <span role="meter" aria-label="Convites hoje" aria-valuemin={0} aria-valuemax={limit} aria-valuenow={used} className="flex h-1.5 w-24 gap-0.5">
+        {Array.from({ length: 10 }, (_, index) => (
+          <span key={index} className="h-full flex-1 rounded-[2px]" style={{ backgroundColor: index < filled ? (full ? STATUS.critical : ACCENT) : "var(--color-bg-soft-200)" }} />
         ))}
       </span>
-      {full && <span className="text-paragraph-xs text-text-sub-600">At limit</span>}
+      {full && <span className="text-paragraph-xs text-text-sub-600">No limite</span>}
     </div>
   );
 }
 
 function InviteCapacity({ accounts, loading }: { accounts: LinkedinAnalytics["accounts"]; loading: boolean }) {
-  const connected = accounts.filter((a) => a.status === "CONNECTED");
-  const used = connected.reduce((sum, a) => sum + a.sentToday, 0);
-  const limit = connected.reduce((sum, a) => sum + a.dailyLimit, 0);
-  const atCap = connected.filter((a) => a.dailyLimit > 0 && a.sentToday >= a.dailyLimit).length;
+  const connected = accounts.filter((account) => account.status === "CONNECTED");
+  const used = connected.reduce((sum, account) => sum + account.sentToday, 0);
+  const limit = connected.reduce((sum, account) => sum + account.dailyLimit, 0);
+  const atCap = connected.filter((account) => account.dailyLimit > 0 && account.sentToday >= account.dailyLimit).length;
   return (
     <Frame className="self-start lg:col-span-4">
-      <FrameHeader title="Daily invite capacity" description="Connected accounts, today." />
+      <FrameHeader title="Capacidade diária de convites" description="Contas conectadas, hoje." />
       <FramePanel className={cn("transition-opacity", loading && "opacity-60")}>
         {connected.length === 0 ? (
-          <p className="py-6 text-center text-paragraph-sm text-text-sub-600">No connected accounts to send from.</p>
+          <p className="py-6 text-center text-paragraph-sm text-text-sub-600">Nenhuma conta conectada para enviar.</p>
         ) : (
           <>
-            <TickMeter label="Invites sent today" used={used} limit={limit} caption={`${used.toLocaleString("en-US")} of ${limit.toLocaleString("en-US")} invites sent today`} />
+            <TickMeter label="Convites enviados hoje" used={used} limit={limit} caption={`${used.toLocaleString("pt-BR")} de ${limit.toLocaleString("pt-BR")} convites enviados hoje`} />
             <p className="mt-4 text-paragraph-sm text-text-sub-600">
-              {atCap} {atCap === 1 ? "account is" : "accounts are"} at {atCap === 1 ? "its" : "their"} daily cap
+              {atCap} {atCap === 1 ? "conta está" : "contas estão"} no limite diário
             </p>
           </>
         )}
@@ -193,51 +181,51 @@ function InviteCapacity({ accounts, loading }: { accounts: LinkedinAnalytics["ac
 }
 
 function CampaignsTable({ campaigns, loading }: { campaigns: LinkedinAnalytics["campaigns"]; loading: boolean }) {
-  const maxAccept = Math.max(...campaigns.map((c) => c.acceptanceRate ?? 0), 0.0001);
-  const maxReply = Math.max(...campaigns.map((c) => c.replyRate ?? 0), 0.0001);
+  const maxAccept = Math.max(...campaigns.map((campaign) => campaign.acceptanceRate ?? 0), 0.0001);
+  const maxReply = Math.max(...campaigns.map((campaign) => campaign.replyRate ?? 0), 0.0001);
   const num = "h-12 text-right text-paragraph-sm tabular-nums text-text-strong-950";
   return (
     <Frame className="lg:col-span-12">
-      <FrameHeader title="Campaigns" description="Invited is for this period; the other counts are per campaign. Reply rate is replied / accepted." />
+      <FrameHeader title="Campanhas" description="Convites são do período; as demais contagens são por campanha. Taxa de resposta é respondidos / aceitos." />
       <FramePanel className={cn("overflow-x-auto p-2 transition-opacity sm:p-3", loading && "opacity-60")}>
         {campaigns.length === 0 ? (
-          <p className="py-10 text-center text-paragraph-sm text-text-sub-600">No LinkedIn campaigns yet.</p>
+          <p className="py-10 text-center text-paragraph-sm text-text-sub-600">Nenhuma campanha do LinkedIn ainda.</p>
         ) : (
           <Table.Root>
-            <Table.Caption className="sr-only">LinkedIn campaigns</Table.Caption>
+            <Table.Caption className="sr-only">Campanhas do LinkedIn</Table.Caption>
             <Table.Header>
               <Table.Row>
-                <Table.Head scope="col">Campaign</Table.Head>
+                <Table.Head scope="col">Campanha</Table.Head>
                 <Table.Head scope="col" className="text-right">Leads</Table.Head>
-                <Table.Head scope="col">Invited</Table.Head>
-                <Table.Head scope="col" className="text-right">Accepted</Table.Head>
-                <Table.Head scope="col">Acceptance rate</Table.Head>
-                <Table.Head scope="col" className="text-right">Replied</Table.Head>
-                <Table.Head scope="col">Reply rate</Table.Head>
+                <Table.Head scope="col">Convidados</Table.Head>
+                <Table.Head scope="col" className="text-right">Aceitos</Table.Head>
+                <Table.Head scope="col">Taxa de aceite</Table.Head>
+                <Table.Head scope="col" className="text-right">Responderam</Table.Head>
+                <Table.Head scope="col">Taxa de resposta</Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body spacing={4}>
-              {campaigns.map((c) => {
-                const status = c.status === "ACTIVE" ? CAMPAIGN_STATUS.ACTIVE : c.status === "PAUSED" ? CAMPAIGN_STATUS.PAUSED : { tone: "neutral" as const, label: c.status };
+              {campaigns.map((campaign) => {
+                const status = campaign.status === "ACTIVE" ? CAMPAIGN_STATUS.ACTIVE : campaign.status === "PAUSED" ? CAMPAIGN_STATUS.PAUSED : { tone: "neutral" as const, label: campaign.status };
                 return (
-                  <Table.Row key={c.id}>
+                  <Table.Row key={campaign.id}>
                     <Table.Cell className="h-12">
                       <div className="flex min-w-0 items-center gap-3">
-                        <Link href={`/linkedin/campaigns/${c.id}`} className="max-w-64 truncate rounded-md text-label-sm text-text-strong-950 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary-base">{c.name}</Link>
+                        <Link href={`/linkedin/campaigns/${campaign.id}`} className="max-w-64 truncate rounded-md text-label-sm text-text-strong-950 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary-base">{campaign.name}</Link>
                         <StatusDotBadge status={status.tone}>{status.label}</StatusDotBadge>
                       </div>
                     </Table.Cell>
-                    <Table.Cell className={num}>{formatCompact(c.leads)}</Table.Cell>
+                    <Table.Cell className={num}>{formatCompact(campaign.leads)}</Table.Cell>
                     <Table.Cell className="h-12">
                       <div className="flex items-center gap-3">
-                        <span className="w-10 text-paragraph-sm tabular-nums text-text-strong-950">{formatCompact(c.invited)}</span>
-                        <Sparkline data={c.trend} color={MUTED} className="hidden w-16 sm:block" />
+                        <span className="w-10 text-paragraph-sm tabular-nums text-text-strong-950">{formatCompact(campaign.invited)}</span>
+                        <Sparkline data={campaign.trend} color={MUTED} className="hidden w-16 sm:block" />
                       </div>
                     </Table.Cell>
-                    <Table.Cell className={num}>{formatCompact(c.accepted)}</Table.Cell>
-                    <Table.Cell className="h-12"><RateCell rate={c.acceptanceRate} max={maxAccept} color={LINKEDIN} /></Table.Cell>
-                    <Table.Cell className={num}>{formatCompact(c.replied)}</Table.Cell>
-                    <Table.Cell className="h-12"><RateCell rate={c.replyRate} max={maxReply} color={LINKEDIN} /></Table.Cell>
+                    <Table.Cell className={num}>{formatCompact(campaign.accepted)}</Table.Cell>
+                    <Table.Cell className="h-12"><RateCell rate={campaign.acceptanceRate} max={maxAccept} color={LINKEDIN} /></Table.Cell>
+                    <Table.Cell className={num}>{formatCompact(campaign.replied)}</Table.Cell>
+                    <Table.Cell className="h-12"><RateCell rate={campaign.replyRate} max={maxReply} color={LINKEDIN} /></Table.Cell>
                   </Table.Row>
                 );
               })}

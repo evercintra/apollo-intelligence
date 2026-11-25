@@ -87,25 +87,25 @@ type FilterCampaign = { id: string; name: string };
 const SENT_TYPES = new Set(["INVITATION", "ACCEPTANCE", "FOLLOW_UP_1", "FOLLOW_UP_2", "FOLLOW_UP_3", "CUSTOM_SENT"]);
 
 const TYPE_LABEL: Record<string, string> = {
-  INVITATION: "Invitation",
-  ACCEPTANCE: "Acceptance",
-  FOLLOW_UP_1: "Follow-up 1",
-  FOLLOW_UP_2: "Follow-up 2",
-  FOLLOW_UP_3: "Follow-up 3",
-  CUSTOM_SENT: "Sent",
-  RECEIVED: "Received",
+  INVITATION: "Convite",
+  ACCEPTANCE: "Aceite",
+  FOLLOW_UP_1: "Acompanhamento 1",
+  FOLLOW_UP_2: "Acompanhamento 2",
+  FOLLOW_UP_3: "Acompanhamento 3",
+  CUSTOM_SENT: "Enviada",
+  RECEIVED: "Recebida",
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  PENDING: "Pending",
-  REQUEST_SENT: "Invited",
-  ACCEPT_MESSAGE_SENT: "Accepted",
-  FOLLOW_UP_1_SENT: "Follow-up 1",
-  FOLLOW_UP_2_SENT: "Follow-up 2",
-  FOLLOW_UP_3_SENT: "Follow-up 3",
-  COMPLETED: "Completed",
-  REPLIED: "Replied",
-  FAILED: "Failed",
+  PENDING: "Pendente",
+  REQUEST_SENT: "Convidado",
+  ACCEPT_MESSAGE_SENT: "Aceito",
+  FOLLOW_UP_1_SENT: "Acompanhamento 1",
+  FOLLOW_UP_2_SENT: "Acompanhamento 2",
+  FOLLOW_UP_3_SENT: "Acompanhamento 3",
+  COMPLETED: "Concluído",
+  REPLIED: "Respondeu",
+  FAILED: "Falhou",
 };
 
 /** Lead status → badge tone. Only outcomes wear a colour; the steps in between stay grey. */
@@ -136,17 +136,17 @@ const splitCategoryFilter = (value: string, categories: CrmCategoryOption[]) => 
 const ALL_STATUSES = ["PENDING", "REQUEST_SENT", "ACCEPT_MESSAGE_SENT", "FOLLOW_UP_1_SENT", "FOLLOW_UP_2_SENT", "FOLLOW_UP_3_SENT", "COMPLETED", "REPLIED", "FAILED"];
 
 const TIME_PERIODS = [
-  { label: "All time", days: null },
-  { label: "Last 7 days", days: 7 },
-  { label: "Last 30 days", days: 30 },
-  { label: "Last 90 days", days: 90 },
+  { label: "Todo o período", days: null },
+  { label: "Últimos 7 dias", days: 7 },
+  { label: "Últimos 30 dias", days: 30 },
+  { label: "Últimos 90 dias", days: 90 },
 ];
 
 /** Scopes first, then the lead statuses, as two groups in the scope select. */
 const MESSAGE_SCOPE_OPTIONS = [
-  { value: ALL_LEADS_FILTER, label: "All conversations" },
-  { value: UNREPLIED_FILTER, label: "Needs reply", hint: "Latest message is from the prospect" },
-  { value: CONNECTIONS_ONLY_FILTER, label: "Connections only" },
+  { value: ALL_LEADS_FILTER, label: "Todas as conversas" },
+  { value: UNREPLIED_FILTER, label: "Precisa de resposta", hint: "A última mensagem é do prospect" },
+  { value: CONNECTIONS_ONLY_FILTER, label: "Só conexões" },
 ];
 const MESSAGE_STATUS_OPTIONS = ALL_STATUSES.map((s) => ({ value: s, label: STATUS_LABEL[s] }));
 
@@ -561,7 +561,7 @@ export function MessagesLayout({
         );
       } else {
         setText(body);
-        void dialogs.alert({ title: "Could not send message", description: data.error, variant: "error" });
+        void dialogs.alert({ title: "Não foi possível enviar a mensagem", description: data.error, variant: "error" });
       }
     } catch {
       setText(body);
@@ -573,9 +573,9 @@ export function MessagesLayout({
 
   const renderMessages = () => {
     if (messages.length === 0) {
-      return <EmptyState icon={RiMessage3Line} title="No messages yet" description="Messages sent and received with this connection appear here." />;
+      return <EmptyState icon={RiMessage3Line} title="Nenhuma mensagem ainda" description="As mensagens enviadas e recebidas com esta conexão aparecem aqui." />;
     }
-    const theirName = (selected?.name ?? "").trim().split(/\s+/)[0] || "Them";
+    const theirName = (selected?.name ?? "").trim().split(/\s+/)[0] || "Vocês";
     const lastId = messages[messages.length - 1]?.id;
 
     return messages.map((msg, i) => {
@@ -600,7 +600,7 @@ export function MessagesLayout({
             {isFirst && (
               <MessageCaption
                 outbound={isSent}
-                who={isSent ? "You" : theirName}
+                who={isSent ? "Você" : theirName}
                 detail={stepLabel}
                 time={clockTime(date)}
                 timeTitle={fullTime(date)}
@@ -615,7 +615,7 @@ export function MessagesLayout({
     });
   };
 
-  const displayName = (conn: ConnectionItem) => conn.name ?? conn.linkedinUrl ?? "Unknown";
+  const displayName = (conn: ConnectionItem) => conn.name ?? conn.linkedinUrl ?? "Desconhecido";
 
   const clearFilters = () => {
     setSearch("");
@@ -637,9 +637,9 @@ export function MessagesLayout({
     if (categoryFilter.startsWith(CATEGORY_FILTER_PREFIX)) {
       const key = categoryFilter.slice(CATEGORY_FILTER_PREFIX.length);
       const category = crmCategories.find((c) => c.key === key);
-      return `All ${category?.label ?? humanize(key)}`;
+      return `Todos: ${category?.label ?? humanize(key)}`;
     }
-    return crmCategories.flatMap((c) => c.subcategories).find((sc) => sc.id === categoryFilter)?.name ?? "Category";
+    return crmCategories.flatMap((c) => c.subcategories).find((sc) => sc.id === categoryFilter)?.name ?? "Categoria";
   }, [categoryFilter, crmCategories]);
 
   // The popover's filters; search and the scope tabs live in the toolbar itself.
@@ -652,11 +652,11 @@ export function MessagesLayout({
   };
   const accountName = (id: string) => {
     const account = accounts.find((a) => a.id === id);
-    return account ? account.name ?? `@${account.username}` : "Sender";
+    return account ? account.name ?? `@${account.username}` : "Remetente";
   };
   const chips = [
-    campaignFilter && { key: "campaign", label: campaigns.find((c) => c.id === campaignFilter)?.name ?? "Campaign", onRemove: () => setCampaignFilter("") },
-    accountFilter && { key: "account", label: `From ${accountName(accountFilter)}`, onRemove: () => setAccountFilter("") },
+    campaignFilter && { key: "campaign", label: campaigns.find((c) => c.id === campaignFilter)?.name ?? "Campanha", onRemove: () => setCampaignFilter("") },
+    accountFilter && { key: "account", label: `De ${accountName(accountFilter)}`, onRemove: () => setAccountFilter("") },
     periodFilter && { key: "period", label: periodFilter, onRemove: () => setPeriodFilter("") },
     showCategoryFilter && categoryFilter && { key: "category", label: categoryLabel, onRemove: () => setCategoryFilter("") },
   ].filter((chip): chip is { key: string; label: string; onRemove: () => void } => Boolean(chip));
@@ -670,7 +670,7 @@ export function MessagesLayout({
   }, []);
 
   const scopeLabel =
-    MESSAGE_SCOPE_OPTIONS.find((o) => o.value === statusFilter)?.label ?? STATUS_LABEL[statusFilter] ?? "Conversations";
+    MESSAGE_SCOPE_OPTIONS.find((o) => o.value === statusFilter)?.label ?? STATUS_LABEL[statusFilter] ?? "Conversas";
 
   useInboxHotkeys({ listRef: listScrollRef, onClose: selected ? closeThread : null });
   const details = useDetailsPanel(selected?.id ?? null);
@@ -684,22 +684,22 @@ export function MessagesLayout({
     label,
     title,
     count: value === statusFilter && !loadingList ? totalCount : null,
-    countTitle: value === statusFilter ? `${totalCount.toLocaleString("en-US")} conversations` : undefined,
+      countTitle: value === statusFilter ? `${totalCount.toLocaleString("en-US")} conversas` : undefined,
   });
   const triage = (
     <TriageTabs
-      label="Show conversations"
+      label="Mostrar conversas"
       value={statusFilter}
       onChange={changeStatusFilter}
       tabs={[
-        scopeTab(DEFAULT_MESSAGES_STATUS_FILTER, "Replied", "Leads who replied"),
-        scopeTab(UNREPLIED_FILTER, "Needs reply", "Latest message is from the prospect"),
-        scopeTab(ALL_LEADS_FILTER, "All", "Every campaign lead"),
+        scopeTab(DEFAULT_MESSAGES_STATUS_FILTER, "Responderam", "Leads que responderam"),
+        scopeTab(UNREPLIED_FILTER, "Precisa de resposta", "A última mensagem é do prospect"),
+        scopeTab(ALL_LEADS_FILTER, "Todas", "Todos os leads da campanha"),
       ]}
       moreGroups={[
-        { label: "Show", tabs: [scopeTab(CONNECTIONS_ONLY_FILTER, "Connections only", "Connections with no campaign lead")] },
+        { label: "Mostrar", tabs: [scopeTab(CONNECTIONS_ONLY_FILTER, "Só conexões", "Conexões sem lead de campanha")] },
         {
-          label: "Lead status",
+          label: "Status do lead",
           tabs: MESSAGE_STATUS_OPTIONS.filter((o) => o.value !== DEFAULT_MESSAGES_STATUS_FILTER).map((o) => scopeTab(o.value, o.label)),
         },
       ]}
@@ -736,11 +736,11 @@ export function MessagesLayout({
         }
         crmLoading={Boolean(recordId) && recordLoading && !crmSummary}
         facts={[
-          ...(selected.campaignName ? [{ label: "Campaign", value: selected.campaignName, title: selected.campaignName }] : []),
+          ...(selected.campaignName ? [{ label: "Campanha", value: selected.campaignName, title: selected.campaignName }] : []),
           ...(selected.linkedInAccountUsername
             ? [
                 {
-                  label: "Sent from",
+                  label: "Enviado por",
                   value: (
                     <LinkedInAccountTag
                       account={{ username: selected.linkedInAccountUsername, name: selected.linkedInAccountName, profilePictureUrl: selected.linkedInAccountPicture }}
@@ -750,8 +750,8 @@ export function MessagesLayout({
                 },
               ]
             : []),
-          ...(selected.leadStatus ? [{ label: "Lead status", value: STATUS_LABEL[selected.leadStatus] ?? selected.leadStatus }] : []),
-          ...(selected.connectedAt ? [{ label: "Connected", value: new Date(selected.connectedAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) }] : []),
+          ...(selected.leadStatus ? [{ label: "Status do lead", value: STATUS_LABEL[selected.leadStatus] ?? selected.leadStatus }] : []),
+          ...(selected.connectedAt ? [{ label: "Conectado", value: new Date(selected.connectedAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) }] : []),
         ]}
         actions={record?.personId && record.phone ? <CallButton personId={record.personId} crmRecordId={recordId} phone={record.phone} numberMenu={false} /> : undefined}
       />
@@ -763,28 +763,28 @@ export function MessagesLayout({
       threadOpen={selected !== null}
       header={
         <PageHeader
-          title="Messages"
-          description="LinkedIn conversations from your campaigns, and who is waiting on a reply."
+          title="Mensagens"
+          description="Conversas do LinkedIn das suas campanhas e quem aguarda uma resposta."
         />
       }
     >
       <ListPane
-        label="LinkedIn conversations"
+        label="Conversas do LinkedIn"
         hidden={selected !== null}
         busy={loadingList && connections.length > 0}
         scrollRef={listScrollRef}
         toolbar={
           <>
             <div className="flex items-center gap-2">
-              <ListSearch value={search} onChange={setSearch} placeholder="Search by name" label="Search conversations by name" />
+              <ListSearch value={search} onChange={setSearch} placeholder="Buscar por nome" label="Buscar conversas por nome" />
               <FilterPopover count={popoverFilterCount} onClear={clearPopoverFilters}>
-                <FilterField label="Campaign">
+                <FilterField label="Campanha">
                   <Select.Root size="small" value={campaignFilter} onValueChange={setCampaignFilter}>
-                    <Select.Trigger aria-label="Campaign filter">
-                      <Select.Value placeholder="All campaigns" />
+                    <Select.Trigger aria-label="Filtrar por campanha">
+                      <Select.Value placeholder="Todas as campanhas" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="">All campaigns</Select.Item>
+                      <Select.Item value="">Todas as campanhas</Select.Item>
                       {campaigns.map((c) => (
                         <Select.Item key={c.id} value={c.id}>
                           {c.name}
@@ -793,13 +793,13 @@ export function MessagesLayout({
                     </Select.Content>
                   </Select.Root>
                 </FilterField>
-                <FilterField label="Sender">
+                <FilterField label="Remetente">
                   <Select.Root size="small" value={accountFilter} onValueChange={setAccountFilter}>
-                    <Select.Trigger aria-label="Sender account filter">
-                      <Select.Value placeholder="All senders" />
+                    <Select.Trigger aria-label="Filtrar por remetente">
+                      <Select.Value placeholder="Todos os remetentes" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="">All senders</Select.Item>
+                      <Select.Item value="">Todos os remetentes</Select.Item>
                       {accounts.map((a) => (
                         <Select.Item key={a.id} value={a.id}>
                           <span className="flex min-w-0 items-center gap-2">
@@ -812,13 +812,13 @@ export function MessagesLayout({
                     </Select.Content>
                   </Select.Root>
                 </FilterField>
-                <FilterField label="Last activity">
+                <FilterField label="Última atividade">
                   <Select.Root size="small" value={periodFilter} onValueChange={setPeriodFilter}>
-                    <Select.Trigger aria-label="Time period filter">
-                      <Select.Value placeholder="All time" />
+                    <Select.Trigger aria-label="Filtrar por período">
+                      <Select.Value placeholder="Todo o período" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="">All time</Select.Item>
+                      <Select.Item value="">Todo o período</Select.Item>
                       {TIME_PERIODS.slice(1).map((p) => (
                         <Select.Item key={p.label} value={p.label}>
                           {p.label}
@@ -827,20 +827,20 @@ export function MessagesLayout({
                     </Select.Content>
                   </Select.Root>
                 </FilterField>
-                <FilterField label="CRM category" hint={showCategoryFilter ? undefined : "Applies when the list shows Replied or Needs reply."}>
+                <FilterField label="Categoria do CRM" hint={showCategoryFilter ? undefined : "Aplica-se quando a lista mostra Responderam ou Precisa de resposta."}>
                   <Select.Root size="small" value={showCategoryFilter ? categoryFilter : ""} onValueChange={setCategoryFilter} disabled={!showCategoryFilter || crmCategories.length === 0}>
-                    <Select.Trigger aria-label="CRM category filter">
-                      <Select.Value placeholder="All categories" />
+                    <Select.Trigger aria-label="Filtrar por categoria do CRM">
+                      <Select.Value placeholder="Todas as categorias" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="">All categories</Select.Item>
+                      <Select.Item value="">Todas as categorias</Select.Item>
                       {crmCategories.map((category) => {
                         const label = category.label ?? humanize(category.key);
                         return (
                           <Select.Group key={category.key}>
                             <Select.Separator />
                             <Select.GroupLabel>{label}</Select.GroupLabel>
-                            <Select.Item value={`${CATEGORY_FILTER_PREFIX}${category.key}`}>All {label}</Select.Item>
+                            <Select.Item value={`${CATEGORY_FILTER_PREFIX}${category.key}`}>Todos: {label}</Select.Item>
                             {category.subcategories
                               .filter((sc) => sc.active !== false)
                               .map((sc) => (
@@ -860,7 +860,7 @@ export function MessagesLayout({
           </>
         }
         tabs={triage}
-        footer={<ListCount shown={connections.length} total={totalCount} noun={totalCount === 1 ? "conversation" : "conversations"} loading={loadingList} />}
+        footer={<ListCount shown={connections.length} total={totalCount} noun={totalCount === 1 ? "conversa" : "conversas"} loading={loadingList} />}
       >
         {loadingList && connections.length === 0 ? (
           <RowsSkeleton />
@@ -869,25 +869,25 @@ export function MessagesLayout({
             <EmptyState
               compact
               icon={RiSearchLine}
-              title="No conversations match"
-              description={`Nothing in “${scopeLabel}” matches this search and these filters.`}
+              title="Nenhuma conversa corresponde"
+              description={`Nada em “${scopeLabel}” corresponde a esta busca e a estes filtros.`}
               action={
                 <Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={clearFilters}>
-                  Clear filters
+                  Limpar filtros
                 </Button.Root>
               }
             />
           ) : statusFilter === UNREPLIED_FILTER ? (
-            <EmptyState compact icon={RiCheckDoubleLine} title="You're all caught up" description="Nobody is waiting on a reply right now." />
+            <EmptyState compact icon={RiCheckDoubleLine} title="Tudo em dia" description="Ninguém está aguardando uma resposta agora." />
           ) : (
             <EmptyState
               compact
               icon={RiChatSmile3Line}
-              title={statusFilter === DEFAULT_MESSAGES_STATUS_FILTER ? "No replies yet" : `Nothing in “${scopeLabel}”`}
+              title={statusFilter === DEFAULT_MESSAGES_STATUS_FILTER ? "Nenhuma resposta ainda" : `Nada em “${scopeLabel}”`}
               description={
                 statusFilter === DEFAULT_MESSAGES_STATUS_FILTER
-                  ? "Prospects who reply show up here. Switch to All to see everyone."
-                  : "Connections appear here after leads accept your invitations."
+                  ? "Prospects que respondem aparecem aqui. Mude para Todas para ver todo mundo."
+                  : "Conexões aparecem aqui após os leads aceitarem seus convites."
               }
             />
           )
@@ -913,11 +913,11 @@ export function MessagesLayout({
                   snippet={
                     conn.lastMessage ? (
                       <>
-                        {SENT_TYPES.has(conn.lastMessage.type) && <span className="text-text-soft-400">You: </span>}
+                        {SENT_TYPES.has(conn.lastMessage.type) && <span className="text-text-soft-400">Você: </span>}
                         {conn.lastMessage.text}
                       </>
                     ) : (
-                      <span className="italic text-text-soft-400">No messages yet</span>
+                      <span className="italic text-text-soft-400">Nenhuma mensagem ainda</span>
                     )
                   }
                   hint={conn.headline ?? undefined}
@@ -935,14 +935,14 @@ export function MessagesLayout({
         )}
         {!loadingList && connections.length > 0 && (
           <div ref={listSentinelRef} className="flex min-h-8 justify-center py-3">
-            {loadingMore && <RiLoader4Line className="size-5 animate-spin text-text-soft-400" aria-label="Loading more" />}
+                {loadingMore && <RiLoader4Line className="size-5 animate-spin text-text-soft-400" aria-label="Carregando mais" />}
           </div>
         )}
       </ListPane>
 
       <ReadingPane shown={selected !== null} aside={detailsPanel}>
         {!selected ? (
-          <ReadingEmpty icon={RiMessage3Line} description="Pick a conversation from the list to read it and reply." />
+          <ReadingEmpty icon={RiMessage3Line} description="Escolha uma conversa na lista para ler e responder." />
         ) : (
           <>
             <ThreadHeader
@@ -971,17 +971,17 @@ export function MessagesLayout({
               actions={
                 <>
                   {recordId && (
-                    <Button.Root variant="neutral" mode="stroke" size="xsmall" asChild className="@max-3xl:w-8 @max-3xl:px-0" title="Open CRM record">
-                      <Link href={`/crm/records/${recordId}`} aria-label="Open CRM record">
+                    <Button.Root variant="neutral" mode="stroke" size="xsmall" asChild className="@max-3xl:w-8 @max-3xl:px-0" title="Abrir registro no CRM">
+                      <Link href={`/crm/records/${recordId}`} aria-label="Abrir registro no CRM">
                         <Button.Icon as={RiUserSearchLine} />
-                        <span className="hidden @3xl:inline">Record</span>
+                        <span className="hidden @3xl:inline">Registro</span>
                       </Link>
                     </Button.Root>
                   )}
                   {selected.linkedinUrl && (
-                    <HeaderAction icon={RiExternalLinkLine} label="LinkedIn profile" href={toLinkedinHref(selected.linkedinUrl)} external iconOnly />
+                    <HeaderAction icon={RiExternalLinkLine} label="Perfil no LinkedIn" href={toLinkedinHref(selected.linkedinUrl)} external iconOnly />
                   )}
-                  <HeaderAction icon={RiLayoutRightLine} label={details.open ? "Hide details" : "Show details"} onClick={details.toggle} pressed={details.open} iconOnly />
+                  <HeaderAction icon={RiLayoutRightLine} label={details.open ? "Ocultar detalhes" : "Mostrar detalhes"} onClick={details.toggle} pressed={details.open} iconOnly />
                 </>
               }
             />
@@ -999,7 +999,7 @@ export function MessagesLayout({
                 <DoNotContactNotice />
               ) : !selected.chatId ? (
                 <p className="py-1 text-center text-paragraph-xs text-text-soft-400">
-                  No chat with this connection yet — you can reply once they send a message.
+                  Ainda não há conversa com esta conexão — você poderá responder quando ela enviar uma mensagem.
                 </p>
               ) : (
                 <>
@@ -1036,9 +1036,9 @@ export function MessagesLayout({
                         />
                       ) : undefined
                     }
-                    submitLabel={activeDraft ? "Approve & send" : "Send"}
-                    placeholder={`Message ${selectedName.split(" ")[0] || "them"}…`}
-                    meta={<ChannelTag channel="linkedin" label={senderLabel ? `as ${senderLabel}` : "LinkedIn"} />}
+                    submitLabel={activeDraft ? "Aprovar e enviar" : "Enviar"}
+                    placeholder={`Mensagem para ${selectedName.split(" ")[0] || "vocês"}…`}
+                    meta={<ChannelTag channel="linkedin" label={senderLabel ? `como ${senderLabel}` : "LinkedIn"} />}
                   />
                 </>
               )}

@@ -118,7 +118,7 @@ export default function ColumnMenu({
       await onRename(trimmedName);
       onClose();
     } catch (error) {
-      setRenameError(error instanceof Error ? error.message : "Could not rename the column");
+      setRenameError(error instanceof Error ? error.message : "Não foi possível renomear a coluna");
     } finally {
       setBusy(false);
     }
@@ -130,7 +130,7 @@ export default function ColumnMenu({
       await action();
       onClose();
     } catch (error) {
-      onError(error instanceof Error ? error.message : "Column action failed");
+      onError(error instanceof Error ? error.message : "Falha na ação da coluna");
     } finally {
       setBusy(false);
     }
@@ -149,25 +149,25 @@ export default function ColumnMenu({
           setOptionsError(null);
           onSaveOptions(options)
             .then(onClose)
-            .catch((error) => setOptionsError(error instanceof Error ? error.message : "Could not save the options"))
+            .catch((error) => setOptionsError(error instanceof Error ? error.message : "Não foi possível salvar as opções"))
             .finally(() => setBusy(false));
         }}
       >
-        <label className="mb-1.5 block text-[12px] font-medium text-text-sub-600">Options, one per line</label>
+        <label className="mb-1.5 block text-[12px] font-medium text-text-sub-600">Opções, uma por linha</label>
         <textarea
           autoFocus
           rows={6}
           value={optionsText}
           onChange={(event) => setOptionsText(event.target.value)}
-          className="w-full resize-y rounded-lg border border-blue-500 px-2.5 py-2 text-[13px] text-text-strong-950 outline-none ring-1 ring-blue-500"
+          className="w-full resize-y rounded-lg border border-[var(--color-action-ring)] px-2.5 py-2 text-[13px] text-text-strong-950 outline-none ring-1 ring-[var(--color-action-ring)]"
         />
-        {optionsError && <p className="mt-1.5 text-[12px] text-red-600 dark:text-red-400">{optionsError}</p>}
+        {optionsError && <p className="mt-1.5 text-[12px] text-[var(--color-error-dark)]">{optionsError}</p>}
         <div className="mt-2 flex justify-end gap-2">
           <button type="button" onClick={() => setEditingOptions(false)} className="rounded-md px-2.5 py-1.5 text-[12px] text-text-sub-600 hover:bg-bg-weak-50">
-            Cancel
+            Cancelar
           </button>
-          <button type="submit" disabled={busy} className="rounded-md bg-blue-600 px-2.5 py-1.5 text-[12px] font-medium text-white disabled:opacity-50">
-            Save {options.length} option{options.length === 1 ? "" : "s"}
+          <button type="submit" disabled={busy} className="rounded-md bg-[var(--color-action-bg)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--color-action-text)] disabled:opacity-50">
+            Salvar {options.length} opção{options.length === 1 ? "" : "s"}
           </button>
         </div>
       </form>
@@ -185,7 +185,7 @@ export default function ColumnMenu({
         }}
       >
         <label className="mb-1.5 block text-[12px] font-medium text-text-sub-600">
-          Rename column
+          Renomear coluna
         </label>
         <input
           autoFocus
@@ -194,20 +194,20 @@ export default function ColumnMenu({
             setName(event.target.value);
             setRenameError(null);
           }}
-          className="w-full rounded-lg border border-blue-500 px-2.5 py-2 text-[13px] text-text-strong-950 outline-none ring-1 ring-blue-500"
+          className="w-full rounded-lg border border-[var(--color-action-ring)] px-2.5 py-2 text-[13px] text-text-strong-950 outline-none ring-1 ring-[var(--color-action-ring)]"
           onFocus={(event) => event.currentTarget.select()}
         />
         {(renameError || nameTaken) && (
-          <p className="mt-1.5 text-[12px] text-red-600 dark:text-red-400">
-            {renameError ?? "Another column already has this name."}
+          <p className="mt-1.5 text-[12px] text-[var(--color-error-dark)]">
+            {renameError ?? "Outra coluna já tem este nome."}
           </p>
         )}
         <div className="mt-2 flex justify-end gap-2">
           <button type="button" onClick={() => setRenaming(false)} className="rounded-md px-2.5 py-1.5 text-[12px] text-text-sub-600 hover:bg-bg-weak-50">
-            Cancel
+            Cancelar
           </button>
-          <button type="submit" disabled={!canSaveName} className="rounded-md bg-blue-600 px-2.5 py-1.5 text-[12px] font-medium text-white disabled:opacity-50">
-            Save
+          <button type="submit" disabled={!canSaveName} className="rounded-md bg-[var(--color-action-bg)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--color-action-text)] disabled:opacity-50">
+            Salvar
           </button>
         </div>
       </form>
@@ -218,21 +218,21 @@ export default function ColumnMenu({
     <div className="p-2">
       {onConfigure && (
         <>
-          <MenuButton icon={RiSettings3Line} label={configureLabel ?? "Configure…"} onClick={() => void run(async () => onConfigure())} />
+          <MenuButton icon={RiSettings3Line} label={configureLabel ?? "Configurar…"} onClick={() => void run(async () => onConfigure())} />
           <Divider />
         </>
       )}
-      <MenuButton icon={RiPencilLine} label="Rename column" onClick={() => setRenaming(true)} />
-      {hasOptions && <MenuButton icon={RiListCheck} label="Edit options" onClick={() => setEditingOptions(true)} />}
+      <MenuButton icon={RiPencilLine} label="Renomear coluna" onClick={() => setRenaming(true)} />
+      {hasOptions && <MenuButton icon={RiListCheck} label="Editar opções" onClick={() => setEditingOptions(true)} />}
       <HoverSubmenu
         icon={RiArrowRightLine}
-        label="Insert column"
+        label="Inserir coluna"
         open={submenu === "insert"}
         onOpen={() => setSubmenu("insert")}
         onClose={() => setSubmenu(null)}
       >
-        <MenuButton icon={RiArrowLeftLine} label="Left" compact onClick={(event) => onInsert("left", event.currentTarget.getBoundingClientRect())} />
-        <MenuButton icon={RiArrowRightLine} label="Right" compact onClick={(event) => onInsert("right", event.currentTarget.getBoundingClientRect())} />
+        <MenuButton icon={RiArrowLeftLine} label="Esquerda" compact onClick={(event) => onInsert("left", event.currentTarget.getBoundingClientRect())} />
+        <MenuButton icon={RiArrowRightLine} label="Direita" compact onClick={(event) => onInsert("right", event.currentTarget.getBoundingClientRect())} />
       </HoverSubmenu>
 
       <Divider />
@@ -247,32 +247,32 @@ export default function ColumnMenu({
       )}
 
       <Divider />
-      <MenuButton icon={RiGitBranchLine} label={`Used in${usedIn.length ? ` (${usedIn.length})` : "…"}`} suffix active={showUsedIn} onClick={() => setShowUsedIn((value) => !value)} />
+      <MenuButton icon={RiGitBranchLine} label={`Usada em${usedIn.length ? ` (${usedIn.length})` : "…"}`} suffix active={showUsedIn} onClick={() => setShowUsedIn((value) => !value)} />
       {showUsedIn && (
         <div className="ml-7 border-l border-stroke-soft-200 py-1 pl-3 text-[12px] text-text-sub-600">
-          {usedIn.length ? usedIn.map((dependent) => <div key={dependent.id} className="py-1">{dependent.name}</div>) : "No columns depend on this one."}
+          {usedIn.length ? usedIn.map((dependent) => <div key={dependent.id} className="py-1">{dependent.name}</div>) : "Nenhuma coluna depende desta."}
         </div>
       )}
       {canDuplicate && (
-        <MenuButton icon={RiFileCopyLine} label="Duplicate" disabled={busy} onClick={() => void run(onDuplicate)} />
+        <MenuButton icon={RiFileCopyLine} label="Duplicar" disabled={busy} onClick={() => void run(onDuplicate)} />
       )}
       <HoverSubmenu
         icon={RiSplitCellsHorizontal}
-        label="Text to columns"
+        label="Texto em colunas"
         open={submenu === "split"}
         disabled={!canSplit || busy}
-        title={canSplit ? undefined : "Change this column to Text before splitting it"}
+        title={canSplit ? undefined : "Altere esta coluna para Texto antes de dividi-la"}
         onOpen={() => setSubmenu("split")}
         onClose={() => setSubmenu(null)}
       >
-        <MenuButton icon={RiSplitCellsHorizontal} label="Comma" compact onClick={() => void run(() => onSplit("comma"))} />
-        <MenuButton icon={RiSplitCellsHorizontal} label="Space" compact onClick={() => void run(() => onSplit("space"))} />
-        <MenuButton icon={RiSplitCellsHorizontal} label="Semicolon" compact onClick={() => void run(() => onSplit("semicolon"))} />
-        <MenuButton icon={RiSplitCellsHorizontal} label="Pipe (|)" compact onClick={() => void run(() => onSplit("pipe"))} />
+        <MenuButton icon={RiSplitCellsHorizontal} label="Vírgula" compact onClick={() => void run(() => onSplit("comma"))} />
+        <MenuButton icon={RiSplitCellsHorizontal} label="Espaço" compact onClick={() => void run(() => onSplit("space"))} />
+        <MenuButton icon={RiSplitCellsHorizontal} label="Ponto e vírgula" compact onClick={() => void run(() => onSplit("semicolon"))} />
+        <MenuButton icon={RiSplitCellsHorizontal} label="Barra vertical (|)" compact onClick={() => void run(() => onSplit("pipe"))} />
       </HoverSubmenu>
       <HoverSubmenu
         icon={RiSortAsc}
-        label="Sort"
+        label="Ordenar"
         open={submenu === "sort"}
         onOpen={() => setSubmenu("sort")}
         onClose={() => setSubmenu(null)}
@@ -282,13 +282,13 @@ export default function ColumnMenu({
       </HoverSubmenu>
 
       <Divider />
-      <MenuButton icon={RiGitBranchLine} label="Dedupe rows" disabled={busy} title="Keep the first row for each value in this column" onClick={() => void run(onDedupe)} />
-      <MenuButton icon={RiFilter3Line} label="Filter on this column" onClick={(event) => void run(() => onFilter(event.currentTarget.getBoundingClientRect()))} />
+      <MenuButton icon={RiGitBranchLine} label="Remover duplicatas" disabled={busy} title="Manter a primeira linha para cada valor nesta coluna" onClick={() => void run(onDedupe)} />
+      <MenuButton icon={RiFilter3Line} label="Filtrar por esta coluna" onClick={(event) => void run(() => onFilter(event.currentTarget.getBoundingClientRect()))} />
 
       <Divider />
-      <MenuButton icon={RiPushpinLine} label={pinned ? "Unpin" : "Pin"} onClick={() => void run(onPin)} />
-      <MenuButton icon={RiEyeOffLine} label="Hide" onClick={() => void run(onHide)} />
-      <MenuButton icon={RiDeleteBin6Line} label="Delete" danger disabled={busy} onClick={() => void run(onDelete)} />
+      <MenuButton icon={RiPushpinLine} label={pinned ? "Desafixar" : "Fixar"} onClick={() => void run(onPin)} />
+      <MenuButton icon={RiEyeOffLine} label="Ocultar" onClick={() => void run(onHide)} />
+      <MenuButton icon={RiDeleteBin6Line} label="Excluir" danger disabled={busy} onClick={() => void run(onDelete)} />
     </div>
   );
 }
@@ -371,7 +371,7 @@ function MenuButton({
         disabled
           ? "cursor-not-allowed text-text-disabled-300"
           : danger
-            ? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+            ? "text-[var(--color-error-dark)] hover:bg-[var(--color-error-lighter)]"
             : active
               ? "bg-bg-weak-50 text-text-strong-950"
               : "text-text-strong-950 hover:bg-bg-weak-50"

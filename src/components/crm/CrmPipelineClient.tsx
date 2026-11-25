@@ -46,10 +46,10 @@ const STAGES = Object.keys(STAGE_META) as PipelineStage[];
 const BOARD_PAGE = 20;
 
 const EMPTY_COPY: Record<PipelineStage | "all", { title: string; detail: string }> = {
-  all: { title: "No open leads", detail: "Anyone who replies will show up here until their record is closed." },
-  needs_action: { title: "Nothing needs attention", detail: "New replies and due follow-ups land here." },
-  waiting: { title: "No one is waiting", detail: "Leads you have replied to, or with a follow-up scheduled, land here." },
-  exhausted: { title: "No exhausted sequences", detail: "Leads whose every follow-up went out without a reply land here." },
+  all: { title: "Nenhum lead em aberto", detail: "Quem responder aparece aqui até o registro ser encerrado." },
+  needs_action: { title: "Nada precisa de atenção", detail: "Novas respostas e follow-ups vencidos aparecem aqui." },
+  waiting: { title: "Ninguém está aguardando", detail: "Leads respondidos por você ou com follow-up agendado aparecem aqui." },
+  exhausted: { title: "Nenhuma sequência esgotada", detail: "Leads cujos follow-ups foram todos enviados sem resposta aparecem aqui." },
 };
 
 type Filters = { category: string; channel: string };
@@ -158,44 +158,44 @@ export function CrmPipelineClient() {
     : null;
   const filtered = filters.category !== DEFAULT_FILTERS.category || Boolean(filters.channel);
   const setFilter = (key: keyof Filters, value: string) => setFilters((old) => ({ ...old, [key]: value }));
-  const format = (value: number | null) => value === null ? "—" : value.toLocaleString();
+  const format = (value: number | null) => value === null ? "—" : value.toLocaleString("pt-BR");
   const total = countFor("all");
 
   return <>
     <PageHeader
       title="Pipeline"
-      description="Every open lead, by where it stands: waiting on you, waiting on them, or out of follow-ups."
+      description="Todos os leads em aberto, por situação: aguardando você, aguardando o lead ou sem follow-ups."
     />
 
     <KpiStrip className="mt-6" columns={4}>
-      <KpiCell icon={RiTeamLine} label="Open leads" value={format(total)} context={filters.category === "potential" ? "Not counting “Not interested”" : "Under the current filters"} hint="Every CRM record that is not closed, under the category and channel filters below." />
-      <KpiCell icon={STAGE_META.needs_action.icon} label={STAGE_META.needs_action.label} value={format(countFor("needs_action"))} context={STAGE_META.needs_action.detail} hint="The same records as Action required." />
+      <KpiCell icon={RiTeamLine} label="Leads em aberto" value={format(total)} context={filters.category === "potential" ? "Sem contar “Não interessado”" : "Com os filtros atuais"} hint="Todo registro do CRM que não está encerrado, nos filtros de categoria e canal abaixo." />
+      <KpiCell icon={STAGE_META.needs_action.icon} label={STAGE_META.needs_action.label} value={format(countFor("needs_action"))} context={STAGE_META.needs_action.detail} hint="Os mesmos registros de Ação necessária." />
       <KpiCell icon={STAGE_META.waiting.icon} label={STAGE_META.waiting.label} value={format(countFor("waiting"))} context={STAGE_META.waiting.detail} />
-      <KpiCell icon={STAGE_META.exhausted.icon} label={STAGE_META.exhausted.label} value={format(countFor("exhausted"))} context={STAGE_META.exhausted.detail} hint="The last sequence run finished its final step without an answer. Move their stage or close them." />
+      <KpiCell icon={STAGE_META.exhausted.icon} label={STAGE_META.exhausted.label} value={format(countFor("exhausted"))} context={STAGE_META.exhausted.detail} hint="A última sequência terminou sem resposta. Mude o estágio ou encerre o lead." />
     </KpiStrip>
 
     <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
       <SegmentedControl.Root value={view} onValueChange={(value) => setView(value as View)}>
-        <SegmentedControl.List className="w-auto" aria-label="View">
-          <SegmentedControl.Trigger value="board" className="gap-1.5 px-3"><RiKanbanView2 className="size-4" aria-hidden="true" />Board</SegmentedControl.Trigger>
-          <SegmentedControl.Trigger value="list" className="gap-1.5 px-3"><RiListUnordered className="size-4" aria-hidden="true" />List</SegmentedControl.Trigger>
+        <SegmentedControl.List className="w-auto" aria-label="Visualização">
+          <SegmentedControl.Trigger value="board" className="gap-1.5 px-3"><RiKanbanView2 className="size-4" aria-hidden="true" />Quadro</SegmentedControl.Trigger>
+          <SegmentedControl.Trigger value="list" className="gap-1.5 px-3"><RiListUnordered className="size-4" aria-hidden="true" />Lista</SegmentedControl.Trigger>
         </SegmentedControl.List>
       </SegmentedControl.Root>
       <div className="flex flex-wrap items-center gap-2">
-        <CompactSelect label="Category" placeholder="All categories" value={filters.category} onChange={(value) => setFilter("category", value)}>
-          <Select.Item value="potential">Potential (not “Not interested”)</Select.Item>
-          <Select.Item value="">All categories</Select.Item>
+        <CompactSelect label="Categoria" placeholder="Todas as categorias" value={filters.category} onChange={(value) => setFilter("category", value)}>
+          <Select.Item value="potential">Potenciais (não “Não interessado”)</Select.Item>
+          <Select.Item value="">Todas as categorias</Select.Item>
           {categoryItems()}
         </CompactSelect>
-        <CompactSelect label="Channel" placeholder="All channels" value={filters.channel} onChange={(value) => setFilter("channel", value)}><Select.Item value="">All channels</Select.Item>{channelItems()}</CompactSelect>
-        {filtered && <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={() => setFilters(DEFAULT_FILTERS)}>Reset</Button.Root>}
+        <CompactSelect label="Canal" placeholder="Todos os canais" value={filters.channel} onChange={(value) => setFilter("channel", value)}><Select.Item value="">Todos os canais</Select.Item>{channelItems()}</CompactSelect>
+        {filtered && <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={() => setFilters(DEFAULT_FILTERS)}>Redefinir</Button.Root>}
       </div>
     </div>
     {categoryError && <div className="mt-3"><ErrorState message={categoryError} /></div>}
 
     {view === "board" ? <>
       <SegmentedControl.Root value={mobileStage} onValueChange={(value) => setMobileStage(value as PipelineStage)} className="mt-4 lg:hidden">
-        <SegmentedControl.List aria-label="Stage">
+        <SegmentedControl.List aria-label="Estágio">
           {STAGES.map((stage) => <SegmentedControl.Trigger key={stage} value={stage} className="gap-1 px-1.5 text-label-xs sm:gap-1.5 sm:px-2">
             <StageGlyph stage={stage} />
             {STAGE_META[stage].short}
@@ -221,14 +221,14 @@ export function CrmPipelineClient() {
       </HoverPreviewProvider>
     </> : <Frame className="mt-4">
       <FrameHeader
-        title="Open leads"
-        description={list.loaded ? `${format(countFor(listStage))} leads · most recent activity first` : "Loading…"}
+        title="Leads em aberto"
+        description={list.loaded ? `${format(countFor(listStage))} leads · atividade mais recente primeiro` : "Carregando…"}
         actions={
           <SegmentedControl.Root value={listStage} onValueChange={(value) => setListStage(value as PipelineStage | "all")}>
-            <SegmentedControl.List className="w-full sm:inline-grid sm:w-auto" aria-label="Pipeline stage">
+            <SegmentedControl.List className="w-full sm:inline-grid sm:w-auto" aria-label="Estágio do pipeline">
               {(["all", ...STAGES] as const).map((stage) => <SegmentedControl.Trigger key={stage} value={stage} className="gap-1.5 px-2 sm:px-3">
                 {stage !== "all" && <StageGlyph stage={stage} className="hidden sm:flex" />}
-                {stage === "all" ? "All" : STAGE_META[stage].short}
+                {stage === "all" ? "Todos" : STAGE_META[stage].short}
                 <span className="tabular-nums text-text-soft-400">{format(countFor(stage))}</span>
               </SegmentedControl.Trigger>)}
             </SegmentedControl.List>
@@ -249,7 +249,7 @@ export function CrmPipelineClient() {
               hasMore={list.hasMore && !list.loadingMore}
               onLoadMore={list.loadMore}
               empty={filtered
-                ? { icon: RiFilterOffLine, title: "No leads match these filters", detail: "Try another category or channel.", action: <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setFilters(DEFAULT_FILTERS)}>Reset filters</Button.Root> }
+                ? { icon: RiFilterOffLine, title: "Nenhum lead com estes filtros", detail: "Tente outra categoria ou canal.", action: <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setFilters(DEFAULT_FILTERS)}>Redefinir filtros</Button.Root> }
                 : { icon: RiCheckDoubleLine, ...EMPTY_COPY[listStage] }}
             />
             {list.hasMore && <LoadMoreOnScroll onLoadMore={list.loadMore} busy={list.loadingMore} />}
@@ -301,14 +301,14 @@ function BoardColumn({ stage, page, columns, count, categories, filtered, onRese
         <h2 id={`stage-${stage}`} className="truncate text-label-md text-text-strong-950">{meta.label}</h2>
         <p className="truncate text-paragraph-xs text-text-sub-600">{meta.detail}</p>
       </div>
-      <span className="flex h-7 min-w-9 shrink-0 items-center justify-center rounded-lg bg-bg-white-0 px-2 text-label-sm tabular-nums text-text-strong-950 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200" title={`${count === null ? "—" : count.toLocaleString()} leads`}>{count === null ? "—" : count.toLocaleString()}</span>
+      <span className="flex h-7 min-w-9 shrink-0 items-center justify-center rounded-lg bg-bg-white-0 px-2 text-label-sm tabular-nums text-text-strong-950 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200" title={`${count === null ? "—" : count.toLocaleString("pt-BR")} leads`}>{count === null ? "—" : count.toLocaleString("pt-BR")}</span>
     </header>
     <NoticeBar notice={notice} onDismiss={() => setNotice(null)} className="mb-1 rounded-lg" />
     {!page.loaded && page.loading ? <div className="space-y-2">{Array.from({ length: 4 }, (_, i) => <div key={i} className="h-36 animate-pulse rounded-xl bg-bg-white-0 ring-1 ring-inset ring-stroke-soft-200" />)}</div>
       : page.error && !page.actions.length ? <FramePanel className="p-3 sm:p-3"><ErrorState message={page.error} onRetry={() => void page.load(0)} /></FramePanel>
       : !page.actions.length ? <FramePanel className="p-0 sm:p-0">
         {filtered
-          ? <EmptyState compact icon={RiFilterOffLine} title="No matches here" description="No lead in this stage fits the filters." action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={onReset}>Reset filters</Button.Root>} />
+          ? <EmptyState compact icon={RiFilterOffLine} title="Nenhum resultado aqui" description="Nenhum lead neste estágio atende aos filtros." action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={onReset}>Redefinir filtros</Button.Root>} />
           : <EmptyState compact icon={RiCheckDoubleLine} title={EMPTY_COPY[stage].title} description={EMPTY_COPY[stage].detail} />}
       </FramePanel>
       // From lg each column scrolls on its own, like a board: the three stages
@@ -329,7 +329,7 @@ function BoardColumn({ stage, page, columns, count, categories, filtered, onRese
           />;
         })}
         {page.hasMore && <Button.Root variant="neutral" mode="ghost" size="small" className="w-full" onClick={page.loadMore} disabled={page.loadingMore}>
-          {page.loadingMore ? "Loading…" : "Load more"}
+          {page.loadingMore ? "Carregando…" : "Carregar mais"}
         </Button.Root>}
       </div>}
   </Frame>;

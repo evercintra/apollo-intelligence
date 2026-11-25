@@ -65,6 +65,14 @@ function sequenceIsAssignable(sequence: Sequence) {
   );
 }
 
+function localizeBookingError(message: string): string {
+  return message
+    .replace("The booking link must be text", "O link de agendamento deve ser um texto")
+    .replace(/The booking link must be at most (\d+) characters/, "O link de agendamento deve ter no máximo $1 caracteres")
+    .replace("The booking link must be a full URL, like https://cal.com/acme/30min", "O link de agendamento deve ser uma URL completa, como https://cal.com/acme/30min")
+    .replace("The booking link must start with https:// or http://", "O link de agendamento deve começar com https:// ou http://");
+}
+
 /** The pipeline's booking page: what `{{booking_link}}` in a CRM message becomes. */
 function BookingLinkSection() {
   const [saved, setSaved] = useState<string | null>(null);
@@ -94,7 +102,7 @@ function BookingLinkSection() {
     const trimmed = value.trim();
     if (trimmed) {
       const parsed = parseBookingUrl(trimmed);
-      if (!parsed.ok) { setError(parsed.error); return; }
+      if (!parsed.ok) { setError(localizeBookingError(parsed.error)); return; }
     }
     setBusy(true);
     try {
@@ -118,26 +126,26 @@ function BookingLinkSection() {
   return (
     <Frame>
       <FrameHeader
-        title="Booking link"
-        description={<>Write {BOOKING_LINK_TOKEN} in a CRM message (or let the AI draft do it) and it becomes this booking page with the lead&apos;s own code, so AgentSDR sees when they book. A link to this Cal.com page pasted by hand gets the code too.</>}
+        title="Link de agendamento"
+        description={<>Escreva {BOOKING_LINK_TOKEN} em uma mensagem do CRM (ou deixe a IA incluir) e ele se torna esta página de agendamento com o código do lead, para que a automação registre quando ele agenda. Um link desta página do Cal.com colado manualmente também recebe o código.</>}
       />
       <FramePanel className="space-y-3 p-4 sm:p-4">
         {!loaded ? (
-          <p className="text-paragraph-sm text-text-sub-600">Loading…</p>
+          <p className="text-paragraph-sm text-text-sub-600">Carregando…</p>
         ) : (
           <>
-            <BookingLinkField label="Booking page" value={value} onChange={(next) => { setValue(next); setJustSaved(false); }} />
+            <BookingLinkField label="Página de agendamento" value={value} onChange={(next) => { setValue(next); setJustSaved(false); }} />
             {!saved && (
               <Callout tone="warning">
-                No booking link is set, so messages containing {BOOKING_LINK_TOKEN} cannot be sent until it is.
+                Nenhum link de agendamento foi definido, então mensagens que contêm {BOOKING_LINK_TOKEN} não podem ser enviadas até que ele seja definido.
               </Callout>
             )}
             {error && <Callout tone="error">{error}</Callout>}
             <div className="flex items-center gap-3">
               <Button.Root variant="primary" mode="filled" size="small" onClick={() => void save()} disabled={busy || !dirty}>
-                {busy ? "Saving…" : "Save"}
+                {busy ? "Salvando…" : "Salvar"}
               </Button.Root>
-              {justSaved && !error && <span role="status" className="text-paragraph-xs text-success-base">Saved</span>}
+              {justSaved && !error && <span role="status" className="text-paragraph-xs text-success-base">Salvo</span>}
             </div>
           </>
         )}
@@ -219,7 +227,7 @@ export default function CrmSettingsClient() {
     const stageRank = values.stageRank.trim() ? Number(values.stageRank) : null;
     try {
       if (editor.mode === "add") {
-        if (!pipelineId) return "No default CRM pipeline is configured yet.";
+        if (!pipelineId) return "Nenhum pipeline padrão do CRM foi configurado ainda.";
         setBusyKey(`create:${editor.category}`);
         await crmFetch("/subcategories", {
           method: "POST",
@@ -276,11 +284,11 @@ export default function CrmSettingsClient() {
   const remove = async (item: Category) => {
     const id = itemId(item);
     if (!id) return;
-    const name = String(item.name ?? "This subcategory");
+    const name = String(item.name ?? "esta subcategoria");
     const confirmed = await dialogs.confirm({
-      title: "Delete subcategory?",
-      description: `“${name}” will be permanently deleted along with its sequence assignment. Subcategories still holding CRM records or classification history cannot be deleted.`,
-      confirmLabel: "Delete subcategory",
+      title: "Excluir subcategoria?",
+      description: `“${name}” será excluída permanentemente junto com sua sequência atribuída. Subcategorias que ainda têm registros do CRM ou histórico de classificação não podem ser excluídas.`,
+      confirmLabel: "Excluir subcategoria",
       variant: "error",
     });
     if (!confirmed) return;
@@ -323,14 +331,14 @@ export default function CrmSettingsClient() {
       {error && (
         <Callout
           tone="error"
-          action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void load()}>Try again</Button.Root>}
+          action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void load()}>Tentar novamente</Button.Root>}
         >
           {error}
         </Callout>
       )}
       {!pipelineId && !loading && !error && (
-        <Callout tone="warning" title="No CRM pipeline yet">
-          Subcategories belong to the default CRM pipeline, and none is configured yet.
+        <Callout tone="warning" title="Ainda não há pipeline no CRM">
+          As subcategorias pertencem ao pipeline padrão do CRM, e nenhum foi configurado ainda.
         </Callout>
       )}
 
@@ -340,7 +348,7 @@ export default function CrmSettingsClient() {
         <>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-paragraph-xs text-text-sub-600">
-              {items.filter((i) => i.active !== false).length} active subcategories across {categories.length} categories
+              {items.filter((i) => i.active !== false).length} subcategorias ativas em {categories.length} categorias
             </p>
             <Button.Root
               variant="neutral"
@@ -348,7 +356,7 @@ export default function CrmSettingsClient() {
               size="xsmall"
               onClick={() => setOpenCategories(allOpen ? new Set() : new Set(categories))}
             >
-              {allOpen ? "Collapse all" : "Expand all"}
+              {allOpen ? "Recolher todas" : "Expandir todas"}
             </Button.Root>
           </div>
           {categories.map((category) => (
@@ -428,15 +436,15 @@ function CategorySection({
         >
           <RiArrowDownSLine
             aria-hidden="true"
-            className={cn("size-5 shrink-0 text-text-soft-400 transition-transform duration-200", !open && "-rotate-90")}
+            className={cn("size-5 shrink-0 text-text-sub-600 transition-transform duration-200", !open && "-rotate-90")}
           />
           <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: CRM_CATEGORY_COLOR[category] }} />
           <span className="min-w-0">
             <span className="block text-label-sm text-text-strong-950">{CATEGORY_LABELS[category]}</span>
             <span className="block truncate text-paragraph-xs text-text-sub-600">
-              {activeCount} subcategor{activeCount === 1 ? "y" : "ies"}
-              {activeCount > 0 && ` · ${withSequence} with a sequence`}
-              {archivedCount > 0 && ` · ${archivedCount} archived`}
+              {activeCount} {activeCount === 1 ? "subcategoria ativa" : "subcategorias ativas"}
+              {activeCount > 0 && ` · ${withSequence} com sequência`}
+              {archivedCount > 0 && ` · ${archivedCount} arquivadas`}
             </span>
           </span>
         </button>
@@ -447,11 +455,11 @@ function CategorySection({
           className="shrink-0"
           disabled={!pipelineReady || Boolean(busyKey)}
           onClick={onAdd}
-          aria-label={`Add a ${CATEGORY_LABELS[category]} subcategory`}
+          aria-label={`Adicionar subcategoria ${CATEGORY_LABELS[category]}`}
         >
           <Button.Icon as={RiAddLine} />
-          <span className="hidden sm:inline">Add subcategory</span>
-          <span className="sm:hidden">Add</span>
+          <span className="hidden sm:inline">Adicionar subcategoria</span>
+          <span className="sm:hidden">Adicionar</span>
         </Button.Root>
       </div>
 
@@ -461,18 +469,18 @@ function CategorySection({
             <EmptyState
               compact
               icon={RiPriceTag3Line}
-              title={`No ${CATEGORY_LABELS[category].toLowerCase()} subcategories yet`}
-              description="Add one to define how replies are classified and which sequence follows."
+              title={`Ainda não há subcategorias de ${CATEGORY_LABELS[category].toLowerCase()}`}
+              description="Adicione uma para definir como as respostas são classificadas e qual sequência vem depois."
             />
           ) : (
             <Table.Root className="min-w-180 [&>table]:table-fixed">
-              <caption className="sr-only">{CATEGORY_LABELS[category]} subcategories and their sequences</caption>
+              <caption className="sr-only">Subcategorias de {CATEGORY_LABELS[category]} e suas sequências</caption>
               <Table.Header>
                 <Table.Row>
-                  <Table.Head scope="col" className="w-[28%] px-4">Subcategory</Table.Head>
-                  <Table.Head scope="col" className="px-4">Classification description</Table.Head>
-                  <Table.Head scope="col" className="w-60 px-4">Sequence</Table.Head>
-                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Actions</span></Table.Head>
+                  <Table.Head scope="col" className="w-[28%] px-4">Subcategoria</Table.Head>
+                  <Table.Head scope="col" className="px-4">Descrição da classificação</Table.Head>
+                  <Table.Head scope="col" className="w-60 px-4">Sequência</Table.Head>
+                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Ações</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>
@@ -519,7 +527,7 @@ function SubcategoryRow({
   const sequenceId = String(item.sequenceId ?? item.sequence_id ?? "");
   const stageRank = item.stageRank == null ? null : Number(item.stageRank);
   const description = classificationDescription(item);
-  const name = String(item.name ?? "Unnamed");
+  const name = String(item.name ?? "Sem nome");
   const records = Number(item.activeRecordCount ?? item.recordCount ?? 0);
   const busy = busyKey.endsWith(`:${id}`);
 
@@ -528,10 +536,10 @@ function SubcategoryRow({
       <Table.Cell className="px-4 py-3 align-top">
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
           <span className={cn("truncate text-label-sm", archived ? "text-text-sub-600" : "text-text-strong-950")} title={name}>{name}</span>
-          {archived && <Badge.Root size="small" variant="lighter" color="gray">Archived</Badge.Root>}
+          {archived && <Badge.Root size="small" variant="lighter" color="gray">Arquivada</Badge.Root>}
         </div>
         <p className="mt-1 text-paragraph-xs text-text-sub-600">
-          {records.toLocaleString("en-US")} active {records === 1 ? "record" : "records"} · {stageRank != null ? `Stage ${stageRank}` : "Not a funnel stage"}
+          {records.toLocaleString("pt-BR")} {records === 1 ? "registro ativo" : "registros ativos"} · {stageRank != null ? `Estágio ${stageRank}` : "Não é estágio do funil"}
         </p>
       </Table.Cell>
       <Table.Cell className="px-4 py-3 align-top">
@@ -542,9 +550,9 @@ function SubcategoryRow({
             type="button"
             onClick={() => onEdit(item)}
             disabled={Boolean(busyKey)}
-            className="rounded text-paragraph-sm text-text-soft-400 underline decoration-dotted underline-offset-2 outline-none transition hover:text-text-sub-600 focus-visible:ring-2 focus-visible:ring-primary-base"
+            className="rounded text-paragraph-sm text-text-sub-600 underline decoration-dotted underline-offset-2 outline-none transition hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base"
           >
-            Add a description so the AI knows when to use it
+            Adicione uma descrição para a IA saber quando usar
           </button>
         )}
       </Table.Cell>
@@ -560,27 +568,27 @@ function SubcategoryRow({
         <div className="flex justify-end">
           <Dropdown.Root>
             <Dropdown.Trigger asChild>
-              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={Boolean(busyKey)} aria-label={`Actions for ${name}`}>
+              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={Boolean(busyKey)} aria-label={`Ações para ${name}`}>
                 <Button.Icon as={RiMoreLine} />
               </Button.Root>
             </Dropdown.Trigger>
             <Dropdown.Content align="end" className="min-w-40">
               <Dropdown.Item onSelect={() => onEdit(item)}>
                 <Dropdown.ItemIcon as={RiEditLine} />
-                Edit
+                Editar
               </Dropdown.Item>
               {/* Archiving is gone, but rows archived before it was removed
                   would otherwise have no way back. */}
               {archived && (
                 <Dropdown.Item onSelect={() => void onSetActive(item, true)}>
                   <Dropdown.ItemIcon as={RiArrowGoBackLine} />
-                  Restore
+                  Restaurar
                 </Dropdown.Item>
               )}
               <Dropdown.Separator />
               <Dropdown.Item destructive onSelect={() => void onDelete(item)}>
                 <Dropdown.ItemIcon as={RiDeleteBinLine} />
-                Delete
+                Excluir
               </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown.Root>
@@ -603,30 +611,30 @@ function SequenceDropdown({
 }) {
   const options = useMemo(() => {
     if (value && !sequences.some((sequence) => String(sequence.id) === value)) {
-      return [{ id: value, name: "Unavailable sequence", status: "archived" }, ...sequences];
+      return [{ id: value, name: "Sequência indisponível", status: "archived" }, ...sequences];
     }
     return sequences;
   }, [sequences, value]);
 
   return (
     <Select.Root size="xsmall" value={value} disabled={disabled} onValueChange={onChange}>
-      <Select.Trigger aria-label="Sequence" className="w-full"><Select.Value /></Select.Trigger>
+      <Select.Trigger aria-label="Sequência" className="w-full"><Select.Value /></Select.Trigger>
       <Select.Content>
-        <Select.Item value="">No sequence</Select.Item>
+        <Select.Item value="">Sem sequência</Select.Item>
         {options.map((sequence) => {
           const assignable = sequenceIsAssignable(sequence);
           const suffix = sequence.status !== "active"
-            ? " — archived"
+            ? " — arquivada"
             : assignable
               ? ""
-              : " — publish first";
+              : " — publicar primeiro";
           return (
             <Select.Item
               key={String(sequence.id)}
               value={String(sequence.id)}
               disabled={!assignable && String(sequence.id) !== value}
             >
-              {String(sequence.name ?? "Unnamed sequence")}{suffix}
+              {String(sequence.name ?? "Sequência sem nome")}{suffix}
             </Select.Item>
           );
         })}
@@ -672,24 +680,24 @@ function SubcategoryDialog({
       <Modal.Content size="max-w-lg">
         <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
           <Modal.Header icon={RiPriceTag3Line}>
-            <Modal.Title>{item ? "Edit subcategory" : "Add subcategory"}</Modal.Title>
+            <Modal.Title>{item ? "Editar subcategoria" : "Adicionar subcategoria"}</Modal.Title>
             <Modal.Description>
-              In <span className="text-text-strong-950">{CATEGORY_LABELS[category] ?? category}</span>. The AI sorts replies into it using the description.
+              Em <span className="text-text-strong-950">{CATEGORY_LABELS[category] ?? category}</span>. A IA usa a descrição para classificar as respostas aqui.
             </Modal.Description>
           </Modal.Header>
           <Modal.Body className="space-y-4">
-            <Field label="Name" htmlFor="subcategory-name" required error={nameMissing ? "Give the subcategory a name." : undefined}>
+            <Field label="Nome" htmlFor="subcategory-name" required error={nameMissing ? "Dê um nome à subcategoria." : undefined}>
               <Input.Root size="small" hasError={nameMissing}>
                 <Input.Wrapper>
-                  <Input.Input id="subcategory-name" autoFocus maxLength={120} value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Demo requested" />
+                  <Input.Input id="subcategory-name" autoFocus maxLength={120} value={name} onChange={(event) => setName(event.target.value)} placeholder="Ex.: Demonstração solicitada" />
                 </Input.Wrapper>
               </Input.Root>
             </Field>
             <Field
-              label="Classification description"
+              label="Descrição da classificação"
               htmlFor="subcategory-description"
               optional
-              description="Explain when an inbound reply should be placed here."
+              description="Explique quando uma resposta recebida deve ser colocada aqui."
             >
               <Textarea.Root
                 id="subcategory-description"
@@ -698,20 +706,20 @@ function SubcategoryDialog({
                 rows={4}
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="e.g. The person explicitly asks for a product demo"
+                placeholder="Ex.: a pessoa pede explicitamente uma demonstração do produto"
                 className="resize-y"
               />
             </Field>
             <Field
-              label="Funnel stage"
+              label="Estágio do funil"
               htmlFor="subcategory-stage"
               optional
-              error={stageInvalid ? "Use a whole number from 1, or leave it empty." : undefined}
-              description="The AI can move a lead only to the same or a higher stage. Leave empty for outcomes that aren't funnel stages (Out of Office, Not Interested)."
+              error={stageInvalid ? "Use um número inteiro a partir de 1 ou deixe vazio." : undefined}
+              description="A IA só pode mover um lead para o mesmo estágio ou um superior. Deixe vazio para resultados que não são estágios do funil (Fora do escritório, Não interessado)."
             >
               <Input.Root size="small" className="w-32" hasError={stageInvalid}>
                 <Input.Wrapper>
-                  <Input.Input id="subcategory-stage" type="number" min={1} step={1} value={stageRank} onChange={(event) => setStageRank(event.target.value)} placeholder="e.g. 2" />
+                  <Input.Input id="subcategory-stage" type="number" min={1} step={1} value={stageRank} onChange={(event) => setStageRank(event.target.value)} placeholder="Ex.: 2" />
                 </Input.Wrapper>
               </Input.Root>
             </Field>
@@ -719,10 +727,10 @@ function SubcategoryDialog({
           </Modal.Body>
           <Modal.Footer>
             <Button.Root type="button" variant="neutral" mode="stroke" size="small" disabled={busy} onClick={onClose}>
-              Cancel
+              Cancelar
             </Button.Root>
             <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={busy}>
-              {busy ? (item ? "Saving…" : "Adding…") : item ? "Save changes" : "Add subcategory"}
+              {busy ? (item ? "Salvando…" : "Adicionando…") : item ? "Salvar alterações" : "Adicionar subcategoria"}
             </Button.Root>
           </Modal.Footer>
         </form>

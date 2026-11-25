@@ -40,7 +40,7 @@ export type CampaignTab = "overview" | "leads" | "sequence";
 const REFRESH_MS = 30_000;
 
 function createdLabel(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(iso).toLocaleDateString("pt-BR", { month: "short", day: "numeric", year: "numeric" });
 }
 
 export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campaignId: string; initialTab: CampaignTab }) {
@@ -64,7 +64,7 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
       setCampaign(await apiJson<WhatsappCampaignDetail>(`/api/whatsapp/campaigns/${campaignId}`));
       setLoadError(null);
     } catch (cause) {
-      setLoadError(errorText(cause, "Could not load the campaign"));
+      setLoadError(errorText(cause, "Não foi possível carregar a campanha"));
     }
   }, [campaignId]);
 
@@ -92,7 +92,7 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
       setCampaign((prev) => (prev ? { ...prev, status: next } : prev));
       void load();
     } catch (cause) {
-      await dialogs.alert({ title: next === "paused" ? "Could not pause the campaign" : "Could not launch the campaign", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: next === "paused" ? "Não foi possível pausar a campanha" : "Não foi possível iniciar a campanha", description: errorText(cause), variant: "error" });
     } finally {
       setToggling(false);
     }
@@ -101,9 +101,9 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
   async function archive() {
     if (!campaign) return;
     const ok = await dialogs.confirm({
-      title: "Archive campaign?",
-      description: "Sending stops and the campaign leaves the list. Messages already sent stay in Messages and the CRM.",
-      confirmLabel: "Archive campaign",
+      title: "Arquivar campanha?",
+      description: "Os envios param e a campanha sai da lista. As mensagens já enviadas permanecem em Mensagens e no CRM.",
+      confirmLabel: "Arquivar campanha",
       variant: "error",
     });
     if (!ok) return;
@@ -111,7 +111,7 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
       await apiJson(`/api/whatsapp/campaigns/${campaign.id}`, { method: "DELETE" });
       router.push("/whatsapp/campaigns");
     } catch (cause) {
-      await dialogs.alert({ title: "Could not archive campaign", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: "Não foi possível arquivar a campanha", description: errorText(cause), variant: "error" });
     }
   }
 
@@ -119,18 +119,18 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
     if (loadError) {
       return (
         <div className="mx-auto w-full max-w-[1440px]">
-          <PageHeader back={{ href: "/whatsapp/campaigns", label: "Message campaigns" }} title="Message campaign" />
+          <PageHeader back={{ href: "/whatsapp/campaigns", label: "Campanhas de mensagens" }} title="Campanha de mensagens" />
           <EmptyState
             icon={RiErrorWarningLine}
-            title="Could not load the campaign"
+            title="Não foi possível carregar a campanha"
             description={loadError}
-            action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => void load()}>Try again</Button.Root>}
+            action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => void load()}>Tentar novamente</Button.Root>}
           />
         </div>
       );
     }
     return (
-      <div aria-busy="true" aria-label="Loading" className="mx-auto w-full max-w-[1440px] space-y-6">
+      <div aria-busy="true" aria-label="Carregando" className="mx-auto w-full max-w-[1440px] space-y-6">
         <Skeleton className="h-16 w-full rounded-xl" />
         <Skeleton className="h-16 w-full rounded-xl" />
         <Skeleton className="h-72 w-full rounded-2xl" />
@@ -141,12 +141,12 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
   const status = CAMPAIGN_STATUS[campaign.status];
   const connected = campaign.senders.filter((s) => s.status === "connected").length;
   const blocker = campaign.status === "paused" ? launchBlocker({ connectedSenders: connected, leads: campaign.stats.total, firstMessage: campaign.steps[0]?.body }) : null;
-  const senderNames = campaign.senders.map((s) => s.name || s.phone || "Number").join(", ");
+  const senderNames = campaign.senders.map((s) => s.name || s.phone || "Número").join(", ");
 
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        back={{ href: "/whatsapp/campaigns", label: "Message campaigns" }}
+        back={{ href: "/whatsapp/campaigns", label: "Campanhas de mensagens" }}
         title={campaign.name}
         badge={
           <Badge.Root size="medium" variant="lighter" color={status.color}>
@@ -154,7 +154,7 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
             {status.label}
           </Badge.Root>
         }
-        description={<span suppressHydrationWarning>{`Created ${createdLabel(campaign.createdAt)} · ${campaign.stepCount} ${campaign.stepCount === 1 ? "message" : "messages"} in the sequence${campaign.description ? ` · ${campaign.description}` : ""}`}</span>}
+        description={<span suppressHydrationWarning>{`Criada em ${createdLabel(campaign.createdAt)} · ${campaign.stepCount} ${campaign.stepCount === 1 ? "mensagem" : "mensagens"} na sequência${campaign.description ? ` · ${campaign.description}` : ""}`}</span>}
         actions={
           <>
             <Button.Root
@@ -166,49 +166,49 @@ export function WhatsappCampaignDetailClient({ campaignId, initialTab }: { campa
               title={blocker ?? undefined}
             >
               <Button.Icon as={toggling ? RiLoader4Line : campaign.status === "active" ? RiPauseCircleLine : RiPlayCircleLine} className={cn(toggling && "animate-spin")} />
-              {campaign.status === "active" ? "Pause" : campaign.stats.messagesSent > 0 ? "Resume" : "Launch"}
+              {campaign.status === "active" ? "Pausar" : campaign.stats.messagesSent > 0 ? "Retomar" : "Iniciar"}
             </Button.Root>
             <Dropdown.Root>
               <Dropdown.Trigger asChild>
-                <Button.Root variant="neutral" mode="stroke" size="small" aria-label="More actions">
+                <Button.Root variant="neutral" mode="stroke" size="small" aria-label="Mais ações">
                   <Button.Icon as={RiMoreLine} />
                 </Button.Root>
               </Dropdown.Trigger>
               <Dropdown.Content>
                 <Dropdown.Item onSelect={() => setEditing(true)}>
                   <Dropdown.ItemIcon as={RiPencilLine} />
-                  Edit campaign
+                  Editar campanha
                 </Dropdown.Item>
                 <Dropdown.Separator />
                 <Dropdown.Item destructive onSelect={() => void archive()}>
                   <Dropdown.ItemIcon as={RiArchiveLine} />
-                  Archive campaign
+                  Arquivar campanha
                 </Dropdown.Item>
               </Dropdown.Content>
             </Dropdown.Root>
           </>
         }
       />
-      {blocker && <p className="mt-3 text-paragraph-xs text-text-sub-600">Cannot launch yet: {blocker.charAt(0).toLowerCase()}{blocker.slice(1)}.</p>}
+      {blocker && <p className="mt-3 text-paragraph-xs text-text-sub-600">Não é possível iniciar ainda: {blocker.charAt(0).toLowerCase()}{blocker.slice(1)}.</p>}
 
       <StatRow
         className="mt-5"
         items={[
-          { label: "Queued", value: funnel.queued.toLocaleString("en-US"), icon: RiTimeLine, hint: "Leads still waiting for their first message" },
-          { label: "In sequence", value: funnel.inSequence.toLocaleString("en-US"), icon: RiHourglassLine, hint: "Leads with follow-ups still to come" },
-          { label: "Numbers", value: campaign.senders.length.toLocaleString("en-US"), icon: RiSmartphoneLine, hint: senderNames || "No WhatsApp numbers assigned" },
+          { label: "Na fila", value: funnel.queued.toLocaleString("pt-BR"), icon: RiTimeLine, hint: "Leads aguardando a primeira mensagem" },
+          { label: "Em sequência", value: funnel.inSequence.toLocaleString("pt-BR"), icon: RiHourglassLine, hint: "Leads com follow-ups ainda pendentes" },
+          { label: "Números", value: campaign.senders.length.toLocaleString("pt-BR"), icon: RiSmartphoneLine, hint: senderNames || "Nenhum número do WhatsApp atribuído" },
         ]}
       />
 
       <PageTabs
         className="mt-6"
-        label="Campaign sections"
+        label="Seções da campanha"
         value={tab}
         onChange={setTab}
         tabs={[
-          { value: "overview", label: "Overview", icon: RiBarChart2Line },
+          { value: "overview", label: "Visão geral", icon: RiBarChart2Line },
           { value: "leads", label: "Leads", icon: RiTeamLine, count: campaign.stats.total },
-          { value: "sequence", label: "Sequence", icon: RiListOrdered2, count: campaign.stepCount },
+          { value: "sequence", label: "Sequência", icon: RiListOrdered2, count: campaign.stepCount },
         ]}
       />
 

@@ -7,6 +7,7 @@ import * as Select from "@/components/alignui/select";
 import { TextField } from "@/components/calls/fields";
 import { bookingLinkLabel, type BookingLinksResponse } from "@/lib/calls/aiCampaigns/bookingLinks";
 import { listBookingLinks } from "@/lib/calls/aiCampaigns/client";
+import { aiErrorPt } from "./aiShared";
 
 const OTHER = "__other";
 
@@ -25,7 +26,7 @@ export function BookingLinkField({ label, value, onChange }: { label: string; va
     let live = true;
     listBookingLinks()
       .then((response) => live && setState(response))
-      .catch((error: unknown) => live && setState({ status: "error", error: error instanceof Error ? error.message : "Could not load your Cal.com links" }));
+      .catch((error: unknown) => live && setState({ status: "error", error: aiErrorPt(error instanceof Error ? error.message : "Não foi possível carregar seus links do Cal.com") }));
     return () => {
       live = false;
     };
@@ -39,15 +40,15 @@ export function BookingLinkField({ label, value, onChange }: { label: string; va
 
   const hint =
     state === null
-      ? "Loading your Cal.com links…"
+      ? "Carregando seus links do Cal.com…"
       : state.status === "no_api_key"
         ? "add_key"
         : state.status === "not_connected"
           ? "connect"
           : state.status === "error"
-            ? `${state.error}, so type the link instead.`
+            ? `${aiErrorPt(state.error)}, então digite o link.`
             : links.length === 0
-              ? "Your Cal.com account has no event types with a booking link; type one instead."
+              ? "Sua conta do Cal.com não tem tipos de evento com link de agendamento; digite um."
               : null;
 
   return (
@@ -68,10 +69,10 @@ export function BookingLinkField({ label, value, onChange }: { label: string; va
               }
             }}
           >
-            <Select.Trigger id={id} aria-label={label}><Select.Value placeholder="Choose a Cal.com event type" /></Select.Trigger>
+            <Select.Trigger id={id} aria-label={label}><Select.Value placeholder="Escolha um tipo de evento do Cal.com" /></Select.Trigger>
             <Select.Content>
               {links.map((link) => <Select.Item key={link.id} value={link.url}>{bookingLinkLabel(link)}</Select.Item>)}
-              <Select.Item value={OTHER}>Another link…</Select.Item>
+              <Select.Item value={OTHER}>Outro link…</Select.Item>
             </Select.Content>
           </Select.Root>
         </div>
@@ -87,16 +88,16 @@ export function BookingLinkField({ label, value, onChange }: { label: string; va
       )}
       {trimmed && /^https?:\/\//i.test(trimmed) && (
         <a href={trimmed} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-paragraph-xs text-text-sub-600 underline">
-          Open the booking page <RiExternalLinkLine className="size-3.5" />
+          Abrir página de agendamento <RiExternalLinkLine className="size-3.5" />
         </a>
       )}
       {hint === "add_key" ? (
         <p className="text-paragraph-xs text-text-sub-600">
-          Add a Cal.com API key in <Link href="/settings/whatsapp-connection" className="underline">Settings → WhatsApp → Integrations</Link> to pick from your event types.
+          Adicione uma chave de API do Cal.com em <Link href="/settings/whatsapp-connection" className="underline">Configurações → WhatsApp → Integrações</Link> para escolher entre seus tipos de evento.
         </p>
       ) : hint === "connect" ? (
         <p className="text-paragraph-xs text-text-sub-600">
-          <Link href="/settings/whatsapp-connection" className="underline">Connect Cal.com</Link> (with an API key) to pick from your event types and see who booked.
+          <Link href="/settings/whatsapp-connection" className="underline">Conecte o Cal.com</Link> (com uma chave de API) para escolher entre seus tipos de evento e ver quem agendou.
         </p>
       ) : hint ? (
         <p className="text-paragraph-xs text-text-sub-600">{hint}</p>

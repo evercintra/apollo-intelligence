@@ -49,17 +49,17 @@ type StatusFilter = WhatsappCampaignLeadStatus | "all";
 
 /** "Message 2 of 3": how far the sequence has got for this lead. */
 function progressLabel(lead: WhatsappCampaignLead, stepCount: number): string {
-  if (lead.status === "queued") return `Message 1 of ${stepCount}`;
-  if (lead.status === "in_sequence") return `Message ${Math.min(lead.currentStep + 1, stepCount)} of ${stepCount}`;
-  return `${lead.currentStep} of ${stepCount} sent`;
+  if (lead.status === "queued") return `Mensagem 1 de ${stepCount}`;
+  if (lead.status === "in_sequence") return `Mensagem ${Math.min(lead.currentStep + 1, stepCount)} de ${stepCount}`;
+  return `${lead.currentStep} de ${stepCount} enviadas`;
 }
 
 function nextOrLast(lead: WhatsappCampaignLead): string {
   if (lead.status === "queued" || lead.status === "in_sequence") {
-    return lead.nextSendAt ? `Next ${relativeTime(lead.nextSendAt)}` : "Waiting for a number";
+    return lead.nextSendAt ? `Próxima ${relativeTime(lead.nextSendAt)}` : "Aguardando um número";
   }
-  if (lead.status === "replied") return lead.repliedAt ? `Replied ${relativeTime(lead.repliedAt)}` : "Replied";
-  return lead.lastSentAt ? `Last sent ${relativeTime(lead.lastSentAt)}` : "Nothing sent";
+  if (lead.status === "replied") return lead.repliedAt ? `Respondeu ${relativeTime(lead.repliedAt)}` : "Respondeu";
+  return lead.lastSentAt ? `Último envio ${relativeTime(lead.lastSentAt)}` : "Nada enviado";
 }
 
 /**
@@ -108,7 +108,7 @@ export function WhatsappCampaignLeadsTab({
       setData(result);
       setLoadError(null);
     } catch (cause) {
-      setLoadError(errorText(cause, "Could not load leads"));
+      setLoadError(errorText(cause, "Não foi possível carregar os leads"));
     } finally {
       setLoading(false);
     }
@@ -140,7 +140,7 @@ export function WhatsappCampaignLeadsTab({
       await apiJson(`/api/whatsapp/campaigns/${campaignId}/leads/${lead.id}`, { method: "PATCH", body: JSON.stringify({ action } satisfies UpdateWhatsappCampaignLeadRequest) });
       refreshAll();
     } catch (cause) {
-      await dialogs.alert({ title: action === "stop" ? "Could not stop the lead" : "Could not resume the lead", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: action === "stop" ? "Não foi possível interromper o lead" : "Não foi possível retomar o lead", description: errorText(cause), variant: "error" });
     } finally {
       setBusyId(null);
     }
@@ -148,9 +148,9 @@ export function WhatsappCampaignLeadsTab({
 
   async function remove(lead: WhatsappCampaignLead) {
     const ok = await dialogs.confirm({
-      title: "Remove lead?",
-      description: `${lead.name || lead.phone} leaves this campaign and gets no more messages. Messages already sent stay in Messages and the CRM.`,
-      confirmLabel: "Remove lead",
+      title: "Remover lead?",
+      description: `${lead.name || lead.phone} sai desta campanha e não receberá mais mensagens. As mensagens já enviadas permanecem em Mensagens e no CRM.`,
+      confirmLabel: "Remover lead",
       variant: "error",
     });
     if (!ok) return;
@@ -159,7 +159,7 @@ export function WhatsappCampaignLeadsTab({
       await apiJson(`/api/whatsapp/campaigns/${campaignId}/leads/${lead.id}`, { method: "DELETE" });
       refreshAll();
     } catch (cause) {
-      await dialogs.alert({ title: "Could not remove the lead", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: "Não foi possível remover o lead", description: errorText(cause), variant: "error" });
     } finally {
       setBusyId(null);
     }
@@ -173,11 +173,11 @@ export function WhatsappCampaignLeadsTab({
     <>
       <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => fileRef.current?.click()}>
         <Button.Icon as={RiFileExcel2Line} />
-        Import spreadsheet
+        Importar planilha
       </Button.Root>
       <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setShowPeople(true)}>
         <Button.Icon as={RiUserAddLine} />
-        Add from People
+        Adicionar de Pessoas
       </Button.Root>
     </>
   );
@@ -186,7 +186,7 @@ export function WhatsappCampaignLeadsTab({
     <Frame>
       <FrameHeader
         title="Leads"
-        description="Everyone enrolled in this campaign and where they are in the sequence."
+        description="Todos os leads inscritos nesta campanha e sua posição na sequência."
         actions={<div className="flex flex-wrap items-center gap-2">{importActions}</div>}
       />
       <FramePanel className="p-2 sm:p-2">
@@ -195,11 +195,11 @@ export function WhatsappCampaignLeadsTab({
             <SegmentedControl.Root value={status} onValueChange={(v) => { setStatus(v as StatusFilter); setPage(1); }}>
               <SegmentedControl.List className="w-auto">
                 <SegmentedControl.Trigger value="all" className="gap-1.5 px-3">
-                  All <span className="tabular-nums text-text-soft-400">{stats.total}</span>
+                  Todos <span className="tabular-nums text-text-sub-600">{stats.total}</span>
                 </SegmentedControl.Trigger>
                 {WHATSAPP_CAMPAIGN_LEAD_STATUSES.map((s) => (
                   <SegmentedControl.Trigger key={s} value={s} className="gap-1.5 px-3">
-                    {LEAD_STATUS[s].label} <span className="tabular-nums text-text-soft-400">{stats[s]}</span>
+                    {LEAD_STATUS[s].label} <span className="tabular-nums text-text-sub-600">{stats[s]}</span>
                   </SegmentedControl.Trigger>
                 ))}
               </SegmentedControl.List>
@@ -208,7 +208,7 @@ export function WhatsappCampaignLeadsTab({
           <Input.Root size="small" className="w-full lg:w-64">
             <Input.Wrapper>
               <Input.Icon as={RiSearchLine} />
-              <Input.Input type="search" aria-label="Search leads" placeholder="Search name, phone, company…" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input.Input type="search" aria-label="Buscar leads" placeholder="Buscar nome, telefone, empresa…" value={search} onChange={(e) => setSearch(e.target.value)} />
             </Input.Wrapper>
           </Input.Root>
         </div>
@@ -219,19 +219,19 @@ export function WhatsappCampaignLeadsTab({
 
         <div className="overflow-x-auto">
           {loading ? (
-            <div aria-busy="true" aria-label="Loading" className="space-y-2 p-2">
+            <div aria-busy="true" aria-label="Carregando" className="space-y-2 p-2">
               {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
             </div>
           ) : loadError ? (
-            <EmptyState icon={RiErrorWarningLine} title="Could not load leads" description={loadError} action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setLoading(true); void load(); }}>Try again</Button.Root>} />
+            <EmptyState icon={RiErrorWarningLine} title="Não foi possível carregar os leads" description={loadError} action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setLoading(true); void load(); }}>Tentar novamente</Button.Root>} />
           ) : !data || data.leads.length === 0 ? (
             filtering ? (
-              <EmptyState icon={RiSearchLine} title="No leads match" description="Try another status or search." action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setSearch(""); setStatus("all"); }}>Clear filters</Button.Root>} />
+              <EmptyState icon={RiSearchLine} title="Nenhum lead encontrado" description="Tente outro status ou busca." action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setSearch(""); setStatus("all"); }}>Limpar filtros</Button.Root>} />
             ) : (
               <EmptyState
                 icon={RiTeamLine}
-                title="No leads yet"
-                description="Import a spreadsheet with phone numbers, or add people from your lead database."
+                title="Nenhum lead ainda"
+                description="Importe uma planilha com números de telefone ou adicione pessoas da sua base de leads."
                 action={<div className="flex flex-wrap justify-center gap-2">{importActions}</div>}
               />
             )
@@ -240,11 +240,11 @@ export function WhatsappCampaignLeadsTab({
               <Table.Header>
                 <Table.Row>
                   <Table.Head scope="col" className="px-4">Lead</Table.Head>
-                  <Table.Head scope="col" className="w-40 px-4">Phone</Table.Head>
+                  <Table.Head scope="col" className="w-40 px-4">Telefone</Table.Head>
                   <Table.Head scope="col" className="w-32 px-4">Status</Table.Head>
-                  <Table.Head scope="col" className="w-36 px-4">Progress</Table.Head>
-                  <Table.Head scope="col" className="w-44 px-4">When</Table.Head>
-                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Actions</span></Table.Head>
+                  <Table.Head scope="col" className="w-36 px-4">Progresso</Table.Head>
+                  <Table.Head scope="col" className="w-44 px-4">Quando</Table.Head>
+                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Ações</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>
@@ -254,7 +254,7 @@ export function WhatsappCampaignLeadsTab({
                   return (
                     <Table.Row key={lead.id} aria-busy={busy || undefined} className={cn(busy && "pointer-events-none opacity-60")}>
                       <Table.Cell className="px-4">
-                        <p className="truncate text-label-sm text-text-strong-950" title={lead.name ?? undefined}>{lead.name || "Unnamed"}</p>
+                        <p className="truncate text-label-sm text-text-strong-950" title={lead.name ?? undefined}>{lead.name || "Sem nome"}</p>
                         <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">{[lead.title, lead.companyName].filter(Boolean).join(" · ") || "—"}</p>
                       </Table.Cell>
                       <Table.Cell className="px-4 text-paragraph-sm tabular-nums text-text-sub-600">{lead.phone}</Table.Cell>
@@ -275,7 +275,7 @@ export function WhatsappCampaignLeadsTab({
                         <div className="flex justify-end">
                           <Dropdown.Root>
                             <Dropdown.Trigger asChild>
-                              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`More actions for ${lead.name || lead.phone}`}>
+                              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Mais ações para ${lead.name || lead.phone}`}>
                                 <Button.Icon as={busy ? RiLoader4Line : RiMoreLine} className={cn(busy && "animate-spin")} />
                               </Button.Root>
                             </Dropdown.Trigger>
@@ -283,26 +283,26 @@ export function WhatsappCampaignLeadsTab({
                               {openStatuses.has(lead.status) && (
                                 <Dropdown.Item onSelect={() => void act(lead, "stop")}>
                                   <Dropdown.ItemIcon as={RiStopCircleLine} />
-                                  Stop sequence
+                                  Interromper sequência
                                 </Dropdown.Item>
                               )}
                               {(lead.status === "stopped" || lead.status === "failed") && (
                                 <Dropdown.Item onSelect={() => void act(lead, "resume")}>
                                   <Dropdown.ItemIcon as={RiPlayCircleLine} />
-                                  Resume sequence
+                                  Retomar sequência
                                 </Dropdown.Item>
                               )}
                               {lead.chatId && (
                                 <Dropdown.Item onSelect={() => router.push(`/calling/messages?chat=${encodeURIComponent(lead.chatId!)}`)}>
                                   <Dropdown.ItemIcon as={RiChat1Line} />
-                                  Open chat
+                                  Abrir conversa
                                   <Dropdown.ItemIcon as={RiExternalLinkLine} className="ml-auto" />
                                 </Dropdown.Item>
                               )}
                               <Dropdown.Separator />
                               <Dropdown.Item destructive onSelect={() => void remove(lead)}>
                                 <Dropdown.ItemIcon as={RiDeleteBinLine} />
-                                Remove from campaign
+                                Remover da campanha
                               </Dropdown.Item>
                             </Dropdown.Content>
                           </Dropdown.Root>
@@ -319,14 +319,14 @@ export function WhatsappCampaignLeadsTab({
         {data && data.total > data.pageSize && (
           <div className="flex items-center justify-between gap-3 px-3 pb-2 pt-3">
             <p className="text-paragraph-xs tabular-nums text-text-sub-600">
-              {((data.page - 1) * data.pageSize + 1).toLocaleString("en-US")}–{Math.min(data.page * data.pageSize, data.total).toLocaleString("en-US")} of {data.total.toLocaleString("en-US")}
+              {((data.page - 1) * data.pageSize + 1).toLocaleString("pt-BR")}–{Math.min(data.page * data.pageSize, data.total).toLocaleString("pt-BR")} de {data.total.toLocaleString("pt-BR")}
             </p>
             <div className="flex items-center gap-1">
-              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Previous page">
+              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Página anterior">
                 <Button.Icon as={RiArrowLeftSLine} />
               </Button.Root>
-              <span className="px-2 text-paragraph-xs tabular-nums text-text-sub-600">Page {data.page} of {pages}</span>
-              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page >= pages} onClick={() => setPage((p) => p + 1)} aria-label="Next page">
+              <span className="px-2 text-paragraph-xs tabular-nums text-text-sub-600">Página {data.page} de {pages}</span>
+              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page >= pages} onClick={() => setPage((p) => p + 1)} aria-label="Próxima página">
                 <Button.Icon as={RiArrowRightSLine} />
               </Button.Root>
             </div>
@@ -356,7 +356,7 @@ export function WhatsappCampaignLeadsTab({
           channel="whatsapp"
           onClose={() => setShowPeople(false)}
           onAdded={(result) => {
-            setNotice(`${result.added} added from People${result.skippedDuplicate ? ` · ${result.skippedDuplicate} already in the campaign` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} without a phone number` : ""}`);
+            setNotice(`${result.added} adicionados de Pessoas${result.skippedDuplicate ? ` · ${result.skippedDuplicate} já estão na campanha` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} sem número de telefone` : ""}`);
             refreshAll();
           }}
         />
@@ -366,8 +366,8 @@ export function WhatsappCampaignLeadsTab({
 }
 
 export function importSummary(result: WhatsappCampaignImportResponse): string {
-  const parts = [`${result.added.toLocaleString("en-US")} added`];
-  if (result.alreadyInCampaign) parts.push(`${result.alreadyInCampaign.toLocaleString("en-US")} already in the campaign`);
-  if (result.skipped.length) parts.push(`${result.skipped.length} skipped (${result.skipped[0]}${result.skipped.length > 1 ? ", …" : ""})`);
+  const parts = [`${result.added.toLocaleString("pt-BR")} adicionados`];
+  if (result.alreadyInCampaign) parts.push(`${result.alreadyInCampaign.toLocaleString("pt-BR")} já estavam na campanha`);
+  if (result.skipped.length) parts.push(`${result.skipped.length} ignorados (${result.skipped[0]}${result.skipped.length > 1 ? ", …" : ""})`);
   return parts.join(" · ");
 }

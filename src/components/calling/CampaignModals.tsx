@@ -54,19 +54,19 @@ export function EditCampaignModal({
     <Modal.Root open={open} onOpenChange={(next) => { if (!submitting) onOpenChange(next); }}>
       <Modal.Content>
         <Modal.Header icon={RiPencilLine}>
-          <Modal.Title>Edit campaign</Modal.Title>
+          <Modal.Title>Editar campanha</Modal.Title>
         </Modal.Header>
         <Modal.Body className="space-y-3">
           {error && <FormError>{error}</FormError>}
-          <TextField label="Name" autoFocus value={name} onChange={setName} disabled={submitting} />
-          <TextField label="Description (optional)" value={description} onChange={setDescription} disabled={submitting} />
+          <TextField label="Nome" autoFocus value={name} onChange={setName} disabled={submitting} />
+          <TextField label="Descrição (opcional)" value={description} onChange={setDescription} disabled={submitting} />
         </Modal.Body>
         <Modal.Footer>
           <Modal.Close asChild>
-            <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancel</Button.Root>
+            <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancelar</Button.Root>
           </Modal.Close>
           <Button.Root variant="primary" mode="filled" size="small" disabled={submitting || !name.trim()} onClick={() => void submit()}>
-            {submitting ? "Saving…" : "Save changes"}
+            {submitting ? "Salvando…" : "Salvar alterações"}
           </Button.Root>
         </Modal.Footer>
       </Modal.Content>
@@ -113,9 +113,9 @@ export function DeleteCampaignModal({
     <Modal.Root open={open} onOpenChange={(next) => { if (!submitting) onOpenChange(next); }}>
       <Modal.Content>
         <Modal.Header icon={RiDeleteBinLine}>
-          <Modal.Title>Delete campaign?</Modal.Title>
+          <Modal.Title>Excluir campanha?</Modal.Title>
           <Modal.Description>
-            Delete “{campaign?.name}”? It leaves Calling; the calls, recordings and transcripts stay on each lead.
+            Excluir “{campaign?.name}”? Ela sai das Chamadas; as ligações, gravações e transcrições permanecem em cada lead.
           </Modal.Description>
         </Modal.Header>
         {error && (
@@ -125,10 +125,10 @@ export function DeleteCampaignModal({
         )}
         <Modal.Footer>
           <Modal.Close asChild>
-            <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancel</Button.Root>
+            <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancelar</Button.Root>
           </Modal.Close>
           <Button.Root variant="error" mode="filled" size="small" disabled={submitting} onClick={() => void submit()}>
-            {submitting ? "Deleting…" : "Delete campaign"}
+            {submitting ? "Excluindo…" : "Excluir campanha"}
           </Button.Root>
         </Modal.Footer>
       </Modal.Content>

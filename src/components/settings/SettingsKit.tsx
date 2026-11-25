@@ -37,7 +37,7 @@ export function Field({
       <label htmlFor={htmlFor} className="flex items-baseline gap-1 text-label-sm text-text-strong-950">
         {label}
         {required && <span className="text-primary-base" aria-hidden="true">*</span>}
-        {optional && <span className="text-paragraph-xs text-text-soft-400">(optional)</span>}
+        {optional && <span className="text-paragraph-xs text-text-soft-400">(opcional)</span>}
       </label>
       {children}
       {error ? (
@@ -153,7 +153,7 @@ export function Meter({
         <div className="h-full rounded-full transition-[width]" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
       <span className="shrink-0 whitespace-nowrap text-paragraph-xs tabular-nums text-text-sub-600">
-        <span className="text-text-strong-950">{value.toLocaleString("en-US")}</span> / {max.toLocaleString("en-US")}
+        <span className="text-text-strong-950">{value.toLocaleString("pt-BR")}</span> / {max.toLocaleString("pt-BR")}
       </span>
     </div>
   );

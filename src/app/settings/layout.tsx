@@ -3,8 +3,8 @@ import { SettingsShell } from "@/components/settings/SettingsShell";
 
 export const metadata: Metadata = {
   title: {
-    default: "Settings · AgentSDR",
-    template: "%s · Settings · AgentSDR",
+    default: "Configurações · Apollo Intelligence",
+    template: "%s · Configurações · Apollo Intelligence",
   },
 };
 

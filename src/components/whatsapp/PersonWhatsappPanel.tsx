@@ -94,13 +94,13 @@ export function PersonWhatsappPanel({
         </div>
       ) : data ? (
         <div className={cn("flex flex-col overflow-hidden rounded-xl ring-1 ring-inset ring-stroke-soft-200", heightClass)}>
-          <WhatsappMessageList messages={data.messages} threadKey={personId} emptyText="No WhatsApp messages yet." className="px-3 py-2" />
+          <WhatsappMessageList messages={data.messages} threadKey={personId} emptyText="Nenhuma mensagem no WhatsApp ainda." className="px-3 py-2" />
         </div>
       ) : null}
       {data && !canSend && (
         <p className="text-paragraph-xs text-text-sub-600">
-          {fallbackSend ? "No WhatsApp number is linked, so this opens WhatsApp Web instead. " : "No WhatsApp number is linked, so messages cannot be sent from here. "}
-          <Link href="/settings/whatsapp-accounts" className="text-primary-base hover:underline">Link a number</Link>
+          {fallbackSend ? "Nenhum número do WhatsApp vinculado; esta mensagem será aberta no WhatsApp Web. " : "Nenhum número do WhatsApp vinculado, então não é possível enviar mensagens daqui. "}
+          <Link href="/settings/whatsapp-accounts" className="rounded-sm text-primary-base hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action-ring">Vincular número</Link>
           {" · "}
           <DocsLink page="whatsapp/accounts#link-a-number" appearance="inline" className="font-normal" />
         </p>
@@ -111,7 +111,7 @@ export function PersonWhatsappPanel({
         onSend={send}
         disabled={!data || (!canSend && !fallbackSend)}
         rows={3}
-        placeholder={canSend || !fallbackSend ? "Write a WhatsApp message… (Enter to send, Shift+Enter for new line)" : "Write a message to open in WhatsApp Web…"}
+        placeholder={canSend || !fallbackSend ? "Escreva uma mensagem no WhatsApp… (Enter envia, Shift+Enter quebra linha)" : "Escreva uma mensagem para abrir no WhatsApp Web…"}
       />
     </div>
   );

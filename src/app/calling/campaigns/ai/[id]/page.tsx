@@ -1,7 +1,7 @@
 import { AiCampaignDetailClient } from "@/components/calling/ai/AiCampaignDetailClient";
 import { isAiCampaignTab } from "@/components/calling/ai/tabs";
 
-export const metadata = { title: "AI calling campaign" };
+export const metadata = { title: "Campanha de chamadas com IA" };
 
 export default async function AiCallCampaignPage({
   params,

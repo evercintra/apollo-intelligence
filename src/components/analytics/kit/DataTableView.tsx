@@ -34,7 +34,7 @@ export function DataTableView({ columns, rows, caption, maxHeight = 320 }: { col
             <Table.Row key={index}>
               {columns.map((column) => {
                 const raw = row[column.key] ?? null;
-                const text = column.format ? column.format(raw) : typeof raw === "number" ? raw.toLocaleString("en-US") : (raw ?? "—");
+                const text = column.format ? column.format(raw) : typeof raw === "number" ? raw.toLocaleString("pt-BR") : (raw ?? "—");
                 return (
                   <Table.Cell key={column.key} className={cn("h-9 text-paragraph-sm text-text-strong-950", column.align === "right" && "text-right tabular-nums", column.key === columns[0].key && "text-text-sub-600")}>
                     {text}

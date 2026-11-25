@@ -8,10 +8,10 @@ import { Frame, FrameHeader, FramePanel } from "@/components/analytics/kit/Frame
 import { useDialogs } from "@/components/DialogProvider";
 import { Callout, Field } from "@/components/settings/SettingsKit";
 import { authClient } from "@/lib/auth/client";
-import { ROLE_LABELS, type OrgRole } from "@/lib/auth/permissions";
-import { asOrgRole, useAsyncAction, useOrgAccess } from "./useOrgAccess";
+import { type OrgRole } from "@/lib/auth/permissions";
+import { asOrgRole, orgRoleLabel, useAsyncAction, useOrgAccess } from "./useOrgAccess";
 
-const date = (d: Date | string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const date = (d: Date | string) => new Date(d).toLocaleDateString("pt-BR", { month: "short", day: "numeric", year: "numeric" });
 
 export function OrgMembers() {
   const { org, role, userId, loading, error: loadError, reload, can } = useOrgAccess();
@@ -21,8 +21,8 @@ export function OrgMembers() {
   const [inviteRole, setInviteRole] = useState<OrgRole>("member");
   const [copied, setCopied] = useState<string | null>(null);
 
-  if (loading) return <p className="text-paragraph-sm text-text-sub-600">Loading…</p>;
-  if (!org || !role) return <Callout tone="error">{loadError || "No active organization."}</Callout>;
+  if (loading) return <p className="text-paragraph-sm text-text-sub-600">Carregando…</p>;
+  if (!org || !role) return <Callout tone="error">{loadError || "Nenhuma organização ativa."}</Callout>;
 
   const isOwner = role === "owner";
   const canInvite = can({ invitation: ["create"] });
@@ -56,7 +56,7 @@ export function OrgMembers() {
       setCopied(id);
       window.setTimeout(() => setCopied((c) => (c === id ? null : c)), 2000);
     } catch {
-      setError("Could not copy. Select the link manually: /accept-invitation/" + id);
+      setError("Não foi possível copiar. Selecione o link manualmente: /accept-invitation/" + id);
     }
   }
 
@@ -72,9 +72,9 @@ export function OrgMembers() {
   async function removeMember(memberId: string, label: string) {
     if (!org) return;
     const confirmed = await dialogs.confirm({
-      title: `Remove ${label}?`,
-      description: `They lose access to ${org.name} immediately.`,
-      confirmLabel: "Remove",
+      title: `Remover ${label}?`,
+      description: `A pessoa perde o acesso a ${org.name} imediatamente.`,
+      confirmLabel: "Remover",
       variant: "error",
     });
     if (!confirmed) return;
@@ -90,30 +90,30 @@ export function OrgMembers() {
 
       {canInvite && (
         <Frame>
-          <FrameHeader title="Invite someone" description="They get an email with a link to join this organization." />
+          <FrameHeader title="Convidar alguém" description="A pessoa recebe um e-mail com um link para entrar nesta organização." />
           <FramePanel>
             <form onSubmit={invite} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <Field label="Email" htmlFor="invite-email" className="flex-1">
+              <Field label="E-mail" htmlFor="invite-email" className="flex-1">
                 <Input.Root size="small">
                   <Input.Wrapper>
                     <Input.Input id="invite-email" type="email" required placeholder="name@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </Input.Wrapper>
                 </Input.Root>
               </Field>
-              <Field label="Role" className="sm:w-40">
+              <Field label="Função" className="sm:w-40">
                 <Select.Root size="small" value={inviteRole} onValueChange={(v) => setInviteRole(v as OrgRole)}>
-                  <Select.Trigger aria-label="Role">
+                  <Select.Trigger aria-label="Função">
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
                     {assignable.map((r) => (
-                      <Select.Item key={r} value={r}>{ROLE_LABELS[r]}</Select.Item>
+                      <Select.Item key={r} value={r}>{orgRoleLabel(r)}</Select.Item>
                     ))}
                   </Select.Content>
                 </Select.Root>
               </Field>
               <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={busy === "invite"}>
-                {busy === "invite" ? "Sending…" : "Send invite"}
+                {busy === "invite" ? "Enviando…" : "Enviar convite"}
               </Button.Root>
             </form>
           </FramePanel>
@@ -122,23 +122,23 @@ export function OrgMembers() {
 
       {pending.length > 0 && (
         <Frame>
-          <FrameHeader title="Pending invitations" description="Where no email service is set up, copy the link and send it yourself." />
+          <FrameHeader title="Convites pendentes" description="Sem um serviço de e-mail configurado, copie o link e envie você mesmo." />
           <FramePanel className="divide-y divide-stroke-soft-200 py-0 sm:py-0">
             {pending.map((inv) => (
               <div key={inv.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
                   <p className="truncate text-label-sm text-text-strong-950">{inv.email}</p>
                   <p className="text-paragraph-xs text-text-sub-600">
-                    {ROLE_LABELS[asOrgRole(inv.role)]} · expires {date(inv.expiresAt)}
+                    {orgRoleLabel(asOrgRole(inv.role))} · expira em {date(inv.expiresAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void copyLink(inv.id)}>
-                    {copied === inv.id ? "Copied" : "Copy invite link"}
+                    {copied === inv.id ? "Copiado" : "Copiar link do convite"}
                   </Button.Root>
                   {canCancel && (
                     <Button.Root variant="error" mode="ghost" size="xsmall" disabled={busy === `cancel-${inv.id}`} onClick={() => void cancelInvite(inv.id)}>
-                      Cancel
+                      Cancelar
                     </Button.Root>
                   )}
                 </div>
@@ -149,7 +149,7 @@ export function OrgMembers() {
       )}
 
       <Frame>
-        <FrameHeader title="Members" description={`${org.members.length} in ${org.name}`} />
+        <FrameHeader title="Membros" description={`${org.members.length} em ${org.name}`} />
         <FramePanel className="divide-y divide-stroke-soft-200 py-0 sm:py-0">
           {org.members.map((m) => {
             const mRole = asOrgRole(m.role);
@@ -162,32 +162,32 @@ export function OrgMembers() {
                 <div className="min-w-0">
                   <p className="truncate text-label-sm text-text-strong-950">
                     {m.user.name || m.user.email}
-                    {isSelf && <span className="ml-1.5 text-paragraph-xs text-text-soft-400">(you)</span>}
+                    {isSelf && <span className="ml-1.5 text-paragraph-xs text-text-soft-400">(você)</span>}
                   </p>
                   <p className="truncate text-paragraph-xs text-text-sub-600">
-                    {m.user.email} · joined {date(m.createdAt)}
+                    {m.user.email} · entrou em {date(m.createdAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   {editable && canUpdate ? (
                     <Select.Root size="xsmall" value={mRole} disabled={busy === `role-${m.id}`} onValueChange={(v) => void changeRole(m.id, v as OrgRole)}>
-                      <Select.Trigger aria-label={`Role for ${m.user.email}`} className="w-28">
+                      <Select.Trigger aria-label={`Função de ${m.user.email}`} className="w-28">
                         <Select.Value />
                       </Select.Trigger>
                       <Select.Content>
                         {assignable.map((r) => (
-                          <Select.Item key={r} value={r}>{ROLE_LABELS[r]}</Select.Item>
+                          <Select.Item key={r} value={r}>{orgRoleLabel(r)}</Select.Item>
                         ))}
                       </Select.Content>
                     </Select.Root>
                   ) : (
                     <span className="rounded-md bg-bg-weak-50 px-2 py-1 text-label-xs text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200">
-                      {ROLE_LABELS[mRole]}
+                      {orgRoleLabel(mRole)}
                     </span>
                   )}
                   {editable && canRemove && (
                     <Button.Root variant="error" mode="ghost" size="xsmall" disabled={busy === `remove-${m.id}`} onClick={() => void removeMember(m.id, m.user.name || m.user.email)}>
-                      Remove
+                      Remover
                     </Button.Root>
                   )}
                 </div>

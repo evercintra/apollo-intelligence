@@ -16,16 +16,29 @@ interface CampaignRow {
   accumulatedLeadCount: number;
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  ready: "Pronto",
+  done: "Concluído",
+  failed: "Falhou",
+  running: "Em execução",
+  stopped: "Interrompido",
+};
+
+const INPUT_MODE_LABELS: Record<string, string> = {
+  filters: "Filtros",
+  manual: "Lista manual",
+};
+
 function StatusBadge({ status }: { status: string }) {
   const tone =
     status === "ready"
-      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+      ? "bg-[var(--color-success-lighter)] text-[var(--color-success-dark)]"
       : status === "done"
       ? "bg-bg-weak-50 text-text-strong-950/60"
-      : "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400";
+      : "bg-[var(--color-complement-surface)] text-[var(--color-complement-deep)]";
   return (
     <span className={`text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide ${tone}`}>
-      {status}
+      {STATUS_LABELS[status] ?? status}
     </span>
   );
 }
@@ -56,7 +69,7 @@ export default function CampaignListClient({ campaigns }: { campaigns: CampaignR
   if (campaigns.length === 0) {
     return (
       <div className="text-sm text-text-strong-950/50 border border-dashed border-stroke-soft-200 rounded-xl px-6 py-12 text-center">
-        No campaigns yet. Create one on the left to get started.
+        Nenhuma campanha ainda. Crie uma à esquerda para começar.
       </div>
     );
   }
@@ -71,17 +84,17 @@ export default function CampaignListClient({ campaigns }: { campaigns: CampaignR
             onChange={toggleAll}
             className="w-4 h-4 rounded border-stroke-sub-300"
           />
-          Select all
+          Selecionar todos
         </label>
 
         {selected.size > 0 && (
           <>
-            <span className="text-xs text-text-strong-950/40">{selected.size} selected</span>
+            <span className="text-xs text-text-strong-950/40">{selected.size} selecionados</span>
             <a
               href={downloadHref ?? undefined}
-              className="ml-auto h-8 px-3 flex items-center bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+              className="ml-auto flex h-8 items-center rounded-lg bg-[var(--color-action-bg)] px-3 text-xs font-semibold text-[var(--color-action-text)] transition-colors hover:bg-[var(--color-action-bg-hover)]"
             >
-              Download selected ({selected.size}) as CSV
+              Baixar {selected.size} selecionados como CSV
             </a>
           </>
         )}
@@ -91,7 +104,7 @@ export default function CampaignListClient({ campaigns }: { campaigns: CampaignR
         {campaigns.map((c) => (
           <div
             key={c.id}
-            className="flex items-center justify-between gap-4 px-4 py-3 bg-bg-white-0 border border-stroke-soft-200 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-500/30 hover:shadow-sm transition-all"
+            className="flex items-center justify-between gap-4 rounded-xl border border-stroke-soft-200 bg-bg-white-0 px-4 py-3 transition-all hover:border-[var(--color-complement-ring)] hover:shadow-sm"
           >
             <input
               type="checkbox"
@@ -105,9 +118,9 @@ export default function CampaignListClient({ campaigns }: { campaigns: CampaignR
                 <StatusBadge status={c.status} />
               </div>
               <p className="text-xs text-text-strong-950/50 mt-0.5">
-                {c.inputMode} · target{" "}
+                {INPUT_MODE_LABELS[c.inputMode] ?? c.inputMode} · alvo{" "}
                 {c.targetMode === "domains"
-                  ? `${(c.targetDomainCount ?? 0).toLocaleString()} domains`
+                  ? `${(c.targetDomainCount ?? 0).toLocaleString()} domínios`
                   : `${c.targetLeadCount.toLocaleString()} leads`}
                 {(c.jobTitles?.length ?? 0) > 0 && ` · ${c.jobTitles!.join(", ")}`}
               </p>

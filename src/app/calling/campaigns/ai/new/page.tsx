@@ -3,7 +3,7 @@ import { AiCampaignWizard } from "@/components/calling/ai/AiCampaignWizard";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "New AI calling campaign" };
+export const metadata = { title: "Nova campanha de chamadas com IA" };
 
 export default async function NewAiCallCampaignPage() {
   await requirePageOrgContext();

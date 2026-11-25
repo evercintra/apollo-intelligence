@@ -30,7 +30,7 @@ import { StatRow } from "@/components/page/StatRow";
 import type { AiCampaignDetail, AiCampaignStats } from "@/lib/calls/aiCampaigns/api";
 import { archiveAiCampaign, getAiCampaign, getAiCampaignStats, launchAiCampaign, updateAiCampaign } from "@/lib/calls/aiCampaigns/client";
 import { cn } from "@/utils/cn";
-import { AiAgentBadge, AiCampaignStateBadge, errorText } from "./aiShared";
+import { AiAgentBadge, AiCampaignStateBadge, aiErrorPt, errorText } from "./aiShared";
 import { AiCampaignOverview } from "./AiCampaignOverview";
 import { AiLeadsTab } from "./AiLeadsTab";
 import { AiSequenceTab } from "./AiSequenceTab";
@@ -39,7 +39,7 @@ import { VoiceCompareTab } from "./VoiceCompareTab";
 import type { AiCampaignTab } from "./tabs";
 
 const REFRESH_MS = 30_000;
-const LIST = { href: "/calling/campaigns", label: "Call campaigns" };
+const LIST = { href: "/calling/campaigns", label: "Campanhas de chamadas" };
 
 export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId: string; initialTab: AiCampaignTab }) {
   const router = useRouter();
@@ -63,7 +63,7 @@ export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId:
       if (nextStats) setStats(nextStats);
       setLoadError(null);
     } catch (cause) {
-      setLoadError(errorText(cause, "Could not load the campaign"));
+      setLoadError(errorText(cause, "Não foi possível carregar a campanha"));
     }
   }, [campaignId]);
 
@@ -86,7 +86,7 @@ export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId:
       setCampaign(await launchAiCampaign(campaign.id));
       void load();
     } catch (cause) {
-      await dialogs.alert({ title: "Could not launch the campaign", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: "Não foi possível lançar a campanha", description: errorText(cause), variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -99,7 +99,7 @@ export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId:
       setCampaign(await updateAiCampaign(campaign.id, { status: campaign.state === "active" ? "paused" : "active" }));
       void load();
     } catch (cause) {
-      await dialogs.alert({ title: campaign.state === "active" ? "Could not pause the campaign" : "Could not resume the campaign", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: campaign.state === "active" ? "Não foi possível pausar a campanha" : "Não foi possível retomar a campanha", description: errorText(cause), variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -108,9 +108,9 @@ export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId:
   async function archive() {
     if (!campaign) return;
     const ok = await dialogs.confirm({
-      title: "Archive campaign?",
-      description: "Calls and messages stop and the campaign leaves the list. Calls already placed stay on each lead, with their recordings and transcripts.",
-      confirmLabel: "Archive campaign",
+      title: "Arquivar campanha?",
+      description: "As ligações e mensagens param e a campanha sai da lista. As ligações já feitas permanecem em cada lead, com gravações e transcrições.",
+      confirmLabel: "Arquivar campanha",
       variant: "error",
     });
     if (!ok) return;
@@ -118,7 +118,7 @@ export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId:
       await archiveAiCampaign(campaign.id);
       router.push(LIST.href);
     } catch (cause) {
-      await dialogs.alert({ title: "Could not archive the campaign", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: "Não foi possível arquivar a campanha", description: errorText(cause), variant: "error" });
     }
   }
 
@@ -126,13 +126,13 @@ export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId:
     if (loadError) {
       return (
         <div className="mx-auto w-full max-w-[1440px]">
-          <PageHeader back={LIST} title="AI calling campaign" />
-          <EmptyState icon={RiErrorWarningLine} title="Could not load the campaign" description={loadError} action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => void load()}>Try again</Button.Root>} />
+          <PageHeader back={LIST} title="Campanha de chamadas com IA" />
+          <EmptyState icon={RiErrorWarningLine} title="Não foi possível carregar a campanha" description={loadError} action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => void load()}>Tentar novamente</Button.Root>} />
         </div>
       );
     }
     return (
-      <div aria-busy="true" aria-label="Loading" className="mx-auto w-full max-w-[1440px] space-y-6">
+      <div aria-busy="true" aria-label="Carregando" className="mx-auto w-full max-w-[1440px] space-y-6">
         <Skeleton className="h-16 w-full rounded-xl" />
         <Skeleton className="h-16 w-full rounded-xl" />
         <Skeleton className="h-72 w-full rounded-2xl" />
@@ -155,58 +155,58 @@ export function AiCampaignDetailClient({ campaignId, initialTab }: { campaignId:
             <AiAgentBadge />
           </>
         }
-        description={<span suppressHydrationWarning>{`Created ${new Date(campaign.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} · ${campaign.stepCount} ${campaign.stepCount === 1 ? "step" : "steps"} in the sequence${campaign.description ? ` · ${campaign.description}` : ""}`}</span>}
+        description={<span suppressHydrationWarning>{`Criada em ${new Date(campaign.createdAt).toLocaleDateString("pt-BR", { month: "short", day: "numeric", year: "numeric" })} · ${campaign.stepCount} ${campaign.stepCount === 1 ? "etapa" : "etapas"} na sequência${campaign.description ? ` · ${campaign.description}` : ""}`}</span>}
         actions={
           <>
             {draft ? (
-              <Button.Root variant="primary" mode="filled" size="small" onClick={() => void launch()} disabled={busy || !canLaunch} title={campaign.blocker ?? undefined}>
+                <Button.Root variant="primary" mode="filled" size="small" onClick={() => void launch()} disabled={busy || !canLaunch} title={campaign.blocker ? aiErrorPt(campaign.blocker) : undefined}>
                 <Button.Icon as={busy ? RiLoader4Line : RiRocketLine} className={cn(busy && "animate-spin")} />
-                Launch
+                Lançar
               </Button.Root>
             ) : (
               <Button.Root variant={campaign.state === "paused" ? "primary" : "neutral"} mode={campaign.state === "paused" ? "filled" : "stroke"} size="small" onClick={() => void toggle()} disabled={busy}>
                 <Button.Icon as={busy ? RiLoader4Line : campaign.state === "active" ? RiPauseCircleLine : RiPlayCircleLine} className={cn(busy && "animate-spin")} />
-                {campaign.state === "active" ? "Pause" : "Resume"}
+                {campaign.state === "active" ? "Pausar" : "Retomar"}
               </Button.Root>
             )}
             <Dropdown.Root>
               <Dropdown.Trigger asChild>
-                <Button.Root variant="neutral" mode="stroke" size="small" aria-label="More actions"><Button.Icon as={RiMoreLine} /></Button.Root>
+                <Button.Root variant="neutral" mode="stroke" size="small" aria-label="Mais ações"><Button.Icon as={RiMoreLine} /></Button.Root>
               </Dropdown.Trigger>
               <Dropdown.Content align="end">
                 <Dropdown.Item destructive onSelect={() => void archive()}>
                   <Dropdown.ItemIcon as={RiArchiveLine} />
-                  Archive campaign
+                  Arquivar campanha
                 </Dropdown.Item>
               </Dropdown.Content>
             </Dropdown.Root>
           </>
         }
       />
-      {draft && campaign.blocker && <p className="mt-3 text-paragraph-xs text-text-sub-600">Cannot launch yet: {campaign.blocker.charAt(0).toLowerCase()}{campaign.blocker.slice(1)}.</p>}
-      {draft && !campaign.blocker && <p className="mt-3 text-paragraph-xs text-text-sub-600">This campaign is a draft and places nothing until you launch it.</p>}
+      {draft && campaign.blocker && <p className="mt-3 text-paragraph-xs text-text-sub-600">Não é possível lançar ainda: {aiErrorPt(campaign.blocker).charAt(0).toLowerCase()}{aiErrorPt(campaign.blocker).slice(1)}.</p>}
+      {draft && !campaign.blocker && <p className="mt-3 text-paragraph-xs text-text-sub-600">Esta campanha é um rascunho e não faz ligações até você lançá-la.</p>}
 
       <StatRow
         className="mt-5"
         items={[
-          { label: "Leads", value: campaign.leads.toLocaleString("en-US"), icon: RiTeamLine, hint: "People enrolled in this campaign" },
-          { label: "Calls today", value: `${campaign.callsToday.toLocaleString("en-US")}${campaign.callsPerDayLimit ? ` / ${campaign.callsPerDayLimit.toLocaleString("en-US")}` : ""}`, icon: RiPhoneLine, hint: "Calls placed today, against what the campaign's numbers may place a day" },
-          { label: "Booked", value: campaign.booked.toLocaleString("en-US"), icon: RiCalendarCheckLine, hint: "Meetings booked by leads of this campaign" },
-          { label: "Numbers", value: campaign.numbers.length.toLocaleString("en-US"), icon: RiSmartphoneLine, hint: numberNames || "No calling numbers assigned" },
+          { label: "Leads", value: campaign.leads.toLocaleString("pt-BR"), icon: RiTeamLine, hint: "Pessoas inscritas nesta campanha" },
+          { label: "Ligações hoje", value: `${campaign.callsToday.toLocaleString("pt-BR")}${campaign.callsPerDayLimit ? ` / ${campaign.callsPerDayLimit.toLocaleString("pt-BR")}` : ""}`, icon: RiPhoneLine, hint: "Ligações feitas hoje, dentro do limite diário dos números da campanha" },
+          { label: "Agendadas", value: campaign.booked.toLocaleString("pt-BR"), icon: RiCalendarCheckLine, hint: "Reuniões agendadas pelos leads desta campanha" },
+          { label: "Números", value: campaign.numbers.length.toLocaleString("pt-BR"), icon: RiSmartphoneLine, hint: numberNames || "Nenhum número de ligação atribuído" },
         ]}
       />
 
       <PageTabs
         className="mt-6"
-        label="Campaign sections"
+        label="Seções da campanha"
         value={tab}
         onChange={setTab}
         tabs={[
-          { value: "overview", label: "Overview", icon: RiBarChart2Line },
+          { value: "overview", label: "Visão geral", icon: RiBarChart2Line },
           { value: "leads", label: "Leads", icon: RiTeamLine, count: campaign.leads },
-          { value: "sequence", label: "Sequence", icon: RiListOrdered2, count: campaign.stepCount },
-          { value: "compare", label: "Compare voices", icon: RiSpeakLine },
-          { value: "settings", label: "Settings", icon: RiSettings3Line },
+          { value: "sequence", label: "Sequência", icon: RiListOrdered2, count: campaign.stepCount },
+          { value: "compare", label: "Comparar vozes", icon: RiSpeakLine },
+          { value: "settings", label: "Configurações", icon: RiSettings3Line },
         ]}
       />
 

@@ -27,12 +27,12 @@ export function parseAnalyticsRange(params: URLSearchParams): AnalyticsRange {
   const from = params.get("from") ?? "";
   const to = params.get("to") ?? "";
   if (!DATE_RE.test(from) || !DATE_RE.test(to) || Number.isNaN(Date.parse(from)) || Number.isNaN(Date.parse(to))) {
-    throw new AnalyticsRangeError("from and to must be dates as YYYY-MM-DD");
+    throw new AnalyticsRangeError("As datas inicial e final devem estar no formato YYYY-MM-DD");
   }
-  if (from > to) throw new AnalyticsRangeError("from must not be after to");
+  if (from > to) throw new AnalyticsRangeError("A data inicial não pode ser posterior à data final");
   const days = dayCount(from, to);
   if (days > MAX_ANALYTICS_RANGE_DAYS) {
-    throw new AnalyticsRangeError(`The range can be at most ${MAX_ANALYTICS_RANGE_DAYS} days`);
+    throw new AnalyticsRangeError(`O período pode ter no máximo ${MAX_ANALYTICS_RANGE_DAYS} dias`);
   }
   return { from, to, tz: resolveTimeZone(params.get("tz")), bucket: days > WEEKLY_BUCKET_AFTER_DAYS ? "week" : "day" };
 }

@@ -51,7 +51,7 @@ type Campaign = {
 };
 
 function createdLabel(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(iso).toLocaleDateString("pt-BR", { month: "short", day: "numeric", year: "numeric" });
 }
 
 type TabId = "overview" | "leads" | "sequence";
@@ -123,13 +123,13 @@ export function CampaignDetailClient({
         body: JSON.stringify({ status: next }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.ok === false) throw new Error(data.error ?? "Something went wrong. Please try again.");
+      if (!res.ok || data.ok === false) throw new Error(data.error ?? "Algo deu errado. Tente novamente.");
       setCampaign((prev) => ({ ...prev, status: next }));
       router.refresh();
     } catch (cause) {
       await dialogs.alert({
-        title: `Could not ${next === "PAUSED" ? "pause" : "resume"} the campaign`,
-        description: cause instanceof Error ? cause.message : "Something went wrong. Please try again.",
+        title: `Não foi possível ${next === "PAUSED" ? "pausar" : "retomar"} a campanha`,
+        description: cause instanceof Error ? cause.message : "Algo deu errado. Tente novamente.",
         variant: "error",
       });
     } finally {
@@ -140,7 +140,7 @@ export function CampaignDetailClient({
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        back={{ href: "/linkedin/campaigns", label: "LinkedIn campaigns" }}
+        back={{ href: "/linkedin/campaigns", label: "Campanhas do LinkedIn" }}
         title={campaign.name}
         badge={
           <>
@@ -149,11 +149,11 @@ export function CampaignDetailClient({
               {status.label}
             </Badge.Root>
             {campaign.type === "PERSONAL" && (
-              <Badge.Root size="medium" variant="lighter" color="yellow">Personal</Badge.Root>
+              <Badge.Root size="medium" variant="lighter" color="yellow">Pessoal</Badge.Root>
             )}
           </>
         }
-        description={<span suppressHydrationWarning>{`Created ${createdLabel(campaign.createdAt)} · ${steps} of 5 sequence steps written${campaign.description ? ` · ${campaign.description}` : ""}`}</span>}
+        description={<span suppressHydrationWarning>{`Criada em ${createdLabel(campaign.createdAt)} · ${steps} de 5 etapas da sequência escritas${campaign.description ? ` · ${campaign.description}` : ""}`}</span>}
         actions={
           <>
             <span className="mr-1 hidden sm:inline-flex">
@@ -161,14 +161,14 @@ export function CampaignDetailClient({
             </span>
             <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setShowEditCampaign(true)}>
               <Button.Icon as={RiPencilLine} />
-              Edit
+              Editar
             </Button.Root>
             <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => void toggleStatus()} disabled={toggling}>
               <Button.Icon
                 as={toggling ? RiLoader4Line : campaign.status === "ACTIVE" ? RiPauseCircleLine : RiPlayCircleLine}
                 className={cn(toggling && "animate-spin")}
               />
-              {campaign.status === "ACTIVE" ? "Pause" : "Resume"}
+              {campaign.status === "ACTIVE" ? "Pausar" : "Retomar"}
             </Button.Root>
           </>
         }
@@ -177,22 +177,22 @@ export function CampaignDetailClient({
       <StatRow
         className="mt-5"
         items={[
-          { label: "Not invited yet", value: funnel.queued.toLocaleString("en-US"), icon: RiTimeLine, hint: "Leads still waiting for their connection request" },
-          { label: "Awaiting acceptance", value: funnel.awaiting.toLocaleString("en-US"), icon: RiHourglassLine, hint: "Connection requests sent and not yet accepted" },
-          { label: "In sequence", value: funnel.inSequence.toLocaleString("en-US"), icon: RiLoopRightLine, hint: "Accepted leads with messages or follow-ups still to come" },
-          { label: "Senders", value: campaign.accounts.length.toLocaleString("en-US"), icon: RiUserVoiceLine, hint: campaign.accounts.map((a) => a.name ?? a.username).join(", ") || "No sender accounts assigned" },
+          { label: "Ainda não convidados", value: funnel.queued.toLocaleString("pt-BR"), icon: RiTimeLine, hint: "Leads aguardando o convite" },
+          { label: "Aguardando aceite", value: funnel.awaiting.toLocaleString("pt-BR"), icon: RiHourglassLine, hint: "Convites enviados e ainda não aceitos" },
+          { label: "Em sequência", value: funnel.inSequence.toLocaleString("pt-BR"), icon: RiLoopRightLine, hint: "Leads aceitos com mensagens ou acompanhamentos pendentes" },
+          { label: "Remetentes", value: campaign.accounts.length.toLocaleString("pt-BR"), icon: RiUserVoiceLine, hint: campaign.accounts.map((a) => a.name ?? a.username).join(", ") || "Nenhuma conta remetente atribuída" },
         ]}
       />
 
       <PageTabs
         className="mt-6"
-        label="Campaign sections"
+        label="Seções da campanha"
         value={tab}
         onChange={setTab}
         tabs={[
-          { value: "overview", label: "Overview", icon: RiBarChart2Line },
+          { value: "overview", label: "Visão geral", icon: RiBarChart2Line },
           { value: "leads", label: "Leads", icon: RiTeamLine, count: campaign.totalLeads },
-          { value: "sequence", label: "Sequence", icon: RiListOrdered2, count: steps },
+          { value: "sequence", label: "Sequência", icon: RiListOrdered2, count: steps },
         ]}
       />
 

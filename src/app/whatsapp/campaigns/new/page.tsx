@@ -3,7 +3,7 @@ import { WhatsappCampaignWizard } from "@/components/whatsapp/campaigns/Whatsapp
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "New message campaign" };
+export const metadata = { title: "Nova campanha de mensagens" };
 
 export default async function NewWhatsappCampaignPage() {
   await requirePageOrgContext();

@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth/server";
 import { OrganizationPicker } from "./OrganizationPicker";
 
-export const metadata = { title: "Choose an organization" };
+export const metadata = { title: "Escolha uma organização" };
 export const dynamic = "force-dynamic";
 
 export default async function OrganizationPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

@@ -11,10 +11,10 @@ import type { Metadata } from "next";
  */
 export const metadata: Metadata = {
   title: {
-    default: "WhatsApp Calling · AgentSDR",
-    template: "%s · WhatsApp Calling · AgentSDR",
+    default: "Chamadas do WhatsApp · Apollo Intelligence",
+    template: "%s · Chamadas do WhatsApp · Apollo Intelligence",
   },
-  description: "Call leads over WhatsApp and follow up",
+  description: "Ligue para leads pelo WhatsApp e faça follow-up",
 };
 
 export default function CallingLayout({ children }: { children: React.ReactNode }) {

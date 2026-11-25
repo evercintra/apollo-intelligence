@@ -2,7 +2,7 @@ import { CallingStationsSettings } from "@/components/settings/CallingStationsSe
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Calling numbers" };
+export const metadata = { title: "Números de ligação" };
 
 export default function WhatsappStationsPage() {
   return <CallingStationsSettings />;

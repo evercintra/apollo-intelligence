@@ -54,7 +54,7 @@ import {
   subtleButtonClass,
 } from "./CrmLayout";
 import { RecordBody } from "./CrmSkeletons";
-import { asList, asObject, crmFetch, displayName, errorMessage, formatDate, relativeDate } from "./crm-utils";
+import { asList, asObject, crmFetch, displayName, errorMessage, formatDate, relativeDate, timeAgo } from "./crm-utils";
 import { ClassificationPicker, DISCARD_LEAD_REASON, DISCARD_LEAD_SUCCESS, DiscardLeadDialog, formatMeetingRange, MeetingOutcomeButtons, FollowUpDialog, followUpSuccessMessage, RegenerateDraftDialog, humanize } from "./ActionRowTools";
 import { ContactAvatar } from "./ContactAvatar";
 import { takeRecordWorkspace } from "./recordPrefetch";
@@ -70,45 +70,45 @@ type Channel = "email" | "linkedin" | "whatsapp";
 type TimelineFilter = "all" | Channel;
 
 const eventLabels: Record<string, string> = {
-  "record.created": "CRM record created",
-  "reply.received": "Reply received",
-  "message.recorded": "Message sent outside AgentSDR",
-  "workflow.state_changed": "Workflow updated",
-  "classification.proposed": "AI classification proposed",
-  "classification.auto_applied": "Classification applied",
-  "classification.acknowledged": "Classification acknowledged",
-  "classification.changed": "Classification changed",
-  "classification.failed": "Classification failed",
-  "classification.stale": "Classification became outdated",
-  "classification.undone": "Classification undone",
-  "classification.overridden": "Classification updated",
-  "contact_policy.cleared": "Contact restriction cleared",
-  "contact_policy.dnc_cleared": "Do Not Contact cleared",
-  "contact_policy.dnc_set": "Do Not Contact enabled",
-  "contact_policy.enforced": "Contact restriction enforced",
-  "draft.generated": "Reply draft generated",
-  "draft.edited": "Reply draft edited",
-  "draft.discarded": "Reply draft discarded",
-  "draft.failed": "Draft generation failed",
-  "message.sending": "Message queued for delivery",
-  "message.sent": "Message delivered",
-  "message.failed": "Message failed",
-  "message.delivery_uncertain": "Delivery needs reconciliation",
-  "message.delivery_reconciled": "Delivery status reconciled",
-  "sequence.started": "Sequence started",
-  "sequence.interrupted": "Sequence interrupted",
-  "sequence.override_set": "Sequence override set",
-  "sequence.override_cleared": "Sequence override cleared",
-  "sequence.paused": "Sequence paused",
-  "sequence.resumed": "Sequence resumed",
-  "sequence.snoozed": "Next step snoozed",
-  "sequence.step_skipped": "Sequence step skipped",
-  "sequence.step_channel_switched": "Follow-up moved to their other channel",
-  "sequence.step_channel_fallback": "Follow-up kept on the same channel",
-  "record.closed": "Record closed",
-  "record.follow_up_scheduled": "Follow-up scheduled",
-  "record.reopened": "Record reopened",
-  "stage.moved": "Stage moved",
+  "record.created": "Registro do CRM criado",
+  "reply.received": "Resposta recebida",
+  "message.recorded": "Mensagem enviada fora da automação",
+  "workflow.state_changed": "Fluxo atualizado",
+  "classification.proposed": "Classificação da IA proposta",
+  "classification.auto_applied": "Classificação aplicada",
+  "classification.acknowledged": "Classificação confirmada",
+  "classification.changed": "Classificação alterada",
+  "classification.failed": "Falha na classificação",
+  "classification.stale": "Classificação ficou desatualizada",
+  "classification.undone": "Classificação desfeita",
+  "classification.overridden": "Classificação atualizada",
+  "contact_policy.cleared": "Restrição de contato removida",
+  "contact_policy.dnc_cleared": "Não contatar removido",
+  "contact_policy.dnc_set": "Não contatar ativado",
+  "contact_policy.enforced": "Restrição de contato aplicada",
+  "draft.generated": "Rascunho de resposta criado",
+  "draft.edited": "Rascunho de resposta editado",
+  "draft.discarded": "Rascunho de resposta descartado",
+  "draft.failed": "Falha ao criar rascunho",
+  "message.sending": "Mensagem enfileirada para envio",
+  "message.sent": "Mensagem entregue",
+  "message.failed": "Falha no envio",
+  "message.delivery_uncertain": "Entrega precisa de confirmação",
+  "message.delivery_reconciled": "Status de entrega confirmado",
+  "sequence.started": "Sequência iniciada",
+  "sequence.interrupted": "Sequência interrompida",
+  "sequence.override_set": "Substituição de sequência definida",
+  "sequence.override_cleared": "Substituição de sequência removida",
+  "sequence.paused": "Sequência pausada",
+  "sequence.resumed": "Sequência retomada",
+  "sequence.snoozed": "Próxima etapa adiada",
+  "sequence.step_skipped": "Etapa da sequência ignorada",
+  "sequence.step_channel_switched": "Acompanhamento movido para o outro canal deles",
+  "sequence.step_channel_fallback": "Acompanhamento mantido no mesmo canal",
+  "record.closed": "Registro fechado",
+  "record.follow_up_scheduled": "Acompanhamento agendado",
+  "record.reopened": "Registro reaberto",
+  "stage.moved": "Estágio alterado",
 };
 
 function text(value: unknown, fallback = ""): string {
@@ -120,7 +120,7 @@ function initials(name: string): string {
 }
 
 function channelLabel(channel: unknown): string {
-  return channel === "linkedin" ? "LinkedIn" : channel === "whatsapp" ? "WhatsApp" : "Email";
+  return channel === "linkedin" ? "LinkedIn" : channel === "whatsapp" ? "WhatsApp" : "E-mail";
 }
 
 function channelColor(channel: unknown): string | undefined {
@@ -166,7 +166,7 @@ export default function CrmRecordClient({ recordId, variant = "page" }: { record
   useEffect(() => { void load(); }, [load]);
 
   /** `onError`, when given, takes a failure's message instead of the page (a dialog showing it itself). */
-  const mutate = async (path: string, body: Data = {}, method = "POST", success = "Changes saved", onError?: (message: string) => void): Promise<boolean> => {
+  const mutate = async (path: string, body: Data = {}, method = "POST", success = "Alterações salvas", onError?: (message: string) => void): Promise<boolean> => {
     setNotice("");
     setError("");
     try {
@@ -186,7 +186,7 @@ export default function CrmRecordClient({ recordId, variant = "page" }: { record
   // Only the first load blanks the page; a reload after an action keeps the
   // workspace on screen, dimmed, so the reader does not lose their place.
   if (loading && !data.id) return <RecordBody />;
-  if (error && !data.id) return <div className="space-y-6"><PageHeader back={variant === "page" ? BACK : undefined} title="Conversation" /><ErrorState message={error} onRetry={() => void load()} /></div>;
+  if (error && !data.id) return <div className="space-y-6"><PageHeader back={variant === "page" ? BACK : undefined} title="Conversa" /><ErrorState message={error} onRetry={() => void load()} /></div>;
 
   const person = asObject(data.person);
   const draft = asObject(data.draft);
@@ -215,8 +215,8 @@ export default function CrmRecordClient({ recordId, variant = "page" }: { record
   const avatarUrl = person.profilePictureUrl ? String(person.profilePictureUrl) : null;
   const channels = [...new Set([...conversations, ...messages].map((item) => item.channel).filter(Boolean))].map(channelLabel);
   const followUp = asObject(data.followUp);
-  const lastInbound = data.lastInboundAt ? relativeDate(data.lastInboundAt).replace(" overdue", " ago") : "No reply yet";
-  const nextAction = text(currentStep.name, data.nextActionAt ? relativeDate(data.nextActionAt) : "None scheduled");
+  const lastInbound = data.lastInboundAt ? timeAgo(data.lastInboundAt) : "Ainda sem resposta";
+  const nextAction = text(currentStep.name, data.nextActionAt ? relativeDate(data.nextActionAt) : "Nada agendado");
   // The message being answered: the newest inbound one on any channel.
   const lastMessage = ([...messages] as Data[]).filter((message) => message.direction === "inbound")
     .sort((a, b) => String(b.sentAt ?? b.createdAt).localeCompare(String(a.sentAt ?? a.createdAt)))[0];
@@ -235,15 +235,15 @@ export default function CrmRecordClient({ recordId, variant = "page" }: { record
         onCallStarted={() => setCallsRefreshKey((key) => key + 1)}
       />
 
-      {notice && <div role="status" className="flex items-center gap-2 rounded-xl bg-success-lighter px-4 py-2.5 text-paragraph-sm text-success-dark ring-1 ring-inset ring-success-light"><RiCheckLine className="size-4 shrink-0" aria-hidden="true" /><span className="min-w-0 flex-1">{notice}</span><button type="button" onClick={() => setNotice("")} className="text-label-xs opacity-70 hover:opacity-100">Dismiss</button></div>}
+      {notice && <div role="status" className="flex items-center gap-2 rounded-xl bg-success-lighter px-4 py-2.5 text-paragraph-sm text-success-dark ring-1 ring-inset ring-success-light"><RiCheckLine className="size-4 shrink-0" aria-hidden="true" /><span className="min-w-0 flex-1">{notice}</span><button type="button" onClick={() => setNotice("")} className="text-label-xs opacity-70 hover:opacity-100">Fechar</button></div>}
       {error && <ErrorState message={error} onRetry={() => void load()} />}
-      {text(followUp.note) && <div className="flex items-start gap-2 rounded-xl bg-bg-weak-50 px-4 py-2.5 text-paragraph-sm text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200"><RiCalendarScheduleLine className="mt-0.5 size-4 shrink-0 text-text-soft-400" aria-hidden="true" /><p className="min-w-0 flex-1"><span className="text-label-sm text-text-strong-950">Follow up {followUp.dueAt ? `on ${formatDate(followUp.dueAt)}` : "later"}:</span> {text(followUp.note)}{text(followUp.actorRef) ? <span className="text-text-soft-400"> — {text(followUp.actorRef)}</span> : null}</p></div>}
+      {text(followUp.note) && <div className="flex items-start gap-2 rounded-xl bg-bg-weak-50 px-4 py-2.5 text-paragraph-sm text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200"><RiCalendarScheduleLine className="mt-0.5 size-4 shrink-0 text-text-sub-600" aria-hidden="true" /><p className="min-w-0 flex-1"><span className="text-label-sm text-text-strong-950">Acompanhamento {followUp.dueAt ? `em ${formatDate(followUp.dueAt)}` : "depois"}:</span> {text(followUp.note)}{text(followUp.actorRef) ? <span className="text-text-sub-600"> — {text(followUp.actorRef)}</span> : null}</p></div>}
 
       <StatRow items={[
-        { label: "Last reply", value: lastInbound, icon: RiReplyLine, hint: data.lastInboundAt ? formatDate(data.lastInboundAt) : undefined },
-        { label: "Next step", value: nextAction, icon: RiTimerLine, hint: data.nextActionAt ? formatDate(data.nextActionAt) : undefined },
-        { label: "Sequence", value: activeSequence.name ? `${String(activeSequence.name)}${activeRun.status === "paused" ? " · paused" : ""}` : "None running", icon: RiLoopLeftLine },
-        { label: channels.length > 1 ? "Channels" : "Channel", value: channels.join(", ") || "—", icon: RiChat3Line },
+        { label: "Última resposta", value: lastInbound, icon: RiReplyLine, hint: data.lastInboundAt ? formatDate(data.lastInboundAt) : undefined },
+        { label: "Próxima etapa", value: nextAction, icon: RiTimerLine, hint: data.nextActionAt ? formatDate(data.nextActionAt) : undefined },
+        { label: "Sequência", value: activeSequence.name ? `${String(activeSequence.name)}${activeRun.status === "paused" ? " · pausada" : ""}` : "Nenhuma em andamento", icon: RiLoopLeftLine },
+        { label: channels.length > 1 ? "Canais" : "Canal", value: channels.join(", ") || "—", icon: RiChat3Line },
       ]} />
 
       {/* The measured height only holds if the grid row is allowed to be
@@ -300,14 +300,14 @@ function MeetingsCard({ meetings, linkSentCount, linkFirstSentAt, onAction, reco
   if (!meetings.length && !(linkSentCount > 0)) return null;
   const answer = async (meetingId: string, outcome: "showed" | "no_show") => {
     setBusyId(meetingId);
-    try { await onAction(`/records/${recordId}/meeting-outcome`, { meetingId, outcome }, "POST", outcome === "showed" ? "Marked as showed up" : "Marked as no-show"); }
+    try { await onAction(`/records/${recordId}/meeting-outcome`, { meetingId, outcome }, "POST", outcome === "showed" ? "Marcado como compareceu" : "Marcado como não compareceu"); }
     finally { setBusyId(null); }
   };
   return (
     <Frame>
       <FrameHeader
-        title="Meetings"
-        description={linkSentCount > 0 ? `Booking link sent ${linkSentCount} ${linkSentCount === 1 ? "time" : "times"}${linkFirstSentAt ? `, first on ${formatDate(linkFirstSentAt)}` : ""}.` : undefined}
+        title="Reuniões"
+        description={linkSentCount > 0 ? `Link de agendamento enviado ${linkSentCount} ${linkSentCount === 1 ? "vez" : "vezes"}${linkFirstSentAt ? `, a primeira em ${formatDate(linkFirstSentAt)}` : ""}.` : undefined}
       />
       {meetings.length > 0 && <FramePanel className="divide-y divide-stroke-soft-200 p-0 sm:p-0">
         {meetings.map((meeting) => {
@@ -321,9 +321,9 @@ function MeetingsCard({ meetings, linkSentCount, linkFirstSentAt, onAction, reco
               <div className="min-w-0">
                 <p className="text-label-sm text-text-strong-950">{formatMeetingRange(meeting.startAt, meeting.endAt)}</p>
                 <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-paragraph-xs text-text-sub-600">
-                  <span className={cn(cancelled && "text-error-base")}>{cancelled ? "Cancelled" : "Booked"}</span>
-                  {outcome && <><span aria-hidden="true">·</span><span>{outcome === "showed" ? "Showed up" : "No-show"}{meeting.outcomeBy ? `, answered by ${String(meeting.outcomeBy)}` : ""}</span></>}
-                  {needsAnswer && <><span aria-hidden="true">·</span><span>Not answered yet</span></>}
+                  <span className={cn(cancelled && "text-error-base")}>{cancelled ? "Cancelada" : "Agendada"}</span>
+                  {outcome && <><span aria-hidden="true">·</span><span>{outcome === "showed" ? "Compareceu" : "Não compareceu"}{meeting.outcomeBy ? `, respondido por ${String(meeting.outcomeBy)}` : ""}</span></>}
+                  {needsAnswer && <><span aria-hidden="true">·</span><span>Ainda sem resposta</span></>}
                 </p>
               </div>
               {needsAnswer && <MeetingOutcomeButtons busy={busyId === id} onAnswer={(value) => void answer(id, value)} />}
@@ -335,7 +335,7 @@ function MeetingsCard({ meetings, linkSentCount, linkFirstSentAt, onAction, reco
   );
 }
 
-const BACK = { href: "/crm/actions", label: "Action required" };
+const BACK = { href: "/crm/actions", label: "Ação necessária" };
 
 /**
  * Height of the workspace row, measured rather than assumed.
@@ -376,14 +376,14 @@ function useWorkspaceHeight<T extends HTMLElement>(ready: boolean) {
 }
 
 const WORKFLOW_BADGE: Record<string, { label: string; color: React.ComponentProps<typeof Badge.Root>["color"] }> = {
-  action_required: { label: "Action required", color: "orange" },
-  error: { label: "Error", color: "red" },
-  waiting: { label: "Waiting", color: "purple" },
-  paused: { label: "Paused", color: "pink" },
-  closed: { label: "Closed", color: "green" },
-  classifying: { label: "Classifying", color: "gray" },
-  unclassified: { label: "Unclassified", color: "gray" },
-  idle: { label: "Idle", color: "gray" },
+  action_required: { label: "Precisa de ação", color: "orange" },
+  error: { label: "Erro", color: "red" },
+  waiting: { label: "Aguardando", color: "purple" },
+  paused: { label: "Pausada", color: "pink" },
+  closed: { label: "Fechado", color: "green" },
+  classifying: { label: "Classificando", color: "gray" },
+  unclassified: { label: "Sem classificação", color: "gray" },
+  idle: { label: "Ocioso", color: "gray" },
 };
 
 function RecordHeader({ back, data, person, name, avatarUrl, currentStep, activeRun, onAction, onCallStarted }: {
@@ -429,13 +429,13 @@ function RecordHeader({ back, data, person, name, avatarUrl, currentStep, active
       </span>}
       badge={<>
         {state && <Badge.Root variant="lighter" size="medium" color={state.color}><Badge.Dot />{state.label}</Badge.Root>}
-        {dnc && <Badge.Root variant="lighter" size="medium" color="red"><Badge.Dot />Do not contact</Badge.Root>}
+        {dnc && <Badge.Root variant="lighter" size="medium" color="red"><Badge.Dot />Não contatar</Badge.Root>}
       </>}
       description={<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-paragraph-sm text-text-sub-600">
-        {(title || company) && <span className="inline-flex min-w-0 items-center gap-1.5"><RiBriefcaseLine className="size-4 shrink-0 text-text-soft-400" aria-hidden="true" /><span className="truncate">{[title, company].filter(Boolean).join(" · ")}</span></span>}
-        {email && <a href={`mailto:${email}`} className="inline-flex min-w-0 items-center gap-1.5 transition hover:text-text-strong-950"><RiMailLine className="size-4 shrink-0 text-text-soft-400" aria-hidden="true" /><span className="truncate">{email}</span></a>}
-        {phone && <span className="inline-flex items-center gap-1.5"><RiPhoneLine className="size-4 shrink-0 text-text-soft-400" aria-hidden="true" />{phone}</span>}
-        {linkedin && <a href={linkedinHref} target="_blank" rel="noreferrer" title={`Open ${name} on LinkedIn`} className="inline-flex min-w-0 items-center gap-1.5 transition hover:text-text-strong-950"><RiLinkedinLine className="size-4 shrink-0 text-text-soft-400" aria-hidden="true" /><span className="truncate">{linkedinSlug}</span><RiArrowRightUpLine className="size-3.5 shrink-0 text-text-soft-400" aria-hidden="true" /></a>}
+        {(title || company) && <span className="inline-flex min-w-0 items-center gap-1.5"><RiBriefcaseLine className="size-4 shrink-0 text-text-sub-600" aria-hidden="true" /><span className="truncate">{[title, company].filter(Boolean).join(" · ")}</span></span>}
+        {email && <a href={`mailto:${email}`} className="inline-flex min-w-0 items-center gap-1.5 transition hover:text-text-strong-950"><RiMailLine className="size-4 shrink-0 text-text-sub-600" aria-hidden="true" /><span className="truncate">{email}</span></a>}
+        {phone && <span className="inline-flex items-center gap-1.5"><RiPhoneLine className="size-4 shrink-0 text-text-sub-600" aria-hidden="true" />{phone}</span>}
+        {linkedin && <a href={linkedinHref} target="_blank" rel="noreferrer" title={`Abrir ${name} no LinkedIn`} className="inline-flex min-w-0 items-center gap-1.5 transition hover:text-text-strong-950"><RiLinkedinLine className="size-4 shrink-0 text-text-sub-600" aria-hidden="true" /><span className="truncate">{linkedinSlug}</span><RiArrowRightUpLine className="size-3.5 shrink-0 text-text-sub-600" aria-hidden="true" /></a>}
       </div>}
       actions={<>
         <CallButton personId={personId} crmRecordId={id} phone={phone} onCallStarted={onCallStarted} />
@@ -443,32 +443,32 @@ function RecordHeader({ back, data, person, name, avatarUrl, currentStep, active
           variant="neutral"
           mode="stroke"
           size="xsmall"
-          title={`Mark "${String(currentStep.name)}" as done without sending it; the next step waits its usual delay`}
-          onClick={() => void onAction(`/records/${id}/skip`, {}, "POST", "Step skipped — the next one is scheduled")}
-        aria-label="Skip step"><Button.Icon as={RiSkipForwardLine} /><span className="hidden sm:inline">Skip step</span></Button.Root>}
+          title={`Marcar "${String(currentStep.name)}" como feita sem enviar; a próxima etapa espera o intervalo usual`}
+          onClick={() => void onAction(`/records/${id}/skip`, {}, "POST", "Etapa ignorada — a próxima foi agendada")}
+        aria-label="Ignorar etapa"><Button.Icon as={RiSkipForwardLine} /><span className="hidden sm:inline">Ignorar etapa</span></Button.Root>}
         <DiscardLeadDialog open={discardOpen} onOpenChange={setDiscardOpen} name={name} onConfirm={async () => { await onAction(`/records/${id}/close`, { reason: DISCARD_LEAD_REASON }, "POST", DISCARD_LEAD_SUCCESS); return true; }} />
         <FollowUpDialog open={followUpOpen} onOpenChange={setFollowUpOpen} onSubmit={(at, note, onError) => onAction(`/records/${id}/follow-up`, { at: at.toISOString(), note }, "POST", followUpSuccessMessage(at), onError)} />
         <Dropdown.Root>
           <Dropdown.Trigger asChild>
-            <Button.Root variant="neutral" mode="stroke" size="xsmall" title="Manage record" aria-label="Manage record"><Button.Icon as={RiMoreLine} /></Button.Root>
+            <Button.Root variant="neutral" mode="stroke" size="xsmall" title="Gerenciar registro" aria-label="Gerenciar registro"><Button.Icon as={RiMoreLine} /></Button.Root>
           </Dropdown.Trigger>
           <Dropdown.Content align="end">
             {/* Pause is a one-click record action, so it sits with the
                 other record actions rather than in a card of their own. */}
             {!closed && <>
-              <Dropdown.Item onSelect={() => void onAction(`/records/${id}/${paused ? "resume" : "pause"}`, {}, "POST", paused ? "Sequence resumed" : "Sequence paused")}>
-                <Dropdown.ItemIcon as={paused ? RiPlayLine : RiPauseLine} />{paused ? "Resume sequence" : "Pause sequence"}
+              <Dropdown.Item onSelect={() => void onAction(`/records/${id}/${paused ? "resume" : "pause"}`, {}, "POST", paused ? "Sequência retomada" : "Sequência pausada")}>
+                <Dropdown.ItemIcon as={paused ? RiPlayLine : RiPauseLine} />{paused ? "Retomar sequência" : "Pausar sequência"}
               </Dropdown.Item>
               <Dropdown.Item onSelect={() => setFollowUpOpen(true)}>
-                <Dropdown.ItemIcon as={RiCalendarScheduleLine} />Follow up later…
+                <Dropdown.ItemIcon as={RiCalendarScheduleLine} />Acompanhar depois…
               </Dropdown.Item>
               <Dropdown.Separator />
             </>}
-            <Dropdown.Item onSelect={() => void onAction(`/people/${personId}/dnc`, { enabled: !dnc }, "POST", dnc ? "Do not contact removed" : "Contact marked as do not contact")}>
-              <Dropdown.ItemIcon as={RiUserLine} />{dnc ? "Clear do not contact" : "Mark do not contact"}
+            <Dropdown.Item onSelect={() => void onAction(`/people/${personId}/dnc`, { enabled: !dnc }, "POST", dnc ? "Não contatar removido" : "Contato marcado como não contatar")}>
+              <Dropdown.ItemIcon as={RiUserLine} />{dnc ? "Remover não contatar" : "Marcar não contatar"}
             </Dropdown.Item>
-            <Dropdown.Item destructive={!closed} onSelect={() => { if (closed) void onAction(`/records/${id}/reopen`, {}, "POST", "Record reopened"); else setDiscardOpen(true); }}>
-              <Dropdown.ItemIcon as={closed ? RiPlayLine : RiCloseCircleLine} />{closed ? "Reopen record" : "Discard lead"}
+            <Dropdown.Item destructive={!closed} onSelect={() => { if (closed) void onAction(`/records/${id}/reopen`, {}, "POST", "Registro reaberto"); else setDiscardOpen(true); }}>
+              <Dropdown.ItemIcon as={closed ? RiPlayLine : RiCloseCircleLine} />{closed ? "Reabrir registro" : "Descartar lead"}
             </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown.Root>
@@ -487,15 +487,15 @@ function WhatsappRecordPanel({ personId, onSent, children }: { personId: string;
   return (
     <div className="flex h-full min-h-[28rem] flex-col gap-2">
       <SegmentedControl.Root value={view} onValueChange={(value) => setView(value as "whatsapp" | "all")} className="shrink-0">
-        <SegmentedControl.List className="w-auto" aria-label="Conversation view">
+        <SegmentedControl.List className="w-auto" aria-label="Visualização da conversa">
           <SegmentedControl.Trigger value="whatsapp" className="gap-1.5 px-3"><WhatsappLogo className="size-3.5" />WhatsApp</SegmentedControl.Trigger>
-          <SegmentedControl.Trigger value="all" className="px-3">All channels</SegmentedControl.Trigger>
+          <SegmentedControl.Trigger value="all" className="px-3">Todos os canais</SegmentedControl.Trigger>
         </SegmentedControl.List>
       </SegmentedControl.Root>
       <div className="min-h-0 flex-1">
         {view === "whatsapp"
           ? <Frame className="h-full">
-              <FrameHeader title="WhatsApp" description="The live thread, sent through the linked number." />
+              <FrameHeader title="WhatsApp" description="A conversa ao vivo, enviada pelo número conectado." />
               <FramePanel className="flex min-h-0 flex-col overflow-hidden p-4 sm:p-4">
                 <PersonWhatsappPanel personId={personId} onSent={onSent} className="flex min-h-0 flex-1 flex-col" heightClass="min-h-0 flex-1" />
               </FramePanel>
@@ -529,14 +529,14 @@ function ConversationPanel({ conversations, messages, name, avatarUrl }: { conve
     <Frame className="h-full min-h-0">
       <div className="flex shrink-0 flex-wrap items-start justify-between gap-x-4 gap-y-2 px-4 pb-3 pt-3">
         <div className="min-w-0">
-          <h2 className="text-label-sm text-text-strong-950">Conversation</h2>
-          <p className="mt-0.5 text-paragraph-xs text-text-sub-600">{messages.length} {messages.length === 1 ? "message" : "messages"}{channelSummary.length ? ` across ${channelSummary.join(" and ")}` : ""}</p>
+          <h2 className="text-label-sm text-text-strong-950">Conversa</h2>
+          <p className="mt-0.5 text-paragraph-xs text-text-sub-600">{messages.length} {messages.length === 1 ? "mensagem" : "mensagens"}{channelSummary.length ? ` em ${channelSummary.join(" e ")}` : ""}</p>
         </div>
         <SegmentedControl.Root value={filter} onValueChange={(value) => setFilter(value as TimelineFilter)}>
-          <SegmentedControl.List className="w-auto" aria-label="Channel">
+          <SegmentedControl.List className="w-auto" aria-label="Canal">
             {(["all", "email", "linkedin", "whatsapp"] as TimelineFilter[]).map((item) => {
               const disabled = item !== "all" && !channels.has(item);
-              return <SegmentedControl.Trigger key={item} value={item} disabled={disabled} className={cn("gap-1.5 px-2 text-label-xs sm:px-2.5", disabled && "opacity-40")}>{item !== "all" && channelIcon(item, "size-3.5")}{item === "all" ? "All" : channelLabel(item)}</SegmentedControl.Trigger>;
+              return <SegmentedControl.Trigger key={item} value={item} disabled={disabled} className={cn("gap-1.5 px-2 text-label-xs sm:px-2.5", disabled && "opacity-40")}>{item !== "all" && channelIcon(item, "size-3.5")}{item === "all" ? "Todos" : channelLabel(item)}</SegmentedControl.Trigger>;
             })}
           </SegmentedControl.List>
         </SegmentedControl.Root>
@@ -547,16 +547,16 @@ function ConversationPanel({ conversations, messages, name, avatarUrl }: { conve
           {visible.map((message, index) => {
             const inbound = message.direction === "inbound";
             const subject = text(message.subject);
-            const body = text(message.body ?? message.bodyText, "Message content unavailable");
+            const body = text(message.body ?? message.bodyText, "Conteúdo da mensagem indisponível");
             const label = text(message.label);
             return (
               <article key={String(message.id ?? index)} className={cn("flex gap-3", !inbound && "flex-row-reverse")}>
                 {inbound
                   ? <ContactAvatar src={avatarUrl} fallback={initials(name)} className="mt-1 size-8 bg-bg-white-0 text-label-xs text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200" />
-                  : <span className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-alpha-10 text-label-xs text-primary-base">You</span>}
+                  : <span className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-alpha-10 text-label-xs text-primary-base">Você</span>}
                 <div className={cn("min-w-0 max-w-[88%]", !inbound && "text-right")}>
-                  <div className={cn("mb-1.5 flex flex-wrap items-center gap-2 text-paragraph-xs text-text-soft-400", !inbound && "justify-end")}>
-                    <span className="inline-flex items-center gap-1" style={{ color: channelColor(message.channel) }}>{channelIcon(message.channel, "size-3.5")}<span className="text-text-soft-400">{channelLabel(message.channel)}</span></span>
+                  <div className={cn("mb-1.5 flex flex-wrap items-center gap-2 text-paragraph-xs text-text-sub-600", !inbound && "justify-end")}>
+                    <span className="inline-flex items-center gap-1" style={{ color: channelColor(message.channel) }}>{channelIcon(message.channel, "size-3.5")}<span className="text-text-sub-600">{channelLabel(message.channel)}</span></span>
                     {label && <span className="rounded bg-bg-weak-50 px-1.5 py-0.5 text-label-xs text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200">{label}</span>}
                     <time title={formatDate(message.sentAt ?? message.createdAt)}>{formatDate(message.sentAt ?? message.createdAt)}</time>
                   </div>
@@ -569,7 +569,7 @@ function ConversationPanel({ conversations, messages, name, avatarUrl }: { conve
             );
           })}
         </div>
-      ) : <EmptyState className="min-h-80 flex-1" icon={RiChat3Line} title={messages.length ? "No messages on this channel" : "No messages yet"} description={messages.length ? "Pick All to see the whole thread." : "Messages will appear here when this contact replies."} />}
+      ) : <EmptyState className="min-h-80 flex-1" icon={RiChat3Line} title={messages.length ? "Nenhuma mensagem neste canal" : "Ainda não há mensagens"} description={messages.length ? "Selecione Todos para ver a conversa inteira." : "As mensagens aparecem aqui quando este contato responder."} />}
       </FramePanel>
     </Frame>
   );
@@ -644,57 +644,57 @@ function ReplyComposer({ record, personEmail, draft, conversations, citations, u
       {/* Narrow: title and Activity share the first line, the classification
           takes the second whole. Wide: one line. */}
       <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 pt-3">
-        <h2 className="text-label-sm text-text-strong-950">Reply</h2>
+        <h2 className="text-label-sm text-text-strong-950">Resposta</h2>
         <div className="order-3 flex min-w-0 basis-full items-center sm:order-none sm:basis-auto">{stage}</div>
         <div className="order-2 ml-auto sm:order-none">{activity}</div>
       </div>
       {stageNotice && <div className="shrink-0 px-1 pb-2">{stageNotice}</div>}
       <FramePanel className="flex min-h-0 flex-col overflow-hidden p-0 sm:p-0">
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:p-5">
-        {Boolean(record.dnc) && <InlineWarning tone="danger" title="Sending is blocked" detail="This person is marked as Do Not Contact. Clear that status before replying." />}
-        {editingCurrentDraft && draft.status === "failed" && <InlineWarning tone="danger" title="The draft could not be written" detail={text(draft.error, "Regenerate it, or write the reply yourself.")} />}
+        {Boolean(record.dnc) && <InlineWarning tone="danger" title="Envio bloqueado" detail="Esta pessoa está marcada como Não contatar. Remova essa marca antes de responder." />}
+        {editingCurrentDraft && draft.status === "failed" && <InlineWarning tone="danger" title="Não foi possível criar o rascunho" detail={text(draft.error, "Regenere ou escreva a resposta você mesmo.")} />}
         {editingCurrentDraft && draft.status === "awaiting_review" && Boolean(draft.autoSendAt) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg bg-information-lighter p-3 ring-1 ring-inset ring-information-light">
-            <Badge.Root variant="lighter" size="medium" color="blue" className="shrink-0 whitespace-nowrap"><Badge.Dot />Sends automatically</Badge.Root>
-            <p className="min-w-0 flex-1 text-paragraph-xs text-information-dark">Goes out on its own when its account&apos;s next slot opens: one follow-up per account every 30 minutes by default (Sending rules), inside sending hours.</p>
-            <button type="button" className={cn(secondaryButtonClass, "h-7 whitespace-nowrap px-2.5 text-label-xs")} onClick={() => void onAction(`/drafts/${String(draft.id)}/review`, {}, "POST", "Moved to Action required")}>Review before sending</button>
+            <Badge.Root variant="lighter" size="medium" color="purple" className="shrink-0 whitespace-nowrap"><Badge.Dot />Envia automaticamente</Badge.Root>
+            <p className="min-w-0 flex-1 text-paragraph-xs text-information-dark">Sai sozinho quando o próximo horário da conta abre: por padrão, um acompanhamento por conta a cada 30 minutos (Regras de envio), dentro do horário de envio.</p>
+            <button type="button" className={cn(secondaryButtonClass, "h-7 whitespace-nowrap px-2.5 text-label-xs")} onClick={() => void onAction(`/drafts/${String(draft.id)}/review`, {}, "POST", "Movido para Ação necessária")}>Revisar antes de enviar</button>
           </div>
         )}
-        {stale && editingCurrentDraft && <InlineWarning tone="warning" title="This draft may be out of date" detail="A newer reply changed the conversation. Regenerate or carefully review before sending." />}
-        {!conversations.length && <InlineWarning tone="warning" title="No reply channel available" detail="Email or LinkedIn must be connected before a reply can be sent." />}
+        {stale && editingCurrentDraft && <InlineWarning tone="warning" title="Este rascunho pode estar desatualizado" detail="Uma resposta mais recente mudou a conversa. Regenere ou revise com cuidado antes de enviar." />}
+        {!conversations.length && <InlineWarning tone="warning" title="Nenhum canal de resposta disponível" detail="E-mail ou LinkedIn precisam estar conectados antes de enviar uma resposta." />}
 
         {/* Below xl the conversation stacks under this panel, so the message
             being answered is quoted here instead of a scroll away. */}
         {lastMessage && <figure className="shrink-0 rounded-lg bg-bg-weak-50 px-3 py-2.5 ring-1 ring-inset ring-stroke-soft-200 xl:hidden">
-          <figcaption className="mb-1 flex items-center gap-1.5 text-paragraph-xs text-text-soft-400">{channelIcon(lastMessage.channel, "size-3.5")}Replying to their message · {formatDate(lastMessage.sentAt ?? lastMessage.createdAt)}</figcaption>
-          <blockquote className="line-clamp-4 whitespace-pre-wrap text-paragraph-sm text-text-strong-950">{text(lastMessage.body ?? lastMessage.bodyText, "Message content unavailable")}</blockquote>
+          <figcaption className="mb-1 flex items-center gap-1.5 text-paragraph-xs text-text-sub-600">{channelIcon(lastMessage.channel, "size-3.5")}Respondendo à mensagem deles · {formatDate(lastMessage.sentAt ?? lastMessage.createdAt)}</figcaption>
+          <blockquote className="line-clamp-4 whitespace-pre-wrap text-paragraph-sm text-text-strong-950">{text(lastMessage.body ?? lastMessage.bodyText, "Conteúdo da mensagem indisponível")}</blockquote>
         </figure>}
 
-        {!editingCurrentDraft && Boolean(draft.id) && <div className="rounded-lg bg-information-lighter p-3 text-paragraph-xs text-information-dark ring-1 ring-inset ring-information-light">You switched channels. This will create a separate {channelLabel(channel)} draft; the existing {channelLabel(draft.channel)} draft is preserved.</div>}
+        {!editingCurrentDraft && Boolean(draft.id) && <div className="rounded-lg bg-information-lighter p-3 text-paragraph-xs text-information-dark ring-1 ring-inset ring-information-light">Você trocou de canal. Isso cria um rascunho separado para {channelLabel(channel)}; o rascunho atual em {channelLabel(draft.channel)} é preservado.</div>}
 
         {channel === "email" && <DraftRecipients draft={editingCurrentDraft ? draft : {}} personEmail={personEmail} />}
-        {channel === "email" && <label className="block"><span className="mb-1.5 block text-label-xs text-text-sub-600">Subject</span><input className={fieldClass} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="Email subject" /></label>}
+        {channel === "email" && <label className="block"><span className="mb-1.5 block text-label-xs text-text-sub-600">Assunto</span><input className={fieldClass} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="Assunto do e-mail" /></label>}
         <div className="flex min-h-40 flex-1 flex-col">
           <div className="mb-1.5 flex items-center justify-between gap-2">
             <span className="flex min-w-0 items-center gap-2">
-              <label htmlFor="crm-reply-body" className="text-label-sm text-text-strong-950">{editingCurrentDraft ? "Draft reply" : "Your reply"}</label>
+              <label htmlFor="crm-reply-body" className="text-label-sm text-text-strong-950">{editingCurrentDraft ? "Rascunho da resposta" : "Sua resposta"}</label>
               {editingCurrentDraft && <DraftBadge draft={draft} stale={stale} dnc={Boolean(record.dnc)} />}
             </span>
-            {editingCurrentDraft && <button type="button" className={cn(secondaryButtonClass, "h-7 gap-1.5 whitespace-nowrap px-2.5 text-label-xs")} onClick={() => setRegenerateOpen(true)} aria-label="Regenerate draft"><RiRefreshLine className="size-3.5" aria-hidden="true" /><span className="hidden sm:inline">Regenerate draft</span></button>}
+            {editingCurrentDraft && <button type="button" className={cn(secondaryButtonClass, "h-7 gap-1.5 whitespace-nowrap px-2.5 text-label-xs")} onClick={() => setRegenerateOpen(true)} aria-label="Regenerar rascunho"><RiRefreshLine className="size-3.5" aria-hidden="true" /><span className="hidden sm:inline">Regenerar rascunho</span></button>}
           </div>
-          <textarea id="crm-reply-body" className={cn(fieldClass, "min-h-32 flex-1 resize-y leading-6")} value={body} onChange={(event) => setBody(event.target.value)} placeholder={`Write a ${channelLabel(channel)} reply…`} />
+          <textarea id="crm-reply-body" className={cn(fieldClass, "min-h-32 flex-1 resize-y leading-6")} value={body} onChange={(event) => setBody(event.target.value)} placeholder={`Escreva uma resposta ${channel === "email" ? "por e-mail" : `no ${channelLabel(channel)}`}…`} />
         </div>
 
-        {citations.length > 0 && editingCurrentDraft && <details className="shrink-0 rounded-lg bg-bg-weak-50 p-3 ring-1 ring-inset ring-stroke-soft-200"><summary className="cursor-pointer text-label-xs text-text-sub-600">Knowledge used ({citations.length})</summary>{citations.map((citation, index) => <blockquote key={String(citation.id ?? index)} className="mt-2 border-l-2 border-primary-alpha-24 pl-2 text-paragraph-xs text-text-sub-600">{String(citation.excerpt ?? "")}</blockquote>)}</details>}
+        {citations.length > 0 && editingCurrentDraft && <details className="shrink-0 rounded-lg bg-bg-weak-50 p-3 ring-1 ring-inset ring-stroke-soft-200"><summary className="cursor-pointer text-label-xs text-text-sub-600">Conhecimento usado ({citations.length})</summary>{citations.map((citation, index) => <blockquote key={String(citation.id ?? index)} className="mt-2 border-l-2 border-primary-alpha-24 pl-2 text-paragraph-xs text-text-sub-600">{String(citation.excerpt ?? "")}</blockquote>)}</details>}
 
       </div>
       <div className="shrink-0 border-t border-stroke-soft-200 px-4 py-3 sm:px-5">
         {uncertainAttempt && editingCurrentDraft ? (
           <div className="space-y-3 rounded-xl bg-warning-lighter p-3.5 ring-1 ring-inset ring-warning-light">
-            <div className="flex gap-2"><RiErrorWarningLine className="mt-0.5 size-4 shrink-0 text-warning-base" aria-hidden="true" /><div><p className="text-label-sm text-warning-dark">Delivery needs confirmation</p><p className="mt-0.5 text-paragraph-xs text-warning-dark">Check the provider before recording the result.</p></div></div>
-            <input value={providerMessageId} onChange={(event) => setProviderMessageId(event.target.value)} className={fieldClass} placeholder="Provider message ID (if delivered)" />
-            <input value={reconciliationNote} onChange={(event) => setReconciliationNote(event.target.value)} className={fieldClass} placeholder="Required reconciliation note" />
-            <div className="flex gap-2"><button disabled={!reconciliationNote.trim()} type="button" className={primaryButtonClass} onClick={() => void onAction(`/send-attempts/${String(uncertainAttempt.id)}/reconcile`, { delivered: true, providerMessageId: providerMessageId || null, note: reconciliationNote }, "POST", "Delivery confirmed")}>Confirm delivered</button><button disabled={!reconciliationNote.trim()} type="button" className={dangerButtonClass} onClick={() => void onAction(`/send-attempts/${String(uncertainAttempt.id)}/reconcile`, { delivered: false, note: reconciliationNote }, "POST", "Marked not delivered")}>Not delivered</button></div>
+            <div className="flex gap-2"><RiErrorWarningLine className="mt-0.5 size-4 shrink-0 text-warning-base" aria-hidden="true" /><div><p className="text-label-sm text-warning-dark">A entrega precisa de confirmação</p><p className="mt-0.5 text-paragraph-xs text-warning-dark">Confira no provedor antes de registrar o resultado.</p></div></div>
+            <input value={providerMessageId} onChange={(event) => setProviderMessageId(event.target.value)} className={fieldClass} placeholder="ID da mensagem no provedor (se entregue)" />
+            <input value={reconciliationNote} onChange={(event) => setReconciliationNote(event.target.value)} className={fieldClass} placeholder="Nota de confirmação obrigatória" />
+            <div className="flex gap-2"><button disabled={!reconciliationNote.trim()} type="button" className={primaryButtonClass} onClick={() => void onAction(`/send-attempts/${String(uncertainAttempt.id)}/reconcile`, { delivered: true, providerMessageId: providerMessageId || null, note: reconciliationNote }, "POST", "Entrega confirmada")}>Confirmar entrega</button><button disabled={!reconciliationNote.trim()} type="button" className={dangerButtonClass} onClick={() => void onAction(`/send-attempts/${String(uncertainAttempt.id)}/reconcile`, { delivered: false, note: reconciliationNote }, "POST", "Marcado como não entregue")}>Não entregue</button></div>
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
@@ -702,10 +702,10 @@ function ReplyComposer({ record, personEmail, draft, conversations, citations, u
             <SenderPicker conversations={conversations} value={conversationId} onChange={changeConversation} />
             <div className="ml-auto flex items-center gap-2">
               {editingCurrentDraft ? <>
-                <RegenerateDraftDialog open={regenerateOpen} onOpenChange={setRegenerateOpen} onSubmit={async (feedback) => { await onAction(`/drafts/${String(draft.id)}/regenerate`, { feedback }, "POST", "Draft rewritten with your notes"); return true; }} />
-                <button type="button" disabled={!ready} className={secondaryButtonClass} onClick={() => void onAction(`/drafts/${String(draft.id)}`, { subject: requestSubject, body, revision }, "PATCH", "Draft saved")}><RiSaveLine className="size-4" aria-hidden="true" />Save</button>
-                <button type="button" disabled={!ready} className={primaryButtonClass} onClick={() => void onAction(`/drafts/${String(draft.id)}/send`, { subject: requestSubject, body, revision }, "POST", "Reply queued for sending")}><RiSendPlaneLine className="size-4" aria-hidden="true" />Approve &amp; send</button>
-              </> : <button type="button" disabled={!ready} className={primaryButtonClass} onClick={() => void onAction(`/records/${String(record.id)}/draft`, { conversationId, subject: requestSubject, bodyText: body, bodyHtml: null }, "POST", "Draft created and ready for review")}><RiSaveLine className="size-4" aria-hidden="true" />Create draft</button>}
+                <RegenerateDraftDialog open={regenerateOpen} onOpenChange={setRegenerateOpen} onSubmit={async (feedback) => { await onAction(`/drafts/${String(draft.id)}/regenerate`, { feedback }, "POST", "Rascunho reescrito com suas notas"); return true; }} />
+                <button type="button" disabled={!ready} className={secondaryButtonClass} onClick={() => void onAction(`/drafts/${String(draft.id)}`, { subject: requestSubject, body, revision }, "PATCH", "Rascunho salvo")}><RiSaveLine className="size-4" aria-hidden="true" />Salvar</button>
+                <button type="button" disabled={!ready} className={primaryButtonClass} onClick={() => void onAction(`/drafts/${String(draft.id)}/send`, { subject: requestSubject, body, revision }, "POST", "Resposta enfileirada para envio")}><RiSendPlaneLine className="size-4" aria-hidden="true" />Aprovar e enviar</button>
+              </> : <button type="button" disabled={!ready} className={primaryButtonClass} onClick={() => void onAction(`/records/${String(record.id)}/draft`, { conversationId, subject: requestSubject, bodyText: body, bodyHtml: null }, "POST", "Rascunho criado e pronto para revisão")}><RiSaveLine className="size-4" aria-hidden="true" />Criar rascunho</button>}
             </div>
           </div>
         )}
@@ -718,10 +718,10 @@ function ReplyComposer({ record, personEmail, draft, conversations, citations, u
 /** Where the AI draft stands, in the same words the Action required table uses. */
 function DraftBadge({ draft, stale, dnc }: { draft: Data; stale: boolean; dnc: boolean }) {
   const status = String(draft.status ?? "");
-  const [label, color]: [string, React.ComponentProps<typeof Badge.Root>["color"]] = status === "failed" ? ["Draft failed", "red"]
-    : dnc ? ["Do not contact", "red"]
-    : stale ? ["Out of date", "orange"]
-    : status === "awaiting_review" ? ["Ready to send", "green"]
+  const [label, color]: [string, React.ComponentProps<typeof Badge.Root>["color"]] = status === "failed" ? ["Rascunho falhou", "red"]
+    : dnc ? ["Não contatar", "red"]
+    : stale ? ["Desatualizado", "orange"]
+    : status === "awaiting_review" ? ["Pronto para enviar", "green"]
     : [humanize(status || "draft"), "gray"];
   return <Badge.Root variant="lighter" size="medium" color={color} className="shrink-0 whitespace-nowrap"><Badge.Dot />{label}</Badge.Root>;
 }
@@ -733,24 +733,24 @@ function DraftBadge({ draft, stale, dnc }: { draft: Data; stale: boolean; dnc: b
 function SenderPicker({ conversations, value, onChange }: { conversations: Data[]; value: string; onChange: (conversationId: string) => void }) {
   if (!conversations.length) return null;
   const current = conversations.find((item) => String(item.id) === value) ?? conversations[0]!;
-  const senderName = (item: Data) => text(item.accountName ?? item.accountLabel ?? item.accountRef, "Connected account");
+  const senderName = (item: Data) => text(item.accountName ?? item.accountLabel ?? item.accountRef, "Conta conectada");
   const identity = (item: Data) => (
     <>
       <ContactAvatar src={item.accountAvatarUrl ? String(item.accountAvatarUrl) : null} fallback={initials(senderName(item))} className="size-6 shrink-0 bg-primary-alpha-10 text-[10px] text-primary-base" />
       <span className="min-w-0 truncate text-label-sm text-text-strong-950">{senderName(item)}</span>
-      <span className="inline-flex shrink-0 items-center gap-1 text-paragraph-xs text-text-soft-400">{channelIcon(item.channel, "size-3.5")}{channelLabel(item.channel)}{item.status === "closed" ? " · closed" : ""}</span>
+      <span className="inline-flex shrink-0 items-center gap-1 text-paragraph-xs text-text-sub-600">{channelIcon(item.channel, "size-3.5")}{channelLabel(item.channel)}{item.status === "closed" ? " · fechada" : ""}</span>
     </>
   );
-  const title = `Sending as ${text(current.accountLabel ?? current.accountRef, "a connected account")} via ${channelLabel(current.channel)}`;
+  const title = `Enviando como ${text(current.accountLabel ?? current.accountRef, "uma conta conectada")} via ${channelLabel(current.channel)}`;
   if (conversations.length === 1) {
     return <div title={title} className="flex min-w-0 items-center gap-2">{identity(current)}</div>;
   }
   return (
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
-        <button type="button" title={title} aria-label={`${title}. Change`} className="flex min-w-0 items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-bg-weak-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stroke-strong-950">
+        <button type="button" title={title} aria-label={`${title}. Alterar`} className="flex min-w-0 items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-bg-weak-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stroke-strong-950">
           {identity(current)}
-          <RiArrowDownSLine className="size-4 shrink-0 text-text-soft-400" aria-hidden="true" />
+          <RiArrowDownSLine className="size-4 shrink-0 text-text-sub-600" aria-hidden="true" />
         </button>
       </Dropdown.Trigger>
       <Dropdown.Content align="start">
@@ -787,7 +787,7 @@ function ClassificationSelect({ record, categories, onAction }: { record: Data; 
 
   return (
     <div className="flex items-center gap-2">
-      {confidence != null && <span title={reason || undefined} className="inline-flex items-center gap-1 text-paragraph-xs text-text-soft-400"><RiSparklingLine className="size-3.5" aria-hidden="true" />{confidence}%</span>}
+      {confidence != null && <span title={reason || undefined} className="inline-flex items-center gap-1 text-paragraph-xs text-text-sub-600"><RiSparklingLine className="size-3.5" aria-hidden="true" />{confidence}%</span>}
       <ClassificationPicker
         compact
         quiet
@@ -795,14 +795,14 @@ function ClassificationSelect({ record, categories, onAction }: { record: Data; 
         categoryKey={categoryKey}
         subcategoryId={subcategoryId}
         subcategoryName={record.subcategory ? String(record.subcategory) : null}
-        title="Change stage"
+        title="Alterar estágio"
         confirm={{ inboundAnswered: Boolean(record.inboundAnswered) }}
         onChange={(chosen, extra) => onAction(`/records/${String(record.id)}/classification`, {
           ...chosen,
           expectedContextVersion: record.contextVersion,
           classificationId: classification.id,
           ...(extra ?? {}),
-        }, "PATCH", extra?.next === "follow_up" ? "Stage updated — follow-ups scheduled" : "Stage updated — a new draft is being written")}
+        }, "PATCH", extra?.next === "follow_up" ? "Estágio atualizado — acompanhamentos agendados" : "Estágio atualizado — um novo rascunho está sendo criado")}
       />
     </div>
   );
@@ -830,15 +830,15 @@ function ProposedClassificationNotice({ record, categories, onAction }: { record
     ...choice,
     expectedContextVersion: record.contextVersion,
     classificationId: classification.id,
-  }, "PATCH", "Classification updated");
+  }, "PATCH", "Classificação atualizada");
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-lg bg-warning-lighter px-3 py-2 text-paragraph-xs text-warning-dark ring-1 ring-inset ring-warning-light">
       <RiSparklingLine className="size-3.5 shrink-0" aria-hidden="true" />
-      <span className="min-w-0 flex-1">AI suggests: <strong className="font-medium">{proposedLabel}</strong> — held for review, since it isn&apos;t a forward move.</span>
+      <span className="min-w-0 flex-1">A IA sugere: <strong className="font-medium">{proposedLabel}</strong> — mantido para revisão, pois não é um avanço no funil.</span>
       <div className="flex shrink-0 gap-1.5">
-        <button type="button" className="rounded-md bg-bg-white-0 px-2 py-1 text-label-xs text-warning-dark ring-1 ring-inset ring-warning-light transition hover:brightness-95" onClick={() => respond(proposedCategoryKey ? { categoryKey: proposedCategoryKey, subcategoryId: proposedSubcategoryId } : { categoryKey: currentCategoryKey, subcategoryId: currentSubcategoryId })}>Accept</button>
-        <button type="button" className="rounded-md px-2 py-1 text-label-xs text-warning-dark transition hover:bg-bg-white-0" onClick={() => respond({ categoryKey: currentCategoryKey, subcategoryId: currentSubcategoryId })}>Keep {currentLabel}</button>
+        <button type="button" className="rounded-md bg-bg-white-0 px-2 py-1 text-label-xs text-warning-dark ring-1 ring-inset ring-warning-light transition hover:brightness-95" onClick={() => respond(proposedCategoryKey ? { categoryKey: proposedCategoryKey, subcategoryId: proposedSubcategoryId } : { categoryKey: currentCategoryKey, subcategoryId: currentSubcategoryId })}>Aceitar</button>
+        <button type="button" className="rounded-md px-2 py-1 text-label-xs text-warning-dark transition hover:bg-bg-white-0" onClick={() => respond({ categoryKey: currentCategoryKey, subcategoryId: currentSubcategoryId })}>Manter {currentLabel}</button>
       </div>
     </div>
   );
@@ -848,21 +848,21 @@ function ActivityDrawer({ events, drafts, sendAttempts }: { events: Data[]; draf
   return (
     <Modal.Root>
       <Modal.Trigger asChild>
-        <button type="button" className={subtleButtonClass} title="Activity history" aria-label={`Activity history, ${events.length} events`}>
+        <button type="button" className={subtleButtonClass} title="Histórico de atividades" aria-label={`Histórico de atividades, ${events.length} eventos`}>
           <RiHistoryLine className="size-4" aria-hidden="true" />
-          Activity
+          Atividade
           {events.length > 0 && <span className="ml-0.5 rounded-full bg-bg-weak-50 px-1.5 text-label-xs text-text-sub-600">{events.length}</span>}
         </button>
       </Modal.Trigger>
       <Modal.SideContent size="max-w-xl">
         <Modal.Header icon={RiHistoryLine}>
-          <Modal.Title>Activity history</Modal.Title>
-          <Modal.Description>A complete audit trail of decisions, drafts, and delivery</Modal.Description>
+          <Modal.Title>Histórico de atividades</Modal.Title>
+          <Modal.Description>Registro completo de decisões, rascunhos e entregas</Modal.Description>
         </Modal.Header>
         <div className="flex shrink-0 flex-wrap gap-2 px-5 pt-4">
-          <Badge.Root variant="lighter" color="gray" size="medium">{events.length} events</Badge.Root>
-          <Badge.Root variant="lighter" color="gray" size="medium">{drafts.length} drafts</Badge.Root>
-          <Badge.Root variant="lighter" color="gray" size="medium">{sendAttempts.length} send attempts</Badge.Root>
+          <Badge.Root variant="lighter" color="gray" size="medium">{events.length} eventos</Badge.Root>
+          <Badge.Root variant="lighter" color="gray" size="medium">{drafts.length} rascunhos</Badge.Root>
+          <Badge.Root variant="lighter" color="gray" size="medium">{sendAttempts.length} tentativas de envio</Badge.Root>
         </div>
         <Modal.Body className="p-0 pt-4">
           {events.length ? (
@@ -871,8 +871,8 @@ function ActivityDrawer({ events, drafts, sendAttempts }: { events: Data[]; draf
             </div>
           ) : (
             <div className="p-10 text-center">
-              <RiHistoryLine className="mx-auto size-6 text-text-soft-400" aria-hidden="true" />
-              <p className="mt-2 text-paragraph-sm text-text-sub-600">No activity has been recorded yet.</p>
+              <RiHistoryLine className="mx-auto size-6 text-text-sub-600" aria-hidden="true" />
+              <p className="mt-2 text-paragraph-sm text-text-sub-600">Nenhuma atividade foi registrada ainda.</p>
             </div>
           )}
         </Modal.Body>
@@ -894,5 +894,5 @@ function EventRow({ event }: { event: Data }) {
     ? `${humanize(transition)} → ${humanize(destination)}`
     : text(meta.reason ?? meta.error ?? to.reason ?? event.error);
   const failed = type.includes("failed") || type.includes("error") || type.includes("uncertain");
-  return <div className="grid gap-3 px-5 py-4 sm:grid-cols-[36px_minmax(0,1fr)_auto] sm:items-center"><span className={cn("flex size-9 items-center justify-center rounded-full", failed ? "bg-error-lighter text-error-base" : "bg-bg-weak-50 text-text-soft-400")}><RiCheckboxCircleLine className="size-4" aria-hidden="true" /></span><div className="min-w-0"><p className="text-label-sm text-text-strong-950">{eventLabels[type] ?? humanize(type)}</p><p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">{detail || `${humanize(event.actorType)}${event.actorRef ? ` · ${String(event.actorRef)}` : ""}`}</p></div><div className="text-left sm:text-right"><time className="text-paragraph-xs text-text-soft-400">{formatDate(event.createdAt)}</time><p className="mt-0.5 text-subheading-2xs uppercase tracking-wider text-text-soft-400">{humanize(event.actorType)}</p></div></div>;
+  return <div className="grid gap-3 px-5 py-4 sm:grid-cols-[36px_minmax(0,1fr)_auto] sm:items-center"><span className={cn("flex size-9 items-center justify-center rounded-full", failed ? "bg-error-lighter text-error-base" : "bg-bg-weak-50 text-text-sub-600")}><RiCheckboxCircleLine className="size-4" aria-hidden="true" /></span><div className="min-w-0"><p className="text-label-sm text-text-strong-950">{eventLabels[type] ?? humanize(type)}</p><p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">{detail || `${humanize(event.actorType)}${event.actorRef ? ` · ${String(event.actorRef)}` : ""}`}</p></div><div className="text-left sm:text-right"><time className="text-paragraph-xs text-text-sub-600">{formatDate(event.createdAt)}</time><p className="mt-0.5 text-subheading-2xs uppercase tracking-wider text-text-sub-600">{humanize(event.actorType)}</p></div></div>;
 }

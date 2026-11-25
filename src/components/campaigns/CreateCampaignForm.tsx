@@ -5,28 +5,20 @@ import { useState } from "react";
 import Select from "../ui/Select";
 import CategoryFilter from "../CategoryFilter";
 import AppFilter from "../AppFilter";
+import { COUNTRY_OPTIONS, DEFAULT_COUNTRY_CODE } from "@/lib/prospectingLabels";
 
 const MODE_OPTIONS = [
-  { value: "filters", label: "From filters" },
-  { value: "manual", label: "Manual domain list" },
+  { value: "filters", label: "A partir de filtros" },
+  { value: "manual", label: "Lista manual de domínios" },
 ];
 
 const TARGET_MODE_OPTIONS = [
-  { value: "leads", label: "Number of leads" },
-  { value: "domains", label: "Top N domains" },
-];
-
-const COUNTRY_OPTIONS = [
-  { value: "US", label: "🇺🇸 United States" },
-  { value: "GB", label: "🇬🇧 United Kingdom" },
-  { value: "CA", label: "🇨🇦 Canada" },
-  { value: "AU", label: "🇦🇺 Australia" },
-  { value: "IN", label: "🇮🇳 India" },
-  { value: "DE", label: "🇩🇪 Germany" },
+  { value: "leads", label: "Número de leads" },
+  { value: "domains", label: "Principais N domínios" },
 ];
 
 const PLATFORM_OPTIONS = [
-  { value: "", label: "All Platforms" },
+  { value: "", label: "Todas as plataformas" },
   { value: "Shopify", label: "Shopify" },
   { value: "WooCommerce", label: "WooCommerce" },
   { value: "BigCommerce", label: "BigCommerce" },
@@ -41,7 +33,7 @@ function Label({ children }: { children: React.ReactNode }) {
 }
 
 const inputCls =
-  "w-full h-10 border border-stroke-soft-200 rounded-lg px-3 text-sm text-text-strong-950 placeholder-text-soft-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent";
+  "h-10 w-full rounded-lg border border-stroke-soft-200 px-3 text-sm text-text-strong-950 placeholder-text-soft-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--color-action-ring)]";
 
 export default function CreateCampaignForm() {
   const router = useRouter();
@@ -55,7 +47,7 @@ export default function CreateCampaignForm() {
   const [targetDomainCount, setTargetDomainCount] = useState("150");
 
   // filters mode
-  const [countryCode, setCountryCode] = useState("US");
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY_CODE);
   const [platform, setPlatform] = useState("");
   const [minRevenue, setMinRevenue] = useState("");
   const [maxRevenue, setMaxRevenue] = useState("");
@@ -108,10 +100,10 @@ export default function CreateCampaignForm() {
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to create campaign");
+      if (!res.ok) throw new Error(data.error ?? "Falha ao criar campanha");
       router.push(`/campaigns/${data.campaign.id}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create campaign");
+      setError(e instanceof Error ? e.message : "Falha ao criar campanha");
       setSubmitting(false);
     }
   }
@@ -119,18 +111,18 @@ export default function CreateCampaignForm() {
   return (
     <div className="flex flex-col gap-5 px-4 py-4">
       <div className="flex flex-col gap-1.5">
-        <Label>Source</Label>
+        <Label>Origem</Label>
         <Select value={inputMode} onChange={setInputMode} options={MODE_OPTIONS} variant="primary" />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label>Target by</Label>
+        <Label>Segmentar por</Label>
         <Select value={targetMode} onChange={setTargetMode} options={TARGET_MODE_OPTIONS} />
       </div>
 
       {targetMode === "domains" ? (
         <div className="flex flex-col gap-1.5">
-          <Label>Top domains</Label>
+          <Label>Principais domínios</Label>
           <input
             type="number"
             value={targetDomainCount}
@@ -139,13 +131,13 @@ export default function CreateCampaignForm() {
             className={inputCls}
           />
           <p className="text-[11px] text-text-strong-950/45">
-            Fetches this many top domains (highest revenue first) and runs qualification on all of
-            them, whatever fraction ends up qualified.
+            Busca essa quantidade de principais domínios (maior receita primeiro) e executa a
+            qualificação em todos eles, independentemente da fração que for qualificada.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <Label>Lead target</Label>
+          <Label>Meta de leads</Label>
           <input
             type="number"
             value={targetLeadCount}
@@ -153,16 +145,16 @@ export default function CreateCampaignForm() {
             placeholder="3000"
             className={inputCls}
           />
-          <p className="text-[11px] text-text-strong-950/45">Stops once qualified leads reach this number.</p>
+          <p className="text-[11px] text-text-strong-950/45">Interrompe quando os leads qualificados atingirem esse número.</p>
         </div>
       )}
 
       <div className="flex flex-col gap-1.5">
-        <Label>Job titles (for Apollo link)</Label>
+        <Label>Cargos (para o link da Apollo)</Label>
         <input
           value={jobTitles}
           onChange={(e) => setJobTitles(e.target.value)}
-          placeholder="CEO, Founder, Head of Marketing"
+          placeholder="CEO, Fundador, Head de Marketing"
           className={inputCls}
         />
       </div>
@@ -172,19 +164,20 @@ export default function CreateCampaignForm() {
       {inputMode === "filters" ? (
         <>
           <div className="flex flex-col gap-1.5">
-            <Label>Country</Label>
+            <Label>País</Label>
             <Select value={countryCode} onChange={setCountryCode} options={COUNTRY_OPTIONS} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Platform</Label>
+            <Label>Plataforma</Label>
             <Select value={platform} onChange={setPlatform} options={PLATFORM_OPTIONS} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Revenue Range ($)</Label>
+            <Label>Faixa de faturamento anual</Label>
+            <p className="text-[11px] text-text-strong-950/45">Estimativas da fonte de dados em dólares (US$).</p>
             <div className="flex items-center gap-1.5">
               <input
                 type="number"
-                placeholder="Min"
+                placeholder="Mín."
                 value={minRevenue}
                 onChange={(e) => setMinRevenue(e.target.value)}
                 className={inputCls}
@@ -192,7 +185,7 @@ export default function CreateCampaignForm() {
               <span className="text-text-strong-950/30 text-sm shrink-0">–</span>
               <input
                 type="number"
-                placeholder="Max"
+                placeholder="Máx."
                 value={maxRevenue}
                 onChange={(e) => setMaxRevenue(e.target.value)}
                 className={inputCls}
@@ -200,7 +193,7 @@ export default function CreateCampaignForm() {
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Industry / Category</Label>
+            <Label>Categoria</Label>
             <CategoryFilter
               countryCode={countryCode}
               c1={c1}
@@ -214,34 +207,34 @@ export default function CreateCampaignForm() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Installed App</Label>
+            <Label>Aplicativo instalado</Label>
             <AppFilter value={app} onChange={setApp} />
           </div>
         </>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <Label>Domains (one per line)</Label>
+          <Label>Domínios (um por linha)</Label>
           <textarea
             value={domainsText}
             onChange={(e) => setDomainsText(e.target.value)}
             placeholder={"brand-one.com\nbrand-two.com"}
             rows={6}
-            className="w-full border border-stroke-soft-200 rounded-lg px-3 py-2 text-sm text-text-strong-950 placeholder-text-soft-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent resize-y"
+            className="w-full resize-y rounded-lg border border-stroke-soft-200 px-3 py-2 text-sm text-text-strong-950 placeholder-text-soft-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--color-action-ring)]"
           />
         </div>
       )}
 
-      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-xs text-[var(--color-error-dark)]">{error}</p>}
 
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        className="h-10 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+        className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[var(--color-action-bg)] text-sm font-semibold text-[var(--color-action-text)] transition-colors hover:bg-[var(--color-action-bg-hover)] disabled:opacity-60"
       >
         {submitting && (
-          <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+          <div className="size-4 animate-spin rounded-full border-2 border-[var(--color-action-text)]/40 border-t-[var(--color-action-text)]" />
         )}
-        {submitting ? "Creating…" : "Create campaign"}
+        {submitting ? "Criando…" : "Criar campanha"}
       </button>
     </div>
   );

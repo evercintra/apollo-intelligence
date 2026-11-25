@@ -10,17 +10,17 @@ const PRIMARY: InboxSectionKey[] = ["inbox", "replied", "pendingApproval"];
 
 /** Shorter names for the tab bar, where space is tight. */
 const TAB_LABEL: Partial<Record<InboxSectionKey, string>> = {
-  replied: "Replies",
-  pendingApproval: "To approve",
+  replied: "Respondidas",
+  pendingApproval: "A aprovar",
 };
 
 const TAB_TITLE: Partial<Record<InboxSectionKey, string>> = {
-  inbox: "Every email received",
-  replied: "Replies from leads, without out-of-office auto-replies",
-  pendingApproval: "AI-drafted replies waiting for your review",
-  outOfOffice: "Auto-replies and out-of-office notices",
-  important: "Messages you starred",
-  scheduled: "Queued to send",
+  inbox: "Todos os e-mails recebidos",
+  replied: "Respostas de leads, sem respostas automáticas de ausência",
+  pendingApproval: "Respostas criadas por IA aguardando sua revisão",
+  outOfOffice: "Respostas automáticas e avisos de ausência",
+  important: "Mensagens que você marcou",
+  scheduled: "Na fila para envio",
 };
 
 function toTab(key: InboxSectionKey, counts: Counts): TriageTab {
@@ -31,7 +31,7 @@ function toTab(key: InboxSectionKey, counts: Counts): TriageTab {
     key,
     label: TAB_LABEL[key] ?? section.label,
     count: count ?? null,
-    countTitle: count !== undefined ? `${count.toLocaleString("en-US")}${hint ? ` ${hint}` : ""}` : undefined,
+    countTitle: count !== undefined ? `${count.toLocaleString("pt-BR")}${hint ? ` ${hint}` : ""}` : undefined,
     title: TAB_TITLE[key],
   };
 }

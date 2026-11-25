@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import appsData from "@/data/apps.json";
+import { translateApp } from "@/lib/prospectingLabels";
 
 type Props = {
   value: string;
@@ -22,8 +23,10 @@ export default function AppFilter({ value, onChange }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const filtered = search.trim()
-    ? ALL_APPS.filter((a) => a.name.toLowerCase().includes(search.toLowerCase()))
+  const term = search.trim().toLowerCase();
+  const filtered = term
+    ? ALL_APPS.filter((a) =>
+        a.name.toLowerCase().includes(term) || translateApp(a.name).toLowerCase().includes(term))
     : ALL_APPS;
 
   function handleOpen() {
@@ -47,17 +50,17 @@ export default function AppFilter({ value, onChange }: Props) {
           className={`
             w-full flex items-center justify-between gap-2 rounded-lg border text-left
             px-3 py-2.5 text-sm transition-all duration-150 focus:outline-none
-            ${value ? "border-violet-400 bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 font-medium" : "border-stroke-soft-200 bg-bg-white-0 text-text-strong-950/50 hover:border-stroke-sub-300"}
-            ${open ? "ring-2 ring-violet-300 dark:ring-violet-500/30 border-violet-400" : ""}
+            ${value ? "border-complement-medium bg-complement-surface text-complement-deep font-medium" : "border-stroke-soft-200 bg-bg-white-0 text-text-strong-950/50 hover:border-stroke-sub-300"}
+            ${open ? "ring-2 ring-action-ring border-complement-medium" : ""}
           `}
         >
-          <span className="truncate">{value || "All Apps"}</span>
+          <span className="truncate">{value ? translateApp(value) : "Todos os aplicativos"}</span>
           <div className="flex items-center gap-1 shrink-0">
             {value && (
               <span
                 role="button"
                 onClick={(e) => { e.stopPropagation(); onChange(""); setOpen(false); }}
-                className="w-4 h-4 flex items-center justify-center rounded-full text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-500/25 hover:text-violet-700 dark:hover:text-violet-400 transition-colors text-xs"
+                className="w-4 h-4 flex items-center justify-center rounded-full text-complement-medium hover:bg-complement-light dark:hover:bg-complement-deep/25 hover:text-complement-deep dark:hover:text-complement-medium transition-colors text-xs"
               >
                 ×
               </span>
@@ -69,7 +72,7 @@ export default function AppFilter({ value, onChange }: Props) {
         </button>
 
         {open && (
-          <div className="absolute z-50 mt-1.5 w-full rounded-xl border border-stroke-soft-200 bg-bg-white-0 shadow-xl shadow-slate-200/60 dark:shadow-black/40 overflow-hidden">
+          <div className="absolute z-50 mt-1.5 w-full rounded-xl border border-stroke-soft-200 bg-bg-white-0 shadow-regular-md overflow-hidden">
             {/* Search */}
             <div className="p-2 border-b border-stroke-soft-200">
               <div className="relative">
@@ -81,8 +84,8 @@ export default function AppFilter({ value, onChange }: Props) {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search apps..."
-                  className="w-full pl-7 pr-3 py-1.5 text-sm border border-stroke-soft-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 dark:focus:ring-violet-500/30 focus:border-transparent placeholder-text-disabled-300"
+                  placeholder="Buscar aplicativos…"
+                  className="w-full pl-7 pr-3 py-1.5 text-sm border border-stroke-soft-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-action-ring focus:border-transparent placeholder-text-disabled-300"
                 />
               </div>
             </div>
@@ -93,14 +96,14 @@ export default function AppFilter({ value, onChange }: Props) {
                 type="button"
                 onClick={() => { onChange(""); setOpen(false); setSearch(""); }}
                 className={`w-full text-left px-3 py-2.5 text-sm border-b border-stroke-soft-200 transition-colors ${
-                  !value ? "bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 font-medium" : "text-text-strong-950/50 hover:bg-bg-weak-50"
+                  !value ? "bg-complement-surface text-complement-deep font-medium" : "text-text-strong-950/50 hover:bg-bg-weak-50"
                 }`}
               >
-                All Apps
+                Todos os aplicativos
               </button>
 
               {filtered.length === 0 && (
-                <p className="text-center py-6 text-sm text-text-strong-950/50">No apps found</p>
+                <p className="text-center py-6 text-sm text-text-strong-950/50">Nenhum aplicativo encontrado</p>
               )}
 
               {filtered.map(({ name, count }) => (
@@ -109,11 +112,11 @@ export default function AppFilter({ value, onChange }: Props) {
                   type="button"
                   onClick={() => { onChange(name); setOpen(false); setSearch(""); }}
                   className={`w-full text-left flex items-center justify-between gap-2 px-3 py-2.5 text-sm transition-colors ${
-                    name === value ? "bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400 font-medium" : "text-text-strong-950 hover:bg-bg-weak-50"
+                    name === value ? "bg-complement-surface text-complement-deep font-medium" : "text-text-strong-950 hover:bg-bg-weak-50"
                   }`}
                 >
-                  <span className="truncate min-w-0 flex-1">{name}</span>
-                  <span className={`text-xs tabular-nums shrink-0 ${name === value ? "text-violet-400" : "text-text-strong-950/50"}`}>
+                  <span className="truncate min-w-0 flex-1">{translateApp(name)}</span>
+                  <span className={`text-xs tabular-nums shrink-0 ${name === value ? "text-complement-medium" : "text-text-strong-950/50"}`}>
                     {fmt(count)}
                   </span>
                 </button>

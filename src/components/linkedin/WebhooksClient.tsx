@@ -42,10 +42,10 @@ type WebhookEventDetail = {
 
 function timeAgo(iso: string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (diff < 60) return "just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 60) return "agora mesmo";
+  if (diff < 3600) return `há ${Math.floor(diff / 60)} min`;
+  if (diff < 86400) return `há ${Math.floor(diff / 3600)} h`;
+  return `há ${Math.floor(diff / 86400)} d`;
 }
 
 function fmt(iso: string): string {
@@ -75,7 +75,7 @@ function EventBadge({ event }: { event: string }) {
 function ProcessingBadge({ status }: { status: string | null }) {
   if (!status) return <span className="text-paragraph-sm text-text-soft-400">—</span>;
   const kind = status === "ok" ? "good" : status === "error" ? "critical" : status === "processing" ? "info" : "neutral";
-  const label = status === "ok" ? "OK" : status.charAt(0).toUpperCase() + status.slice(1);
+  const label = status === "ok" ? "OK" : status === "error" ? "Erro" : status === "processing" ? "Processando" : status.charAt(0).toUpperCase() + status.slice(1);
   return <StatusDotBadge status={kind}>{label}</StatusDotBadge>;
 }
 
@@ -103,7 +103,7 @@ function EventRows({ ev }: { ev: WebhookEventRow }) {
   const [detail, setDetail] = useState<WebhookEventDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const displayName = ev.connection?.name ?? ev.account?.name ?? ev.account?.username ?? null;
-  const title = displayName ?? ev.senderId ?? "Unknown";
+  const title = displayName ?? ev.senderId ?? "Desconhecido";
   const hasError = ev.processingStatus === "error";
   const accountRef = ev.account
     ? { username: ev.account.username, name: ev.account.name, profilePictureUrl: ev.account.profilePictureUrl ?? null }
@@ -151,7 +151,7 @@ function EventRows({ ev }: { ev: WebhookEventRow }) {
                   &ldquo;{ev.messageText}&rdquo;
                 </p>
               ) : (
-                <p className="mt-0.5 text-paragraph-xs text-text-soft-400">No message</p>
+                <p className="mt-0.5 text-paragraph-xs text-text-soft-400">Sem mensagem</p>
               )}
             </div>
           </div>
@@ -166,7 +166,7 @@ function EventRows({ ev }: { ev: WebhookEventRow }) {
         </Table.Cell>
         <Table.Cell className="px-4 text-text-sub-600">
           {expanded ? <RiArrowDownSLine className="size-5" aria-hidden="true" /> : <RiArrowRightSLine className="size-5" aria-hidden="true" />}
-          <span className="sr-only">{expanded ? "Hide details" : "Show details"}</span>
+          <span className="sr-only">{expanded ? "Ocultar detalhes" : "Mostrar detalhes"}</span>
         </Table.Cell>
       </Table.Row>
 
@@ -176,12 +176,12 @@ function EventRows({ ev }: { ev: WebhookEventRow }) {
             <div className={cn("space-y-5 rounded-lg bg-bg-weak-50 px-4 py-4 ring-1 ring-inset", hasError ? "ring-error-base/30" : "ring-stroke-soft-200")}>
               {loadingDetail ? (
                 <div className="flex justify-center py-8">
-                  <RiLoader4Line className="size-5 animate-spin text-text-soft-400" aria-label="Loading details" />
+                  <RiLoader4Line className="size-5 animate-spin text-text-soft-400" aria-label="Carregando detalhes" />
                 </div>
               ) : (
                 <>
                   <div>
-                    <SectionLabel>Processing log</SectionLabel>
+                    <SectionLabel>Log de processamento</SectionLabel>
                     {detail?.processingLog && detail.processingLog.length > 0 ? (
                       <div className="space-y-0.5 font-mono text-paragraph-xs">
                         {detail.processingLog.map((entry, i) => (
@@ -197,23 +197,23 @@ function EventRows({ ev }: { ev: WebhookEventRow }) {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-paragraph-xs italic text-text-sub-600">No processing log (event received before logging was added)</p>
+                      <p className="text-paragraph-xs italic text-text-sub-600">Sem log de processamento (evento recebido antes do registro ser adicionado)</p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <SectionLabel>Event fields</SectionLabel>
-                    <DetailRow label="Event" value={ev.event} />
-                    <DetailRow label="Time" value={fmt(ev.createdAt)} />
-                    <DetailRow label="Account" value={accountRef ? <LinkedInAccountTag account={accountRef} size="sm" /> : ev.accountId} />
-                    <DetailRow label="Sender ID" value={ev.senderId} />
-                    <DetailRow label="Chat ID" value={ev.chatId} />
-                    <DetailRow label="Message" value={ev.messageText ? `"${ev.messageText}"` : null} />
-                    {ev.connection?.name && <DetailRow label="Connection" value={ev.connection.name} />}
+                    <SectionLabel>Campos do evento</SectionLabel>
+                    <DetailRow label="Evento" value={ev.event} />
+                    <DetailRow label="Horário" value={fmt(ev.createdAt)} />
+                    <DetailRow label="Conta" value={accountRef ? <LinkedInAccountTag account={accountRef} size="sm" /> : ev.accountId} />
+                    <DetailRow label="ID do remetente" value={ev.senderId} />
+                    <DetailRow label="ID da conversa" value={ev.chatId} />
+                    <DetailRow label="Mensagem" value={ev.messageText ? `"${ev.messageText}"` : null} />
+                    {ev.connection?.name && <DetailRow label="Conexão" value={ev.connection.name} />}
                   </div>
 
                   <div>
-                    <SectionLabel>Raw payload</SectionLabel>
+                    <SectionLabel>Payload bruto</SectionLabel>
                     <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-bg-white-0 p-3 font-mono text-paragraph-xs text-text-strong-950 ring-1 ring-inset ring-stroke-soft-200">
                       {JSON.stringify(detail?.rawBody ?? null, null, 2)}
                     </pre>
@@ -231,10 +231,10 @@ function EventRows({ ev }: { ev: WebhookEventRow }) {
 export function WebhooksClient({ events, footer }: { events: WebhookEventRow[]; footer?: ReactNode }) {
   return (
     <Frame className="mt-5">
-      <FrameHeader title="Events" description="Select an event to read its processing log and raw payload" />
+      <FrameHeader title="Eventos" description="Selecione um evento para ver o log de processamento e o payload bruto" />
       {events.length === 0 ? (
         <FramePanel>
-          <EmptyState icon={RiWebhookLine} title="No webhook events yet" description="Events appear here once Unipile starts sending them." />
+          <EmptyState icon={RiWebhookLine} title="Nenhum evento de webhook ainda" description="Os eventos aparecem aqui quando o Unipile começar a enviá-los." />
         </FramePanel>
       ) : (
         <>
@@ -242,12 +242,12 @@ export function WebhooksClient({ events, footer }: { events: WebhookEventRow[]; 
             <Table.Root className="min-w-[860px]">
               <Table.Header>
                 <Table.Row>
-                  <Table.Head scope="col" className="px-4">Sender</Table.Head>
-                  <Table.Head scope="col" className="w-44 px-4">Event</Table.Head>
-                  <Table.Head scope="col" className="w-32 px-4">Processing</Table.Head>
-                  <Table.Head scope="col" className="w-48 px-4">Account</Table.Head>
-                  <Table.Head scope="col" className="w-28 px-4">Received</Table.Head>
-                  <Table.Head scope="col" className="w-12 px-4"><span className="sr-only">Expand</span></Table.Head>
+                  <Table.Head scope="col" className="px-4">Remetente</Table.Head>
+                  <Table.Head scope="col" className="w-44 px-4">Evento</Table.Head>
+                  <Table.Head scope="col" className="w-32 px-4">Processamento</Table.Head>
+                  <Table.Head scope="col" className="w-48 px-4">Conta</Table.Head>
+                  <Table.Head scope="col" className="w-28 px-4">Recebido</Table.Head>
+                  <Table.Head scope="col" className="w-12 px-4"><span className="sr-only">Expandir</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>

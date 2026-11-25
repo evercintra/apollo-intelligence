@@ -24,7 +24,7 @@ export default function IntegrationIcon({
 
   return (
     <span
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-md font-bold text-slate-900 ${className}`}
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-md font-bold text-[var(--color-text-strong-950)] ${className}`}
       style={{
         width: size,
         height: size,

@@ -1,56 +1,96 @@
+import type { CSSProperties } from "react";
 import { cn } from "@/utils/cn";
 import { brandDisplayClass } from "./font";
-import { Mascot } from "./Mascot";
+import styles from "./logo.module.css";
 import type { MascotCycle } from "./mascotFrames";
 
-/**
- * The AgentSDR logo — the one source for the app chrome and the login
- * screen. The mascot's pixels live in ./mascotFrames.ts; the favicon
- * (src/app/icon.svg, apple-icon.png) and the recorder extension's icons are
- * this same tile drawn as static files; change them together.
- */
+export const ICON_RADIUS = "22%";
 
-/** The icon tile's corner radius. */
-export const ICON_RADIUS = "14%";
+const WALK_MS: Record<MascotCycle, number> = {
+  step: 900,
+  bounce: 700,
+  waddle: 1200,
+  scuttle: 500,
+};
 
-/** How a logo's mascot moves: a walk cycle, looping or only while its `.group` is hovered. */
-export type Walk = { walk?: MascotCycle; walkOn?: "always" | "hover" };
+export type Walk = {
+  walk?: MascotCycle;
+  walkOn?: "always" | "hover";
+};
 
-/**
- * Shade, the mascot, on a glass app tile. `small` trims the glow for header
- * and footer sizes, where the headline's halo would read as a blur. `walk`
- * animates it (see Mascot); without it the tile is the still logo.
- */
-export function AppIcon({ className, small = false, walk, walkOn = "always" }: { className?: string; small?: boolean } & Walk) {
+function ApolloGlyph({
+  className,
+  cutClassName = "text-brand-surface",
+  walk,
+  walkOn = "always",
+}: {
+  className?: string;
+  cutClassName?: string;
+} & Walk) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn(className, walk && (walkOn === "hover" ? styles.walkHover : styles.walkAlways))}
+      style={walk ? ({ "--walk-duration": `${WALK_MS[walk]}ms` } as CSSProperties) : undefined}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M16 4L28 27H22.8L16 13.4L9.2 27H4L16 4Z"
+        fill="currentColor"
+      />
+      <path
+        d="M11.2 21.5H20.8"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        className={cutClassName}
+      />
+      <circle cx="25.5" cy="7" r="2.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function AppIcon({
+  className,
+  small = false,
+  walk,
+  walkOn = "always",
+}: {
+  className?: string;
+  small?: boolean;
+} & Walk) {
   return (
     <span
       aria-hidden="true"
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-b from-[#5b7bff] to-[#1f3bad]",
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden bg-brand-surface text-brand-on-surface",
+        "ring-1 ring-inset ring-white/[0.08]",
         small
-          ? "shadow-[inset_0_1px_0_rgb(255_255_255/0.35),inset_0_0_0_1px_rgb(255_255_255/0.18),0_2px_8px_-2px_rgb(51_92_255/0.55)]"
-          : "shadow-[inset_0_1px_0_rgb(255_255_255/0.35),inset_0_0_0_1px_rgb(255_255_255/0.18),0_8px_24px_-6px_rgb(51_92_255/0.8)]",
+          ? "shadow-[0_2px_8px_rgb(0_0_0/0.18)]"
+          : "shadow-[0_8px_24px_rgb(0_0_0/0.24)]",
         className,
       )}
-      // A square tile with gently rounded corners, not an app-store squircle.
       style={{ borderRadius: ICON_RADIUS }}
     >
-      {/* Soft grid on the icon face, like a glass app tile. */}
-      <span className="absolute inset-0 bg-[linear-gradient(rgb(255_255_255/0.08)_1px,transparent_1px),linear-gradient(90deg,rgb(255_255_255/0.08)_1px,transparent_1px)] bg-[size:25%_25%]" />
-      <Mascot cycle={walk} play={walkOn} className="relative size-[62%] text-white drop-shadow-[0_1px_1px_rgb(11_10_26/0.35)]" />
+      <span className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(197_244_103/0.12),transparent_70%)]" />
+      <ApolloGlyph className="relative size-[68%] drop-shadow-[0_0_8px_rgb(197_244_103/0.15)]" walk={walk} walkOn={walkOn} />
     </span>
   );
 }
 
-/** The mascot alone, standing, in currentColor: the mark without its tile. */
-export function AgentMark({ className }: { className?: string }) {
-  return <Mascot className={className} />;
+export function AgentMark({
+  className,
+  cutClassName,
+}: {
+  className?: string;
+  cutClassName?: string;
+}) {
+  return <ApolloGlyph className={className} cutClassName={cutClassName} />;
 }
 
-/**
- * Tile and name together. The name takes the surrounding text colour, so
- * it follows the theme; pass a colour in `className` on fixed backgrounds.
- */
 export function Logo({
   className,
   iconClassName = "size-7",
@@ -65,7 +105,20 @@ export function Logo({
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <AppIcon small className={iconClassName} walk={walk} walkOn={walkOn} />
-      <span className={cn(brandDisplayClass, "leading-none tracking-[-0.025em]", textClassName)}>AgentSDR</span>
+      <span className="inline-flex flex-col justify-center gap-[3px]">
+        <span
+          className={cn(
+            brandDisplayClass,
+            "leading-none tracking-[0.025em]",
+            textClassName,
+          )}
+        >
+          APOLLO
+        </span>
+        <span className="text-[8px] font-semibold leading-none tracking-[0.24em] text-current opacity-60">
+          INTELLIGENCE
+        </span>
+      </span>
     </span>
   );
 }

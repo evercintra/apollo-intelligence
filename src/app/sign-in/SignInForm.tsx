@@ -9,16 +9,16 @@ import { GoogleButton, OrDivider } from "@/components/auth/GoogleButton";
 
 const ACCESS_REQUEST_TO = "pulkit@kandid.ai";
 
-/** A mailto asking for an account on AgentSDR Managed, carrying the email typed into the form when there is one. */
+/** A mailto asking for an account on Apollo Intelligence Managed, carrying the email typed into the form when there is one. */
 function accessRequestHref(email: string) {
   const body = [
-    "Hi Pulkit,",
+    "Olá, Pulkit,",
     "",
-    "I'd like to use AgentSDR Managed rather than self-host it. Could you send me an invite?",
+    "Gostaria de usar a Apollo Intelligence gerenciada em vez de hospedá-la por conta própria. Você pode me enviar um convite?",
     "",
-    `Work email: ${email.trim()}`,
+    `E-mail corporativo: ${email.trim()}`,
   ].join("\n");
-  const subject = "I need access to AgentSDR Managed";
+  const subject = "Preciso de acesso à Apollo Intelligence gerenciada";
   return `mailto:${ACCESS_REQUEST_TO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
@@ -29,7 +29,7 @@ export function SignInForm({
 }: {
   googleEnabled: boolean;
   from: string | null;
-  /** False on an invite-only instance: accounts come from invitations, so "Create one" is not offered. */
+  /** False on an invite-only instance: accounts come from invitations, so "Crie uma" is not offered. */
   signupAvailable?: boolean;
 }) {
   const target = from || "/analytics";
@@ -55,8 +55,8 @@ export function SignInForm({
       return;
     }
     if (err.code === "EMAIL_NOT_VERIFIED") setUnverified(true);
-    else if (err.code === "INVALID_EMAIL_OR_PASSWORD") setError("Incorrect email or password.");
-    else setError(err.message || "Something went wrong. Please try again.");
+    else if (err.code === "INVALID_EMAIL_OR_PASSWORD") setError("E-mail ou senha incorretos.");
+    else setError(err.message || "Algo deu errado. Tente novamente.");
     setLoading(false);
   }
 
@@ -64,7 +64,7 @@ export function SignInForm({
     setResending(true);
     const { error: err } = await authClient.sendVerificationEmail({ email, callbackURL: target });
     setResending(false);
-    if (err) setError(err.message || "Could not send the email. Please try again.");
+    if (err) setError(err.message || "Não foi possível enviar o e-mail. Tente novamente.");
     else setResent(true);
   }
 
@@ -72,20 +72,20 @@ export function SignInForm({
 
   return (
     <AuthShell
-      title="Sign in to AgentSDR"
+      title="Entre na Apollo Intelligence"
       footer={
         signupAvailable ? (
           <>
-            Don&apos;t have an account?{" "}
+            Não tem uma conta?{" "}
             <Link href={`/sign-up${q}`} className={linkClass}>
-              Create one
+              Crie uma
             </Link>
           </>
         ) : (
           <>
-            Need access?{" "}
+            Precisa de acesso?{" "}
             <a href={accessRequestHref(email)} className={linkClass}>
-              Ask your admin for an invite
+              Peça um convite ao administrador
             </a>
           </>
         )
@@ -93,7 +93,7 @@ export function SignInForm({
     >
       <form onSubmit={submit} className="flex flex-col gap-5">
         <Field
-          label="Work email"
+          label="E-mail corporativo"
           type="email"
           autoComplete="email"
           placeholder="name@company.com"
@@ -102,15 +102,15 @@ export function SignInForm({
           onChange={(e) => setEmail(e.target.value)}
         />
         <Field
-          label="Password"
+          label="Senha"
           labelAside={
             <Link href="/forgot-password" className={quietLinkClass}>
-              Forgot password?
+              Esqueceu a senha?
             </Link>
           }
           type="password"
           autoComplete="current-password"
-          placeholder="Enter your password"
+          placeholder="Digite sua senha"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -118,25 +118,25 @@ export function SignInForm({
         {error && <ErrorCallout>{error}</ErrorCallout>}
         {unverified && (
           <div className="flex flex-col gap-3">
-            <ErrorCallout>Your email address isn&apos;t verified yet. Check your inbox for the confirmation link.</ErrorCallout>
+            <ErrorCallout>Seu e-mail ainda não foi verificado. Confira a caixa de entrada e abra o link de confirmação.</ErrorCallout>
             {resent ? (
-              <InfoCallout>Verification email sent. It can take a minute to arrive.</InfoCallout>
+              <InfoCallout>E-mail de verificação enviado. Pode levar alguns minutos para chegar.</InfoCallout>
             ) : (
               <SecondaryButton onClick={resend} loading={resending} disabled={!email}>
-                Resend verification email
+                Reenviar e-mail de verificação
               </SecondaryButton>
             )}
           </div>
         )}
         <div className="pt-1">
-          <SubmitButton loading={loading} loadingLabel="Signing in...">
-            Sign in
+          <SubmitButton loading={loading} loadingLabel="Entrando...">
+            Entrar
           </SubmitButton>
         </div>
       </form>
       {googleEnabled && (
         <>
-          <OrDivider label="Or continue with" />
+          <OrDivider label="Ou continue com" />
           <GoogleButton callbackURL={target} onError={setError} label="Google" />
         </>
       )}

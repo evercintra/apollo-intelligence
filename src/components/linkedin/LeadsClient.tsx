@@ -49,15 +49,15 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "success" | "war
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pending",
-  REQUEST_SENT: "Request Sent",
-  ACCEPT_MESSAGE_SENT: "Accepted",
-  FOLLOW_UP_1_SENT: "Follow-up 1",
-  FOLLOW_UP_2_SENT: "Follow-up 2",
-  FOLLOW_UP_3_SENT: "Follow-up 3",
-  COMPLETED: "Completed",
-  REPLIED: "Replied",
-  FAILED: "Failed",
+  PENDING: "Pendente",
+  REQUEST_SENT: "Convite enviado",
+  ACCEPT_MESSAGE_SENT: "Aceito",
+  FOLLOW_UP_1_SENT: "Acompanhamento 1",
+  FOLLOW_UP_2_SENT: "Acompanhamento 2",
+  FOLLOW_UP_3_SENT: "Acompanhamento 3",
+  COMPLETED: "Concluído",
+  REPLIED: "Respondeu",
+  FAILED: "Falhou",
 };
 
 function Avatar({ src, name }: { src: string | null; name: string }) {
@@ -67,7 +67,7 @@ function Avatar({ src, name }: { src: string | null; name: string }) {
     return <img src={src} alt={name} className="h-10 w-10 rounded-full object-cover shrink-0 bg-bg-weak-50" onError={() => setImgError(true)} />;
   }
   return (
-    <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-semibold shrink-0">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-complement-surface text-label-xs font-semibold text-complement-deep ring-1 ring-inset ring-complement-light">
       {initials || "?"}
     </div>
   );
@@ -237,8 +237,8 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
           value={status}
           onChange={handleStatusChange}
           options={statusOptions}
-          placeholder="All statuses"
-          clearLabel="All statuses"
+          placeholder="Todos os status"
+          clearLabel="Todos os status"
           compact
           className="min-w-[9rem]"
         />
@@ -250,8 +250,8 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
             type="text"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search by name or headline…"
-            className="h-9 w-full rounded-lg border border-stroke-soft-200 bg-bg-white-0 pl-9 pr-3 text-sm text-text-strong-950 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Buscar por nome ou cargo…"
+            className="h-9 w-full rounded-lg border border-stroke-soft-200 bg-bg-white-0 pl-9 pr-3 text-sm text-text-strong-950 shadow-sm outline-none transition placeholder:text-text-soft-400 focus:border-complement-ring focus:ring-2 focus:ring-primary-alpha-16"
           />
         </div>
 
@@ -261,8 +261,8 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
             value={accountId}
             onChange={handleAccountChange}
             options={accountOptions}
-            placeholder="All senders"
-            clearLabel="All senders"
+            placeholder="Todos os remetentes"
+            clearLabel="Todos os remetentes"
             showAvatars
             compact
             className="min-w-40"
@@ -275,7 +275,7 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
             onClick={() => { setStatus(""); setSearch(""); setAccountId(""); clearSelection(); fetchLeads(1, { status: "", search: "", accountId: "" }); }}
             className="text-xs text-text-soft-400 hover:text-text-strong-950 transition-colors"
           >
-            Clear
+            Limpar
           </button>
         )}
       </div>
@@ -288,8 +288,8 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
           </div>
         ) : leads.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="text-text-sub-600 font-medium">{hasFilters ? "No leads match your filters" : "No leads yet"}</p>
-            <p className="text-text-soft-400 text-sm mt-1">{hasFilters ? "Try adjusting your search or filters" : "Import leads through a campaign to get started"}</p>
+            <p className="font-medium text-text-sub-600">{hasFilters ? "Nenhum lead corresponde aos filtros" : "Nenhum lead ainda"}</p>
+            <p className="mt-1 text-sm text-text-soft-400">{hasFilters ? "Ajuste a busca ou os filtros" : "Importe leads por uma campanha para começar"}</p>
           </div>
         ) : (
           <>
@@ -322,13 +322,13 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
                       setSelectedIds((prev) => toggleAllOnPage(prev, pageIds, true));
                     }}
                     onClick={(e) => e.stopPropagation()}
-                    ariaLabel="Select all leads on this page"
+                    ariaLabel="Selecionar todos os leads desta página"
                   />
                 </th>
                 <th className="px-4 py-3 font-semibold text-text-sub-600">Lead</th>
-                <th className="px-4 py-3 font-semibold text-text-sub-600">Campaign</th>
+                <th className="px-4 py-3 font-semibold text-text-sub-600">Campanha</th>
                 <th className="px-4 py-3 font-semibold text-text-sub-600">Status</th>
-                <th className="px-4 py-3 font-semibold text-text-sub-600 w-14">Sender</th>
+                <th className="w-14 px-4 py-3 font-semibold text-text-sub-600">Remetente</th>
                 <th className="px-4 py-3 w-10" />
               </tr>
             </thead>
@@ -337,8 +337,8 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
                 <tr
                   key={lead.id}
                   onClick={() => setSelectedLeadId(lead.id)}
-                  className={`hover:bg-bg-weak-50 transition-colors cursor-pointer ${
-                    selectedLeadId === lead.id ? "bg-blue-50/80 dark:bg-blue-500/10" : selectedIds.has(lead.id) ? "bg-blue-50/40 dark:bg-blue-500/10" : ""
+                  className={`cursor-pointer transition-colors hover:bg-bg-weak-50 ${
+                    selectedLeadId === lead.id ? "bg-complement-surface" : selectedIds.has(lead.id) ? "bg-accent-soft/50" : ""
                   }`}
                 >
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -348,7 +348,7 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
                         if (!checked) setAllMatchingSelected(false);
                         setSelectedIds((prev) => toggleLeadSelection(prev, lead.id, checked));
                       }}
-                      ariaLabel={`Select ${lead.name ?? lead.linkedinUrl}`}
+                      ariaLabel={`Selecionar ${lead.name ?? lead.linkedinUrl}`}
                     />
                   </td>
                   <td className="px-4 py-3">
@@ -360,7 +360,7 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1 max-w-full font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                          className="inline-flex max-w-full items-center gap-1 font-medium text-complement-deep underline decoration-complement-light underline-offset-2 transition hover:text-complement-ring"
                         >
                           <span className="truncate">{lead.name ?? lead.linkedinUrl}</span>
                         </a>
@@ -389,7 +389,7 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
                       onClick={() => handleDelete(lead.id)}
                       disabled={deletingId === lead.id}
                       className="p-1.5 rounded-md text-text-disabled-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                      title="Delete lead"
+                      title="Excluir lead"
                     >
                       {deletingId === lead.id
                         ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -408,14 +408,14 @@ export function LeadsClient({ initialData }: { initialData: InitialData }) {
       {pagination.pages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-text-sub-600">
-            Page {pagination.page} of {pagination.pages} · {pagination.total} leads
+            Página {pagination.page} de {pagination.pages} · {pagination.total} leads
           </p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" disabled={pagination.page <= 1} onClick={() => { clearSelection(); fetchLeads(pagination.page - 1); }}>
-              <ChevronLeft className="h-4 w-4" />Prev
+              <ChevronLeft className="h-4 w-4" />Anterior
             </Button>
             <Button variant="outline" size="sm" disabled={pagination.page >= pagination.pages} onClick={() => { clearSelection(); fetchLeads(pagination.page + 1); }}>
-              Next<ChevronRight className="h-4 w-4" />
+              Próxima<ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>

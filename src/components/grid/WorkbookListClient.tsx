@@ -35,7 +35,7 @@ import WorkbookIcon from "./WorkbookIcon";
 // Favorites view — a tab that can only ever be empty is a control that lies.
 type View = "all" | "recents";
 
-const VIEW_LABEL: Record<View, string> = { all: "All", recents: "Recents" };
+const VIEW_LABEL: Record<View, string> = { all: "Todos", recents: "Recentes" };
 
 /** Which row the shared rename/move/delete dialogs are currently acting on. */
 type Target =
@@ -44,14 +44,14 @@ type Target =
 
 function formatDate(value: Date | string | null) {
   if (!value) return "—";
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat("pt-BR", {
     month: "short",
     day: "numeric",
     year: "numeric",
   }).format(new Date(value));
 }
 
-const plural = (n: number, word: string) => `${n.toLocaleString()} ${word}${n === 1 ? "" : "s"}`;
+const plural = (n: number, singular: string, pluralForm: string) => `${n.toLocaleString("pt-BR")} ${n === 1 ? singular : pluralForm}`;
 
 /**
  * "0 tables · 0 rows" was both wrong (the counts never loaded) and useless
@@ -59,16 +59,16 @@ const plural = (n: number, word: string) => `${n.toLocaleString()} ${word}${n ==
  * are worth thousands separators.
  */
 function workbookContents(workbook: WorkbookSummary) {
-  if (workbook.tableCount === 0) return "Empty workbook";
-  if (workbook.rowCount === 0) return `${plural(workbook.tableCount, "table")} · no rows yet`;
-  return `${plural(workbook.tableCount, "table")} · ${plural(workbook.rowCount, "row")}`;
+  if (workbook.tableCount === 0) return "Pasta de trabalho vazia";
+  if (workbook.rowCount === 0) return `${plural(workbook.tableCount, "tabela", "tabelas")} · nenhuma linha ainda`;
+  return `${plural(workbook.tableCount, "tabela", "tabelas")} · ${plural(workbook.rowCount, "linha", "linhas")}`;
 }
 
 function folderContents(folder: FolderSummary) {
   const parts: string[] = [];
-  if (folder.folderCount) parts.push(plural(folder.folderCount, "folder"));
-  if (folder.workbookCount) parts.push(plural(folder.workbookCount, "workbook"));
-  return parts.length ? parts.join(" · ") : "Empty folder";
+  if (folder.folderCount) parts.push(plural(folder.folderCount, "pasta", "pastas"));
+  if (folder.workbookCount) parts.push(plural(folder.workbookCount, "pasta de trabalho", "pastas de trabalho"));
+  return parts.length ? parts.join(" · ") : "Pasta vazia";
 }
 
 async function send(url: string, method: string, body?: unknown) {
@@ -78,7 +78,7 @@ async function send(url: string, method: string, body?: unknown) {
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error ?? "Something went wrong");
+  if (!response.ok) throw new Error(data.error ?? "Algo deu errado");
   return data;
 }
 
@@ -180,7 +180,7 @@ export default function WorkbookListClient({
         }
         startTransition(() => router.refresh());
       } catch (cause) {
-        setDragError(cause instanceof Error ? cause.message : "Could not move that item");
+        setDragError(cause instanceof Error ? cause.message : "Não foi possível mover este item");
       }
     },
     [router],
@@ -237,27 +237,27 @@ export default function WorkbookListClient({
 
   async function createFolder() {
     const name = await dialogs.prompt({
-      title: "New folder",
-      description: here ? `It will be created inside “${here.name}”.` : undefined,
-      label: "Folder name",
-      placeholder: "Untitled folder",
-      confirmLabel: "Create",
+      title: "Nova pasta",
+      description: here ? `Ela será criada dentro de “${here.name}”.` : undefined,
+      label: "Nome da pasta",
+      placeholder: "Pasta sem título",
+      confirmLabel: "Criar",
     });
     if (!name?.trim()) return;
     try {
       await send("/api/grid/folders", "POST", { name: name.trim(), parentId: folderId });
       startTransition(() => router.refresh());
     } catch (cause) {
-      setDragError(cause instanceof Error ? cause.message : "Could not create that folder");
+      setDragError(cause instanceof Error ? cause.message : "Não foi possível criar essa pasta");
     }
   }
 
   async function rename(target: Target) {
     const name = await dialogs.prompt({
-      title: target.kind === "folder" ? "Rename folder" : "Rename workbook",
-      label: "Name",
+      title: target.kind === "folder" ? "Renomear pasta" : "Renomear pasta de trabalho",
+      label: "Nome",
       defaultValue: target.name,
-      confirmLabel: "Rename",
+      confirmLabel: "Renomear",
     });
     if (!name?.trim() || name.trim() === target.name) return;
     const base = target.kind === "folder" ? "/api/grid/folders" : "/api/grid/workbooks";
@@ -265,7 +265,7 @@ export default function WorkbookListClient({
       await send(`${base}/${target.id}`, "PATCH", { name: name.trim() });
       startTransition(() => router.refresh());
     } catch (cause) {
-      setDragError(cause instanceof Error ? cause.message : "Could not rename that item");
+      setDragError(cause instanceof Error ? cause.message : "Não foi possível renomear este item");
     }
   }
 
@@ -282,12 +282,12 @@ export default function WorkbookListClient({
 
   async function remove(target: Target) {
     const ok = await dialogs.confirm({
-      title: target.kind === "folder" ? "Delete folder?" : "Delete workbook?",
+      title: target.kind === "folder" ? "Excluir pasta?" : "Excluir pasta de trabalho?",
       description:
         target.kind === "folder"
-          ? `“${target.name}” and any folders inside it will be deleted. Workbooks filed in them are not deleted — they move back to All Files.`
-          : `“${target.name}” and every table, column and row inside it will be permanently deleted. This cannot be undone.`,
-      confirmLabel: target.kind === "folder" ? "Delete folder" : "Delete workbook",
+          ? `“${target.name}” e todas as pastas dentro dela serão excluídas. As pastas de trabalho nelas não serão excluídas — elas voltarão para Todos os arquivos.`
+          : `“${target.name}” e todas as tabelas, colunas e linhas dentro dela serão excluídas permanentemente. Esta ação não pode ser desfeita.`,
+      confirmLabel: target.kind === "folder" ? "Excluir pasta" : "Excluir pasta de trabalho",
       variant: "error",
     });
     if (!ok) return;
@@ -297,7 +297,7 @@ export default function WorkbookListClient({
       await send(`${base}/${target.id}`, "DELETE");
       startTransition(() => router.refresh());
     } catch (cause) {
-      setDragError(cause instanceof Error ? cause.message : "Could not delete that item");
+      setDragError(cause instanceof Error ? cause.message : "Não foi possível excluir este item");
     }
   }
 
@@ -305,20 +305,20 @@ export default function WorkbookListClient({
     return (
       <Dropdown.Root>
         <Dropdown.Trigger asChild>
-          <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label={`Actions for ${target.name}`}>
+          <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label={`Ações para ${target.name}`}>
             <Button.Icon as={RiMoreLine} />
           </Button.Root>
         </Dropdown.Trigger>
         <Dropdown.Content align="end">
           <Dropdown.Item onSelect={() => void rename(target)}>
-            <Dropdown.ItemIcon as={RiPencilLine} />Rename
+            <Dropdown.ItemIcon as={RiPencilLine} />Renomear
           </Dropdown.Item>
           <Dropdown.Item onSelect={() => setMoving(target)}>
-            <Dropdown.ItemIcon as={RiFolderTransferLine} />Move to folder
+            <Dropdown.ItemIcon as={RiFolderTransferLine} />Mover para pasta
           </Dropdown.Item>
           <Dropdown.Separator />
           <Dropdown.Item destructive onSelect={() => void remove(target)}>
-            <Dropdown.ItemIcon as={RiDeleteBinLine} />Delete
+            <Dropdown.ItemIcon as={RiDeleteBinLine} />Excluir
           </Dropdown.Item>
         </Dropdown.Content>
       </Dropdown.Root>
@@ -342,16 +342,16 @@ export default function WorkbookListClient({
       <Dropdown.Trigger asChild>
         <Button.Root variant="primary" mode="filled" size="small">
           <Button.Icon as={RiAddLine} />
-          New
+          Novo
           <Button.Icon as={RiArrowDownSLine} />
         </Button.Root>
       </Dropdown.Trigger>
       <Dropdown.Content align="end" className="w-[220px]">
         <Dropdown.Item onSelect={() => void createFolder()}>
-          <Dropdown.ItemIcon as={RiFolder3Line} />Folder
+          <Dropdown.ItemIcon as={RiFolder3Line} />Pasta
         </Dropdown.Item>
         <Dropdown.Item onSelect={() => setNewWorkbookOpen(true)}>
-          <Dropdown.ItemIcon as={WorkbookIcon} />Workbook
+          <Dropdown.ItemIcon as={WorkbookIcon} />Pasta de trabalho
         </Dropdown.Item>
       </Dropdown.Content>
     </Dropdown.Root>
@@ -365,10 +365,10 @@ export default function WorkbookListClient({
   return (
     <PageContainer>
       <PageHeader
-        title={here?.name ?? "Tables"}
+        title={here?.name ?? "Tabelas"}
         description={
           breadcrumbs.length > 0 ? (
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1">
+            <nav aria-label="Trilha de navegação" className="flex flex-wrap items-center gap-1">
               {/* Crumbs are drop targets too — otherwise there is no way
                   to drag something back OUT of the folder you are in. */}
               <Link
@@ -377,7 +377,7 @@ export default function WorkbookListClient({
                 {...dropZone(null)}
                 className={cn("rounded px-1 py-0.5 transition hover:text-text-strong-950", dropTarget === "root" && dropClass)}
               >
-                All files
+                Todos os arquivos
               </Link>
               {breadcrumbs.map((crumb, index) => (
                 <span key={crumb.id} className="flex items-center gap-1">
@@ -398,7 +398,7 @@ export default function WorkbookListClient({
               ))}
             </nav>
           ) : (
-            "Workbooks and folders that hold your tables, imports and scraped data."
+            "Pastas de trabalho e pastas que contêm suas tabelas, importações e dados extraídos."
           )
         }
         actions={newMenu}
@@ -406,7 +406,7 @@ export default function WorkbookListClient({
 
       <Frame className="mt-6">
         <FrameHeader
-          title={here ? "This folder" : "All files"}
+          title={here ? "Esta pasta" : "Todos os arquivos"}
           actions={
             <div className="flex flex-wrap items-center gap-2">
               <SegmentedControl.Root value={view} onValueChange={(v) => setView(v as View)}>
@@ -422,7 +422,7 @@ export default function WorkbookListClient({
               <Input.Root size="small" className="w-56">
                 <Input.Wrapper>
                   <Input.Icon as={RiSearchLine} />
-                  <Input.Input type="search" aria-label="Search files" placeholder="Search files…" value={search} onChange={(event) => setSearch(event.target.value)} />
+                  <Input.Input type="search" aria-label="Pesquisar arquivos" placeholder="Pesquisar arquivos…" value={search} onChange={(event) => setSearch(event.target.value)} />
                 </Input.Wrapper>
               </Input.Root>
             </div>
@@ -436,18 +436,18 @@ export default function WorkbookListClient({
             nothingYet ? (
               <EmptyState
                 icon={WorkbookIcon}
-                title={here ? `“${here.name}” is empty` : "No workbooks yet"}
-                description="Create a workbook, import a spreadsheet, or add a folder to organise them."
+                title={here ? `“${here.name}” está vazia` : "Nenhuma pasta de trabalho ainda"}
+                description="Crie uma pasta de trabalho, importe uma planilha ou adicione uma pasta para organizá-las."
                 action={newMenu}
               />
             ) : (
               <EmptyState
                 icon={RiSearchLine}
-                title="Nothing matches that search"
-                description="Try a different name, or clear the search."
+                title="Nenhum resultado para esta busca"
+                description="Tente outro nome ou limpe a busca."
                 action={
                   <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setSearch("")}>
-                    Clear search
+                    Limpar busca
                   </Button.Root>
                 }
               />
@@ -457,10 +457,10 @@ export default function WorkbookListClient({
               <Table.Root className="min-w-[640px]">
                 <Table.Header>
                   <Table.Row>
-                    <Table.Head scope="col" className="px-4">Name</Table.Head>
-                    <Table.Head scope="col" className="w-36 px-4">Created</Table.Head>
-                    <Table.Head scope="col" className="w-36 px-4">Last updated</Table.Head>
-                    <Table.Head scope="col" className="w-16 px-4"><span className="sr-only">Actions</span></Table.Head>
+                    <Table.Head scope="col" className="px-4">Nome</Table.Head>
+                    <Table.Head scope="col" className="w-36 px-4">Criado em</Table.Head>
+                    <Table.Head scope="col" className="w-36 px-4">Atualizado em</Table.Head>
+                    <Table.Head scope="col" className="w-16 px-4"><span className="sr-only">Ações</span></Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body spacing={4}>
@@ -488,7 +488,7 @@ export default function WorkbookListClient({
                                 {folder.name}
                               </Link>
                               <p className={cn("mt-0.5 truncate text-paragraph-xs", isDropTarget ? "text-primary-base" : "text-text-sub-600")}>
-                                {isDropTarget ? "Drop to move here" : folderContents(folder)}
+                                {isDropTarget ? "Solte para mover aqui" : folderContents(folder)}
                               </p>
                             </div>
                           </div>
@@ -539,7 +539,7 @@ export default function WorkbookListClient({
             </div>
           )}
         </FramePanel>
-        {folders.length + workbooks.length > 0 && <FrameFooter>Drag a row onto a folder, or a breadcrumb, to file it there.</FrameFooter>}
+        {folders.length + workbooks.length > 0 && <FrameFooter>Arraste uma linha para uma pasta ou para a trilha de navegação para movê-la para lá.</FrameFooter>}
       </Frame>
 
       <NewWorkbookDialog
@@ -554,7 +554,7 @@ export default function WorkbookListClient({
 
       <MoveToFolderDialog
         open={moving !== null}
-        title={moving?.kind === "folder" ? "Move folder" : "Move workbook"}
+        title={moving?.kind === "folder" ? "Mover pasta" : "Mover pasta de trabalho"}
         itemName={moving?.name ?? ""}
         currentFolderId={moving?.kind === "folder" ? moving.parentId : (moving?.folderId ?? null)}
         folders={allFolders}

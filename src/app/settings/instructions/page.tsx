@@ -1,14 +1,14 @@
 import { SettingsPage } from "@/components/settings/SettingsPage";
 import InstructionsSettings from "@/components/settings/InstructionsSettings";
 
-export const metadata = { title: "Instructions" };
+export const metadata = { title: "Instruções" };
 export const dynamic = "force-dynamic";
 
 export default function InstructionsPage() {
   return (
     <SettingsPage
-      title="Instructions"
-      description="Guidance added to every AI draft and classification. Each instruction is sent to the AI as its own titled section."
+      title="Instruções"
+      description="Orientações adicionadas a cada rascunho e classificação de IA. Cada instrução é enviada à IA como uma seção própria com título."
     >
       <InstructionsSettings />
     </SettingsPage>

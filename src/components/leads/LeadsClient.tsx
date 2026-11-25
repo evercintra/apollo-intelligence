@@ -139,7 +139,7 @@ export default function LeadsClient({ initialTab, initialRows, initialTotal }: P
   };
 
   const total = data?.total ?? 0;
-  const noun = isPeople ? "people" : "companies";
+  const noun = isPeople ? "pessoas" : "empresas";
   const rowCount = data?.rows.length ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const filtersOn = isPeople ? activeFilterCount(peopleState.filters) : 0;
@@ -154,8 +154,8 @@ export default function LeadsClient({ initialTab, initialRows, initialTotal }: P
     : <CompaniesTable rows={error ? [] : companiesData?.rows ?? null} sort={state.sort} direction={state.direction} onSort={onSort} loading={loading} onOpen={openCompany} />;
 
   const tabs = [
-    { value: "people" as const, label: "People", icon: RiUserLine },
-    { value: "companies" as const, label: "Companies", icon: RiBuilding2Line },
+    { value: "people" as const, label: "Pessoas", icon: RiUserLine },
+    { value: "companies" as const, label: "Empresas", icon: RiBuilding2Line },
   ];
 
   return (
@@ -163,22 +163,22 @@ export default function LeadsClient({ initialTab, initialRows, initialTotal }: P
       <PageContainer>
         <PageHeader
           title="Leads"
-          description="Every person and company you can reach, with their outreach and CRM state."
-          actions={isPeople && <Button.Root variant="primary" mode="filled" size="small" onClick={() => setShowImport(true)}><Button.Icon as={RiUpload2Line} />Import people</Button.Root>}
+          description="Todas as pessoas e empresas que você pode alcançar, com seu estado de prospecção e CRM."
+          actions={isPeople && <Button.Root variant="primary" mode="filled" size="small" onClick={() => setShowImport(true)}><Button.Icon as={RiUpload2Line} />Importar pessoas</Button.Root>}
         />
 
-        <PageTabs className="mt-6" label="Lead type" tabs={tabs} value={tab} onChange={switchTab} />
+        <PageTabs className="mt-6" label="Tipo de lead" tabs={tabs} value={tab} onChange={switchTab} />
 
         <Frame className="mt-5">
           <FrameHeader
-            title={isPeople ? "People" : "Companies"}
-            description={<span aria-live="polite">{data ? `${total.toLocaleString("en-US")} ${total === 1 ? (isPeople ? "person" : "company") : noun}${filtersOn || searching ? " match" : ""}` : `Loading ${noun}…`}</span>}
+            title={isPeople ? "Pessoas" : "Empresas"}
+            description={<span aria-live="polite">{data ? `${total.toLocaleString("pt-BR")} ${total === 1 ? (isPeople ? "pessoa" : "empresa") : noun}${filtersOn || searching ? " encontradas" : ""}` : `Carregando ${noun}…`}</span>}
             actions={
               <>
                 <Input.Root size="small" className="w-40 sm:w-72">
                   <Input.Wrapper>
                     <Input.Icon as={RiSearchLine} />
-                    <Input.Input type="search" aria-label={`Search ${noun}`} placeholder={isPeople ? "Search people…" : "Search companies…"} value={state.query} onChange={(event) => patch({ query: event.target.value })} />
+                    <Input.Input type="search" aria-label={`Buscar ${noun}`} placeholder={isPeople ? "Buscar pessoas…" : "Buscar empresas…"} value={state.query} onChange={(event) => patch({ query: event.target.value })} />
                   </Input.Wrapper>
                 </Input.Root>
                 {isPeople && (
@@ -191,19 +191,19 @@ export default function LeadsClient({ initialTab, initialRows, initialTotal }: P
                 )}
                 <Dropdown.Root>
                   <Dropdown.Trigger asChild>
-                    <Button.Root variant="neutral" mode="stroke" size="small" aria-label="More options"><Button.Icon as={RiMore2Line} /></Button.Root>
+                    <Button.Root variant="neutral" mode="stroke" size="small" aria-label="Mais opções"><Button.Icon as={RiMore2Line} /></Button.Root>
                   </Dropdown.Trigger>
                   <Dropdown.Content align="end">
-                    <Dropdown.Item asChild><Link href="/settings/columns"><Dropdown.ItemIcon as={RiTable2} />Manage lead columns</Link></Dropdown.Item>
-                    {isPeople && <Dropdown.Item asChild><a href="/api/leads/people/import/template"><Dropdown.ItemIcon as={RiDownloadLine} />Download import template</a></Dropdown.Item>}
+                    <Dropdown.Item asChild><Link href="/settings/columns"><Dropdown.ItemIcon as={RiTable2} />Gerenciar colunas de leads</Link></Dropdown.Item>
+                    {isPeople && <Dropdown.Item asChild><a href="/api/leads/people/import/template"><Dropdown.ItemIcon as={RiDownloadLine} />Baixar modelo de importação</a></Dropdown.Item>}
                     <Dropdown.Separator />
-                    <p className="px-2 pb-1 pt-1.5 text-label-xs text-text-soft-400">Sort by</p>
+                    <p className="px-2 pb-1 pt-1.5 text-label-xs text-text-soft-400">Ordenar por</p>
                     {SORTS[tab].map((option) => {
                       const active = state.sort === option.key;
                       return (
                         <Dropdown.Item key={option.key} onSelect={() => onSort(option.key)} className={cn(active && "text-text-strong-950")}>
                           <span className="flex-1">{option.label}</span>
-                          {active && <Dropdown.ItemIcon as={state.direction === "asc" ? RiArrowUpLine : RiArrowDownLine} aria-label={state.direction === "asc" ? "ascending" : "descending"} className="size-4" />}
+                          {active && <Dropdown.ItemIcon as={state.direction === "asc" ? RiArrowUpLine : RiArrowDownLine} aria-label={state.direction === "asc" ? "crescente" : "decrescente"} className="size-4" />}
                         </Dropdown.Item>
                       );
                     })}
@@ -217,29 +217,29 @@ export default function LeadsClient({ initialTab, initialRows, initialTotal }: P
             {showEmpty ? (
               <EmptyState
                 icon={isPeople ? RiUserSearchLine : RiBuilding2Line}
-                title={filtersOn || searching ? `No ${noun} match ${filtersOn ? "these filters" : "this search"}` : `No ${noun} yet`}
-                description={filtersOn || searching ? "Try broadening your search or changing a filter." : isPeople ? "Import a spreadsheet to add people." : "Companies appear as people are imported."}
+                title={filtersOn || searching ? `Nenhum resultado para ${filtersOn ? "estes filtros" : "esta busca"}` : isPeople ? "Nenhuma pessoa ainda" : "Nenhuma empresa ainda"}
+                description={filtersOn || searching ? "Tente ampliar a busca ou alterar um filtro." : isPeople ? "Importe uma planilha para adicionar pessoas." : "Empresas aparecem à medida que as pessoas são importadas."}
                 action={
                   filtersOn > 0 || searching
-                    ? <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => patch({ query: "", ...(isPeople ? { filters: EMPTY_FILTERS } : {}) })}>Clear {filtersOn ? "filters" : "search"}</Button.Root>
-                    : isPeople && <Button.Root variant="primary" mode="filled" size="small" onClick={() => setShowImport(true)}><Button.Icon as={RiUpload2Line} />Import people</Button.Root>
+                    ? <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => patch({ query: "", ...(isPeople ? { filters: EMPTY_FILTERS } : {}) })}>Limpar {filtersOn ? "filtros" : "busca"}</Button.Root>
+                    : isPeople && <Button.Root variant="primary" mode="filled" size="small" onClick={() => setShowImport(true)}><Button.Icon as={RiUpload2Line} />Importar pessoas</Button.Root>
                 }
               />
             ) : table}
           </FramePanel>
           {(rowCount > 0 || pages > 1) && (
-            <nav aria-label="Pagination" className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 pb-1 pt-2.5">
-              <p className="text-paragraph-sm tabular-nums text-text-sub-600">{rowCount ? `${from.toLocaleString("en-US")}–${to.toLocaleString("en-US")} of ${total.toLocaleString("en-US")}` : `0 ${noun}`}</p>
+            <nav aria-label="Paginação" className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 pb-1 pt-2.5">
+              <p className="text-paragraph-sm tabular-nums text-text-sub-600">{rowCount ? `${from.toLocaleString("pt-BR")}–${to.toLocaleString("pt-BR")} de ${total.toLocaleString("pt-BR")}` : `0 ${noun}`}</p>
               {pages > 1 && (
                 <Pagination.Root variant="basic" className="gap-1">
-                  <Pagination.NavButton aria-label="Previous page" disabled={state.page === 0} onClick={() => patch({ page: state.page - 1 })} className="hover:bg-bg-white-0 disabled:text-text-disabled-300 disabled:hover:bg-transparent"><Pagination.NavIcon as={RiArrowLeftSLine} /></Pagination.NavButton>
+                  <Pagination.NavButton aria-label="Página anterior" disabled={state.page === 0} onClick={() => patch({ page: state.page - 1 })} className="hover:bg-bg-white-0 disabled:text-text-disabled-300 disabled:hover:bg-transparent"><Pagination.NavIcon as={RiArrowLeftSLine} /></Pagination.NavButton>
                   <span className="hidden items-center gap-1 sm:flex">
                     {pageItems(state.page, pages).map((item) => typeof item === "number"
-                      ? <Pagination.Item key={item} current={item === state.page} aria-current={item === state.page ? "page" : undefined} onClick={() => patch({ page: item })} className={cn("tabular-nums ring-0 hover:bg-bg-white-0", item === state.page && "bg-bg-white-0 shadow-regular-xs ring-1 ring-stroke-soft-200")}>{(item + 1).toLocaleString("en-US")}</Pagination.Item>
+                      ? <Pagination.Item key={item} current={item === state.page} aria-current={item === state.page ? "page" : undefined} onClick={() => patch({ page: item })} className={cn("tabular-nums ring-0 hover:bg-bg-white-0", item === state.page && "bg-bg-white-0 shadow-regular-xs ring-1 ring-stroke-soft-200")}>{(item + 1).toLocaleString("pt-BR")}</Pagination.Item>
                       : <span key={item} className="px-1 text-label-sm text-text-soft-400">…</span>)}
                   </span>
                   <span className="px-2 text-paragraph-sm tabular-nums text-text-sub-600 sm:hidden">{state.page + 1} / {pages}</span>
-                  <Pagination.NavButton aria-label="Next page" disabled={state.page >= pages - 1} onClick={() => patch({ page: state.page + 1 })} className="hover:bg-bg-white-0 disabled:text-text-disabled-300 disabled:hover:bg-transparent"><Pagination.NavIcon as={RiArrowRightSLine} /></Pagination.NavButton>
+                  <Pagination.NavButton aria-label="Próxima página" disabled={state.page >= pages - 1} onClick={() => patch({ page: state.page + 1 })} className="hover:bg-bg-white-0 disabled:text-text-disabled-300 disabled:hover:bg-transparent"><Pagination.NavIcon as={RiArrowRightSLine} /></Pagination.NavButton>
                 </Pagination.Root>
               )}
             </nav>

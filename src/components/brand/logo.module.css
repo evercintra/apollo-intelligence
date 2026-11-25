@@ -1,0 +1,41 @@
+.walkAlways,
+.walkHover {
+  transform-origin: 50% 70%;
+}
+
+.walkAlways {
+  animation: apolloWalk var(--walk-duration, 900ms) ease-in-out infinite;
+}
+
+.walkHover {
+  animation: none;
+}
+
+:global(.group):hover .walkHover,
+:global(.group):focus-visible .walkHover {
+  animation: apolloWalk var(--walk-duration, 900ms) ease-in-out infinite;
+}
+
+@keyframes apolloWalk {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(-4%) rotate(-4deg);
+  }
+
+  75% {
+    transform: translateY(-4%) rotate(4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walkAlways,
+  .walkHover,
+  :global(.group):hover .walkHover,
+  :global(.group):focus-visible .walkHover {
+    animation: none;
+  }
+}

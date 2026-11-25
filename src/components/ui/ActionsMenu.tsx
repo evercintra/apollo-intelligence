@@ -30,7 +30,7 @@ export default function ActionsMenu({ items }: { items: ActionsMenuItem[] }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="More actions"
+        aria-label="Mais ações"
         className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-colors ${
           open ? "border-stroke-sub-300 bg-bg-weak-50" : "border-stroke-soft-200 hover:bg-bg-weak-50"
         }`}
@@ -41,7 +41,7 @@ export default function ActionsMenu({ items }: { items: ActionsMenuItem[] }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-1.5 w-44 rounded-xl border border-stroke-soft-200 bg-bg-white-0 shadow-xl shadow-slate-200/60 dark:shadow-black/40 overflow-hidden py-1">
+        <div className="absolute right-0 z-50 mt-1.5 w-44 rounded-xl border border-stroke-soft-200 bg-bg-white-0 shadow-regular-md overflow-hidden py-1">
           {items.map((item) => (
             <button
               key={item.key}
@@ -52,7 +52,7 @@ export default function ActionsMenu({ items }: { items: ActionsMenuItem[] }) {
                 item.onSelect();
               }}
               className={`w-full text-left px-3 py-2 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                item.tone === "danger" ? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10" : "text-text-strong-950 hover:bg-bg-weak-50"
+                item.tone === "danger" ? "text-error-dark dark:text-error-base hover:bg-error-lighter dark:hover:bg-error-base/10" : "text-text-strong-950 hover:bg-bg-weak-50"
               }`}
             >
               {item.label}

@@ -55,14 +55,14 @@ export default function AcceptInvitationPage({ params }: { params: Promise<{ id:
     setBusy("accept");
     const res = await authClient.organization.acceptInvitation({ invitationId: id });
     if (res.error) {
-      setError(res.error.message || "Could not accept the invitation.");
+      setError(res.error.message || "Não foi possível aceitar o convite.");
       return setBusy(null);
     }
     const organizationId = res.data?.invitation?.organizationId ?? invite?.organizationId;
     if (organizationId) {
       const active = await authClient.organization.setActive({ organizationId });
       if (active.error) {
-        setError(active.error.message || "Joined, but could not switch into the organization.");
+        setError(active.error.message || "Você entrou, mas não foi possível acessar a organização.");
         return setBusy(null);
       }
     }
@@ -74,14 +74,14 @@ export default function AcceptInvitationPage({ params }: { params: Promise<{ id:
     setBusy("decline");
     const { error: err } = await authClient.organization.rejectInvitation({ invitationId: id });
     setBusy(null);
-    if (err) setError(err.message || "Could not decline the invitation.");
+    if (err) setError(err.message || "Não foi possível recusar o convite.");
     else setDeclined(true);
   }
 
   if (state === "loading" || isPending) {
     return (
-      <AuthShell title="Loading invitation">
-        <div className="flex justify-center text-slate-400">
+      <AuthShell title="Carregando convite">
+        <div className="flex justify-center text-apollo-purple-300">
           <Spinner />
         </div>
       </AuthShell>
@@ -90,9 +90,9 @@ export default function AcceptInvitationPage({ params }: { params: Promise<{ id:
 
   if (declined) {
     return (
-      <AuthShell title="Invitation declined" subtitle="You won't be added to this organization.">
+      <AuthShell title="Convite recusado" subtitle="Você não será adicionado a esta organização.">
         <Link href="/" className={linkClass}>
-          Go to AgentSDR
+          Ir para a Apollo Intelligence
         </Link>
       </AuthShell>
     );
@@ -100,9 +100,9 @@ export default function AcceptInvitationPage({ params }: { params: Promise<{ id:
 
   if (state === "wrong-email") {
     return (
-      <AuthShell title="Wrong account" subtitle="This invitation was sent to a different email address. Sign in with the invited address to accept it.">
+      <AuthShell title="Conta incorreta" subtitle="Este convite foi enviado para outro endereço de e-mail. Entre com o e-mail convidado para aceitá-lo.">
         <Link href={`/sign-in?from=${from}`} className={linkClass}>
-          Switch account
+          Trocar de conta
         </Link>
       </AuthShell>
     );
@@ -111,27 +111,27 @@ export default function AcceptInvitationPage({ params }: { params: Promise<{ id:
   if (state === "missing" || expired) {
     return (
       <AuthShell
-        title={expired ? "Invitation expired" : "Invitation not found"}
-        subtitle={expired ? "This invitation is no longer valid. Ask the person who invited you to send a new one." : "This link is invalid, was already used, or was sent to a different email address."}
+        title={expired ? "Convite expirado" : "Convite não encontrado"}
+        subtitle={expired ? "Este convite não é mais válido. Peça a quem o enviou para mandar um novo." : "Este link é inválido, já foi usado ou foi enviado para outro endereço de e-mail."}
       >
         <Link href="/sign-in" className={linkClass}>
-          Back to sign in
+          Voltar para o login
         </Link>
       </AuthShell>
     );
   }
 
-  const who = invite ? `${invite.inviterEmail} invited you to join ${invite.organizationName}.` : "You've been invited to join an organization.";
+  const who = invite ? `${invite.inviterEmail} convidou você para entrar em ${invite.organizationName}.` : "Você foi convidado a entrar em uma organização.";
 
   if (!session) {
     return (
-      <AuthShell title="You're invited" subtitle={`${who} Sign in or create an account to accept.`}>
+      <AuthShell title="Você foi convidado" subtitle={`${who} Entre ou crie uma conta para aceitar.`}>
         <div className="flex flex-col gap-3">
-          <Link href={`/sign-in?from=${from}`} className="w-full rounded-lg bg-indigo-600 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-indigo-500">
-            Sign in to accept
+          <Link href={`/sign-in?from=${from}`} className="w-full rounded-lg bg-apollo-lime-400 py-3 text-center text-sm font-semibold text-apollo-graphite-900 transition-colors hover:bg-apollo-lime-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apollo-lime-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-apollo-graphite-950">
+            Entrar para aceitar
           </Link>
-          <Link href={`/sign-up?from=${from}`} className="w-full rounded-lg border border-slate-700 bg-slate-800 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700">
-            Create account
+          <Link href={`/sign-up?from=${from}`} className="w-full rounded-lg border border-apollo-purple-300/25 bg-apollo-graphite-900/60 py-3 text-center text-sm font-semibold text-apollo-soft-white transition-colors hover:border-apollo-purple-300/40 hover:bg-apollo-graphite-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apollo-lime-400/50">
+            Criar conta
           </Link>
         </div>
       </AuthShell>
@@ -139,20 +139,20 @@ export default function AcceptInvitationPage({ params }: { params: Promise<{ id:
   }
 
   return (
-    <AuthShell title="You're invited" subtitle={who}>
+    <AuthShell title="Você foi convidado" subtitle={who}>
       <div className="flex flex-col gap-3">
         {error && <ErrorCallout>{error}</ErrorCallout>}
         <button
           type="button"
           onClick={accept}
           disabled={!!busy}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-3 text-sm font-medium text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-apollo-lime-400 py-3 text-sm font-semibold text-apollo-graphite-900 shadow-lg shadow-apollo-lime-400/10 transition-colors hover:bg-apollo-lime-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apollo-lime-400/60 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy === "accept" && <Spinner />}
-          Accept
+          Aceitar
         </button>
         <SecondaryButton onClick={decline} loading={busy === "decline"} disabled={!!busy}>
-          Decline
+          Recusar
         </SecondaryButton>
       </div>
     </AuthShell>

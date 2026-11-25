@@ -4,10 +4,10 @@ export type CrmCategory = "customer" | "interested" | "not_interested" | "other"
 export type CrmChannel = "email" | "linkedin" | "whatsapp";
 
 export const CATEGORY_LABELS: Record<CrmCategory, string> = {
-  customer: "Customer",
-  interested: "Interested",
-  not_interested: "Not interested",
-  other: "Other",
+  customer: "Cliente",
+  interested: "Interessado",
+  not_interested: "Não interessado",
+  other: "Outro",
 };
 
 /**
@@ -65,14 +65,14 @@ export function displayName(value: Record<string, unknown>): string {
     const slug = linkedin.trim().replace(/\/+$/, "").split("/").pop() || linkedin.trim();
     return `LinkedIn · ${slug}`;
   }
-  return "Unknown contact";
+  return "Contato desconhecido";
 }
 
 export function formatDate(value: unknown, fallback = "—"): string {
   if (!value) return fallback;
   const date = new Date(String(value));
   if (Number.isNaN(date.getTime())) return fallback;
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
 /** Past-facing counterpart to relativeDate, for "when did this land" columns. */
@@ -81,12 +81,12 @@ export function timeAgo(value: unknown, fallback = "—"): string {
   const date = new Date(String(value));
   if (Number.isNaN(date.getTime())) return fallback;
   const minutes = Math.round((Date.now() - date.getTime()) / 60000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 1) return "agora mesmo";
+  if (minutes < 60) return `há ${minutes} min`;
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return `há ${hours} h`;
   const days = Math.round(hours / 24);
-  if (days < 30) return `${days}d ago`;
+  if (days < 30) return `há ${days} d`;
   return formatDate(value, fallback);
 }
 
@@ -95,11 +95,11 @@ export function relativeDate(value: unknown): string {
   const date = new Date(String(value));
   if (Number.isNaN(date.getTime())) return "—";
   const minutes = Math.round((date.getTime() - Date.now()) / 60000);
-  if (Math.abs(minutes) < 60) return minutes < 0 ? `${Math.abs(minutes)}m overdue` : `in ${minutes}m`;
+  if (Math.abs(minutes) < 60) return minutes < 0 ? `atrasado há ${Math.abs(minutes)} min` : `em ${minutes} min`;
   const hours = Math.round(minutes / 60);
-  if (Math.abs(hours) < 24) return hours < 0 ? `${Math.abs(hours)}h overdue` : `in ${hours}h`;
+  if (Math.abs(hours) < 24) return hours < 0 ? `atrasado há ${Math.abs(hours)} h` : `em ${hours} h`;
   const days = Math.round(hours / 24);
-  return days < 0 ? `${Math.abs(days)}d overdue` : `in ${days}d`;
+  return days < 0 ? `atrasado há ${Math.abs(days)} d` : `em ${days} d`;
 }
 
 export async function crmFetch<T = unknown>(path: string, init?: RequestInit): Promise<T> {
@@ -111,14 +111,14 @@ export async function crmFetch<T = unknown>(path: string, init?: RequestInit): P
   const response = await fetch(`/api/crm${path}`, { ...init, headers });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const message = typeof body?.error === "string" ? body.error : `Request failed (${response.status})`;
+    const message = typeof body?.error === "string" ? body.error : `Falha na solicitação (${response.status})`;
     throw new Error(message);
   }
   return body as T;
 }
 
 export function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Something went wrong. Please try again.";
+  return error instanceof Error ? error.message : "Algo deu errado. Tente novamente.";
 }
 
 export function badgeClass(value: string): string {

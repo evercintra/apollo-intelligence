@@ -55,7 +55,7 @@ export default function MoveTableDialog({
         fetch("/api/grid/folders"),
         fetch("/api/grid/workbooks"),
       ]);
-      if (!folderRes.ok || !workbookRes.ok) throw new Error("Could not load your workbooks");
+      if (!folderRes.ok || !workbookRes.ok) throw new Error("Não foi possível carregar suas pastas de trabalho");
       const nextFolders: GridFolder[] = (await folderRes.json()).folders ?? [];
       const nextWorkbooks: WorkbookRow[] = (await workbookRes.json()).workbooks ?? [];
       setFolders(nextFolders);
@@ -75,7 +75,7 @@ export default function MoveTableDialog({
         setExpanded(trail);
       }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not load your workbooks");
+      setError(cause instanceof Error ? cause.message : "Não foi possível carregar suas pastas de trabalho");
     } finally {
       setLoading(false);
     }
@@ -155,7 +155,7 @@ export default function MoveTableDialog({
             >
               <WorkbookIcon className="size-4 shrink-0" />
               <span className="flex-1 truncate">{workbook.name}</span>
-              {isCurrent && <span className="shrink-0 text-subheading-2xs uppercase text-text-soft-400">Current</span>}
+              {isCurrent && <span className="shrink-0 text-subheading-2xs uppercase text-text-soft-400">Atual</span>}
               {isSelected && <RiCheckLine className="size-4 shrink-0" />}
             </button>
           );
@@ -171,7 +171,7 @@ export default function MoveTableDialog({
     try {
       await onMove(selected);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not move that table");
+      setError(cause instanceof Error ? cause.message : "Não foi possível mover essa tabela");
       setBusy(false);
     }
   }
@@ -180,8 +180,8 @@ export default function MoveTableDialog({
     <Modal.Root open={open} onOpenChange={(next) => { if (!next && !busy) onClose(); }}>
       <Modal.Content size="max-w-md" className="max-h-[80vh]">
         <Modal.Header icon={RiDragMove2Line}>
-          <Modal.Title>Move table</Modal.Title>
-          <Modal.Description>Choose the workbook to move “{tableName}” into.</Modal.Description>
+          <Modal.Title>Mover tabela</Modal.Title>
+          <Modal.Description>Escolha a pasta de trabalho para a qual mover “{tableName}”.</Modal.Description>
         </Modal.Header>
 
         <Modal.Body className="pt-4">
@@ -193,17 +193,17 @@ export default function MoveTableDialog({
 
           {loading ? (
             <p className="flex items-center justify-center gap-2 py-10 text-paragraph-sm text-text-sub-600">
-              <RiLoader4Line className="size-4 animate-spin" />Loading workbooks…
+              <RiLoader4Line className="size-4 animate-spin" />Carregando pastas de trabalho…
             </p>
           ) : (
             <>
               <div className="flex items-center gap-1.5 px-2 py-2 text-subheading-2xs uppercase tracking-wide text-text-soft-400">
-                <RiHome4Line className="size-4" />All Files
+                <RiHome4Line className="size-4" />Todos os arquivos
               </div>
               {renderBranch("root", 0)}
               {!folders.length && !workbooks.length && (
                 <p className="px-2 py-6 text-center text-paragraph-sm text-text-sub-600">
-                  No other workbooks yet.
+                  Nenhuma outra pasta de trabalho ainda.
                 </p>
               )}
             </>
@@ -216,7 +216,7 @@ export default function MoveTableDialog({
 
         <Modal.Footer>
           <Button.Root variant="neutral" mode="stroke" size="small" disabled={busy} onClick={onClose}>
-            Cancel
+            Cancelar
           </Button.Root>
           <Button.Root
             variant="primary"
@@ -226,7 +226,7 @@ export default function MoveTableDialog({
             onClick={() => void submit()}
           >
             {busy && <RiLoader4Line className="size-4 animate-spin" />}
-            Move table
+            Mover tabela
           </Button.Root>
         </Modal.Footer>
       </Modal.Content>

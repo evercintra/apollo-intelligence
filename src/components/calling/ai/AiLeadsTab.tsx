@@ -27,21 +27,20 @@ import CampaignCsvMappingDialog from "@/components/leads/CampaignCsvMappingDialo
 import { EmptyState } from "@/components/page/EmptyState";
 import { Skeleton } from "@/components/page/Skeletons";
 import { relativeTime } from "@/components/whatsapp/campaigns/metrics";
-import { AGENT_OUTCOME_LABELS } from "@/lib/calls/contract";
 import type { AiCampaignLead, AiLeadsImportResponse, ListAiLeadsResponse } from "@/lib/calls/aiCampaigns/api";
 import { aiLeadsEndpoint, aiLeadsUploadEndpoint, listAiLeads, removeAiLead, updateAiLead } from "@/lib/calls/aiCampaigns/client";
-import { AI_CONTACT_STATUSES, AI_CONTACT_STATUS_LABELS, AI_OPEN_STATUSES, type AiContactStatus } from "@/lib/calls/aiCampaigns/contract";
+import { AI_CONTACT_STATUSES, AI_OPEN_STATUSES, type AiContactStatus } from "@/lib/calls/aiCampaigns/contract";
 import { cn } from "@/utils/cn";
 import { AiLeadDrawer } from "./AiLeadDrawer";
-import { actionRequiredText, AiStatusBadge, errorText, formatWhen } from "./aiShared";
+import { AI_OUTCOME_LABELS_PT, AI_STATUS_LABELS_PT, actionRequiredText, aiErrorPt, aiNotePt, aiStepLabelPt, AiStatusBadge, errorText, formatWhen } from "./aiShared";
 
 const PAGE_SIZE = 25;
 const ALL = "all";
 
 export function importSummary(result: AiLeadsImportResponse): string {
-  const parts = [`${result.added.toLocaleString("en-US")} added`];
-  if (result.alreadyInCampaign) parts.push(`${result.alreadyInCampaign.toLocaleString("en-US")} already in the campaign`);
-  if (result.skipped.length) parts.push(`${result.skipped.length} skipped (${result.skipped[0]}${result.skipped.length > 1 ? ", …" : ""})`);
+  const parts = [`${result.added.toLocaleString("pt-BR")} ${result.added === 1 ? "adicionado" : "adicionados"}`];
+  if (result.alreadyInCampaign) parts.push(`${result.alreadyInCampaign.toLocaleString("pt-BR")} ${result.alreadyInCampaign === 1 ? "já estava" : "já estavam"} na campanha`);
+  if (result.skipped.length) parts.push(`${result.skipped.length} ${result.skipped.length === 1 ? "ignorado" : "ignorados"} (${aiErrorPt(result.skipped[0]!)}${result.skipped.length > 1 ? ", …" : ""})`);
   return parts.join(" · ");
 }
 
@@ -83,7 +82,7 @@ export function AiLeadsTab({
       setData(await listAiLeads(campaignId, { page, pageSize: PAGE_SIZE, status: status === ALL ? undefined : (status as AiContactStatus), q: debounced || undefined }));
       setLoadError(null);
     } catch (cause) {
-      setLoadError(errorText(cause, "Could not load leads"));
+      setLoadError(errorText(cause, "Não foi possível carregar os leads"));
     } finally {
       setLoading(false);
     }
@@ -115,7 +114,7 @@ export function AiLeadsTab({
       await updateAiLead(campaignId, lead.id, { action });
       refreshAll();
     } catch (cause) {
-      await dialogs.alert({ title: action === "stop" ? "Could not stop the lead" : "Could not queue the lead again", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: action === "stop" ? "Não foi possível interromper o lead" : "Não foi possível colocar o lead na fila novamente", description: errorText(cause), variant: "error" });
     } finally {
       setBusyId(null);
     }
@@ -124,9 +123,9 @@ export function AiLeadsTab({
   async function remove(lead: AiCampaignLead) {
     const who = lead.name || lead.phone;
     const ok = await dialogs.confirm({
-      title: `Remove ${who} from this campaign?`,
-      description: "The AI stops calling and messaging them. They stay in People, and their past calls, recordings and transcripts are kept.",
-      confirmLabel: "Remove",
+      title: `Remover ${who} desta campanha?`,
+      description: "O agente para de ligar e de enviar mensagens. A pessoa permanece em Pessoas, e suas ligações, gravações e transcrições anteriores são mantidas.",
+      confirmLabel: "Remover",
       variant: "error",
     });
     if (!ok) return;
@@ -134,10 +133,10 @@ export function AiLeadsTab({
     try {
       await removeAiLead(campaignId, lead.id);
       if (openId === lead.id) setOpenId(null);
-      setNotice(`${who} removed from the campaign`);
+      setNotice(`${who} removido da campanha`);
       refreshAll();
     } catch (cause) {
-      await dialogs.alert({ title: "Could not remove the lead", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: "Não foi possível remover o lead", description: errorText(cause), variant: "error" });
     } finally {
       setBusyId(null);
     }
@@ -150,33 +149,33 @@ export function AiLeadsTab({
     <>
       <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => fileRef.current?.click()}>
         <Button.Icon as={RiFileExcel2Line} />
-        Import spreadsheet
+        Importar planilha
       </Button.Root>
       <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setShowPeople(true)}>
         <Button.Icon as={RiUserAddLine} />
-        Add from People
+        Adicionar de Pessoas
       </Button.Root>
     </>
   );
 
   return (
     <Frame>
-      <FrameHeader title="Leads" description="Everyone in this campaign and where they are in the sequence." actions={<div className="flex flex-wrap items-center gap-2">{importActions}</div>} />
+      <FrameHeader title="Leads" description="Todas as pessoas desta campanha e em que etapa da sequência elas estão." actions={<div className="flex flex-wrap items-center gap-2">{importActions}</div>} />
       <FramePanel className="p-2 sm:p-2">
         <div className="flex flex-col gap-2 p-2 sm:flex-row sm:items-center sm:justify-between">
           <Select.Root size="small" value={status} onValueChange={(value) => { setStatus(value); setPage(1); }}>
-            <Select.Trigger className="w-full sm:w-60" aria-label="Filter by status"><Select.Value /></Select.Trigger>
+            <Select.Trigger className="w-full sm:w-60" aria-label="Filtrar por status"><Select.Value /></Select.Trigger>
             <Select.Content>
-              <Select.Item value={ALL}>All leads{counts ? ` (${total.toLocaleString("en-US")})` : ""}</Select.Item>
+              <Select.Item value={ALL}>Todos os leads{counts ? ` (${total.toLocaleString("pt-BR")})` : ""}</Select.Item>
               {AI_CONTACT_STATUSES.map((value) => (
-                <Select.Item key={value} value={value}>{AI_CONTACT_STATUS_LABELS[value]}{counts ? ` (${counts[value].toLocaleString("en-US")})` : ""}</Select.Item>
+                <Select.Item key={value} value={value}>{AI_STATUS_LABELS_PT[value]}{counts ? ` (${counts[value].toLocaleString("pt-BR")})` : ""}</Select.Item>
               ))}
             </Select.Content>
           </Select.Root>
           <Input.Root size="small" className="w-full sm:w-64">
             <Input.Wrapper>
               <Input.Icon as={RiSearchLine} />
-              <Input.Input type="search" aria-label="Search leads" placeholder="Search name, phone, company…" value={search} onChange={(event) => setSearch(event.target.value)} />
+              <Input.Input type="search" aria-label="Buscar leads" placeholder="Buscar nome, telefone, empresa…" value={search} onChange={(event) => setSearch(event.target.value)} />
             </Input.Wrapper>
           </Input.Root>
         </div>
@@ -185,29 +184,29 @@ export function AiLeadsTab({
 
         <div className="overflow-x-auto">
           {loading ? (
-            <div aria-busy="true" aria-label="Loading" className="space-y-2 p-2">
+            <div aria-busy="true" aria-label="Carregando" className="space-y-2 p-2">
               {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
             </div>
           ) : loadError ? (
-            <EmptyState icon={RiErrorWarningLine} title="Could not load leads" description={loadError} action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setLoading(true); void load(); }}>Try again</Button.Root>} />
+            <EmptyState icon={RiErrorWarningLine} title="Não foi possível carregar os leads" description={loadError} action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setLoading(true); void load(); }}>Tentar novamente</Button.Root>} />
           ) : !data || data.leads.length === 0 ? (
             filtering ? (
-              <EmptyState icon={RiSearchLine} title="No leads match" description="Try another status or search." action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setSearch(""); setStatus(ALL); }}>Clear filters</Button.Root>} />
+              <EmptyState icon={RiSearchLine} title="Nenhum lead encontrado" description="Tente outro status ou outra busca." action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setSearch(""); setStatus(ALL); }}>Limpar filtros</Button.Root>} />
             ) : (
-              <EmptyState icon={RiTeamLine} title="No leads yet" description="Import a spreadsheet with phone numbers, or add people from your lead database." action={<div className="flex flex-wrap justify-center gap-2">{importActions}</div>} />
+              <EmptyState icon={RiTeamLine} title="Nenhum lead ainda" description="Importe uma planilha com números de telefone ou adicione pessoas da sua base de leads." action={<div className="flex flex-wrap justify-center gap-2">{importActions}</div>} />
             )
           ) : (
             <Table.Root className="min-w-[1000px] [&>table]:table-fixed">
               <Table.Header>
                 <Table.Row>
                   <Table.Head scope="col" className="px-4">Lead</Table.Head>
-                  <Table.Head scope="col" className="w-36 px-4">Phone</Table.Head>
+                  <Table.Head scope="col" className="w-36 px-4">Telefone</Table.Head>
                   <Table.Head scope="col" className="w-40 px-4">Status</Table.Head>
-                  <Table.Head scope="col" className="w-36 px-4">Step</Table.Head>
-                  <Table.Head scope="col" className="w-32 px-4">Next action</Table.Head>
-                  <Table.Head scope="col" className="w-44 px-4">Last outcome</Table.Head>
-                  <Table.Head scope="col" className="w-16 px-4 text-right">Calls</Table.Head>
-                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Actions</span></Table.Head>
+                  <Table.Head scope="col" className="w-36 px-4">Etapa</Table.Head>
+                  <Table.Head scope="col" className="w-32 px-4">Próxima ação</Table.Head>
+                  <Table.Head scope="col" className="w-44 px-4">Último resultado</Table.Head>
+                  <Table.Head scope="col" className="w-16 px-4 text-right">Ligações</Table.Head>
+                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Ações</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>
@@ -225,22 +224,22 @@ export function AiLeadsTab({
                       className={cn("cursor-pointer outline-none focus-visible:[&>td]:bg-bg-weak-50", busy && "pointer-events-none opacity-60")}
                     >
                       <Table.Cell className="px-4">
-                        <p className="truncate text-label-sm text-text-strong-950" title={lead.name ?? undefined}>{lead.name || "Unnamed"}</p>
+                        <p className="truncate text-label-sm text-text-strong-950" title={lead.name ?? undefined}>{lead.name || "Sem nome"}</p>
                         <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">{[lead.title, lead.companyName].filter(Boolean).join(" · ") || "—"}</p>
                       </Table.Cell>
                       <Table.Cell className="px-4 text-paragraph-sm tabular-nums text-text-sub-600">{lead.phone}</Table.Cell>
                       <Table.Cell className="px-4">
                         <AiStatusBadge status={lead.status} />
-                        {lead.note && <p className="mt-1 line-clamp-2 text-paragraph-xs text-text-sub-600" title={lead.note}>{lead.note}</p>}
-                        {lead.meetingAt && <p className="mt-0.5 text-paragraph-xs text-text-sub-600" suppressHydrationWarning>Meeting {formatWhen(lead.meetingAt)}</p>}
+                        {lead.note && <p className="mt-1 line-clamp-2 text-paragraph-xs text-text-sub-600" title={aiNotePt(lead.note)}>{aiNotePt(lead.note)}</p>}
+                        {lead.meetingAt && <p className="mt-0.5 text-paragraph-xs text-text-sub-600" suppressHydrationWarning>Reunião {formatWhen(lead.meetingAt)}</p>}
                         {lead.actionRequiredAt && <p className="mt-0.5 text-paragraph-xs text-text-sub-600" suppressHydrationWarning>{actionRequiredText(lead.actionRequiredAt)}</p>}
                       </Table.Cell>
-                      <Table.Cell className="px-4 text-paragraph-sm text-text-sub-600">{lead.currentStep ?? "—"}</Table.Cell>
-                      <Table.Cell className="px-4 text-paragraph-sm text-text-sub-600" suppressHydrationWarning>{open ? (lead.nextAt ? relativeTime(lead.nextAt) : "Waiting for a number") : "—"}</Table.Cell>
+                      <Table.Cell className="px-4 text-paragraph-sm text-text-sub-600">{lead.currentStep ? aiStepLabelPt(lead.currentStep) : "—"}</Table.Cell>
+                      <Table.Cell className="px-4 text-paragraph-sm text-text-sub-600" suppressHydrationWarning>{open ? (lead.nextAt ? relativeTime(lead.nextAt) : "Aguardando um número") : "—"}</Table.Cell>
                       <Table.Cell className="px-4">
                         {lead.lastOutcome ? (
                           <>
-                            <p className="truncate text-paragraph-sm text-text-strong-950">{AGENT_OUTCOME_LABELS[lead.lastOutcome.outcome]}</p>
+                            <p className="truncate text-paragraph-sm text-text-strong-950">{AI_OUTCOME_LABELS_PT[lead.lastOutcome.outcome]}</p>
                             {lead.lastOutcome.summary && <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600" title={lead.lastOutcome.summary}>{lead.lastOutcome.summary}</p>}
                           </>
                         ) : <span className="text-paragraph-sm text-text-soft-400">—</span>}
@@ -250,7 +249,7 @@ export function AiLeadsTab({
                         <div className="flex justify-end">
                           <Dropdown.Root>
                             <Dropdown.Trigger asChild>
-                              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`More actions for ${lead.name || lead.phone}`}>
+                              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Mais ações para ${lead.name || lead.phone}`}>
                                 <Button.Icon as={busy ? RiLoader4Line : RiMoreLine} className={cn(busy && "animate-spin")} />
                               </Button.Root>
                             </Dropdown.Trigger>
@@ -258,19 +257,19 @@ export function AiLeadsTab({
                               {open && (
                                 <Dropdown.Item onSelect={() => void act(lead, "stop")}>
                                   <Dropdown.ItemIcon as={RiStopCircleLine} />
-                                  Stop this lead
+                                  Interromper este lead
                                 </Dropdown.Item>
                               )}
                               {requeueable && (
                                 <Dropdown.Item onSelect={() => void act(lead, "requeue")}>
                                   <Dropdown.ItemIcon as={RiPlayCircleLine} />
-                                  Queue again
+                                  Colocar na fila novamente
                                 </Dropdown.Item>
                               )}
                               {(open || requeueable) && <Dropdown.Separator />}
                               <Dropdown.Item destructive onSelect={() => void remove(lead)}>
                                 <Dropdown.ItemIcon as={RiDeleteBinLine} />
-                                Remove from campaign
+                                Remover da campanha
                               </Dropdown.Item>
                             </Dropdown.Content>
                           </Dropdown.Root>
@@ -287,12 +286,12 @@ export function AiLeadsTab({
         {data && data.total > data.pageSize && (
           <div className="flex items-center justify-between gap-3 px-3 pb-2 pt-3">
             <p className="text-paragraph-xs tabular-nums text-text-sub-600">
-              {((data.page - 1) * data.pageSize + 1).toLocaleString("en-US")}–{Math.min(data.page * data.pageSize, data.total).toLocaleString("en-US")} of {data.total.toLocaleString("en-US")}
+              {((data.page - 1) * data.pageSize + 1).toLocaleString("pt-BR")}–{Math.min(data.page * data.pageSize, data.total).toLocaleString("pt-BR")} de {data.total.toLocaleString("pt-BR")}
             </p>
             <div className="flex items-center gap-1">
-              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Previous page"><Button.Icon as={RiArrowLeftSLine} /></Button.Root>
-              <span className="px-2 text-paragraph-xs tabular-nums text-text-sub-600">Page {data.page} of {pages}</span>
-              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page >= pages} onClick={() => setPage((p) => p + 1)} aria-label="Next page"><Button.Icon as={RiArrowRightSLine} /></Button.Root>
+              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Página anterior"><Button.Icon as={RiArrowLeftSLine} /></Button.Root>
+              <span className="px-2 text-paragraph-xs tabular-nums text-text-sub-600">Página {data.page} de {pages}</span>
+              <Button.Root variant="neutral" mode="stroke" size="xsmall" disabled={data.page >= pages} onClick={() => setPage((p) => p + 1)} aria-label="Próxima página"><Button.Icon as={RiArrowRightSLine} /></Button.Root>
             </div>
           </div>
         )}
@@ -320,7 +319,7 @@ export function AiLeadsTab({
           endpoint={aiLeadsEndpoint(campaignId)}
           onClose={() => setShowPeople(false)}
           onAdded={(result) => {
-            setNotice(`${result.added} added from People${result.skippedDuplicate ? ` · ${result.skippedDuplicate} already in the campaign` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} without a phone number` : ""}`);
+            setNotice(`${result.added} ${result.added === 1 ? "adicionado" : "adicionados"} de Pessoas${result.skippedDuplicate ? ` · ${result.skippedDuplicate} ${result.skippedDuplicate === 1 ? "já estava" : "já estavam"} na campanha` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} sem número de telefone` : ""}`);
             refreshAll();
           }}
         />

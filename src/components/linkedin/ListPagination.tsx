@@ -52,13 +52,13 @@ export const ListPagination = ({ basePath, page, totalCount, className }: ListPa
     );
 
   return (
-    <nav aria-label="Pagination" className={cn("flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 pb-1 pt-2.5", className)}>
+    <nav aria-label="Paginação" className={cn("flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 pb-1 pt-2.5", className)}>
       <p className="text-paragraph-sm tabular-nums text-text-sub-600">
-        {from.toLocaleString("en-US")}–{to.toLocaleString("en-US")} of {totalCount.toLocaleString("en-US")}
+        {from.toLocaleString("pt-BR")}–{to.toLocaleString("pt-BR")} de {totalCount.toLocaleString("pt-BR")}
       </p>
       {pages > 1 && (
         <div className="flex items-center gap-1">
-          {nav(page > 1 ? page - 1 : null, "Previous page", RiArrowLeftSLine)}
+          {nav(page > 1 ? page - 1 : null, "Página anterior", RiArrowLeftSLine)}
           <div className="hidden items-center gap-1 sm:flex">
             {pageWindow(page, pages).map((p, i) =>
               p === "gap" ? (
@@ -67,11 +67,11 @@ export const ListPagination = ({ basePath, page, totalCount, className }: ListPa
                 </span>
               ) : p === page ? (
                 <span key={p} aria-current="page" className={cn(item, "bg-bg-white-0 text-text-strong-950 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200")}>
-                  {p.toLocaleString("en-US")}
+                  {p.toLocaleString("pt-BR")}
                 </span>
               ) : (
                 <Link key={p} href={pageHref(basePath, p)} className={cn(item, "text-text-sub-600 hover:bg-bg-white-0 hover:text-text-strong-950")}>
-                  {p.toLocaleString("en-US")}
+                  {p.toLocaleString("pt-BR")}
                 </Link>
               ),
             )}
@@ -79,7 +79,7 @@ export const ListPagination = ({ basePath, page, totalCount, className }: ListPa
           <span className="px-2 text-paragraph-sm tabular-nums text-text-sub-600 sm:hidden">
             {page} / {pages}
           </span>
-          {nav(page < pages ? page + 1 : null, "Next page", RiArrowRightSLine)}
+          {nav(page < pages ? page + 1 : null, "Próxima página", RiArrowRightSLine)}
         </div>
       )}
     </nav>

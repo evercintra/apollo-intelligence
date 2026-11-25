@@ -47,7 +47,7 @@ export function AccountLimitDialog({
       await onSave(parsed);
       onClose();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not save the limit.");
+      setError(cause instanceof Error ? cause.message : "Não foi possível salvar o limite.");
     } finally {
       setSaving(false);
     }
@@ -58,10 +58,10 @@ export function AccountLimitDialog({
       <Modal.Content size="max-w-md">
         <Modal.Header icon={RiDashboard3Line}>
           <Modal.Title>{title}</Modal.Title>
-          <Modal.Description>For {accountLabel}. Leave it empty to follow the organization&apos;s sending rules.</Modal.Description>
+          <Modal.Description>Para {accountLabel}. Deixe em branco para seguir as regras de envio da organização.</Modal.Description>
         </Modal.Header>
         <Modal.Body className="space-y-4">
-          <Field label={rule.label} htmlFor={id} error={invalid ?? undefined} description={`Organization: ${organizationValue} ${rule.unit}. Allowed: ${rule.min}–${rule.max}.`}>
+          <Field label={rule.label} htmlFor={id} error={invalid ?? undefined} description={`Organização: ${organizationValue} ${rule.unit}. Permitido: ${rule.min}–${rule.max}.`}>
             <div className="flex items-center gap-2">
               <Input.Root size="small" className="w-28" hasError={Boolean(invalid)}>
                 <Input.Wrapper>
@@ -85,15 +85,15 @@ export function AccountLimitDialog({
         <Modal.Footer>
           {value !== null && (
             <Button.Root variant="neutral" mode="ghost" size="small" className="mr-auto" disabled={saving} onClick={() => setText("")}>
-              Use organization limit
+              Usar o limite da organização
             </Button.Root>
           )}
           <Button.Root variant="neutral" mode="stroke" size="small" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button.Root>
           <Button.Root variant="primary" mode="filled" size="small" onClick={() => void save()} disabled={saving || Boolean(invalid)}>
             {saving && <Button.Icon as={RiLoader4Line} className="animate-spin" />}
-            {saving ? "Saving…" : "Save limit"}
+            {saving ? "Salvando…" : "Salvar limite"}
           </Button.Root>
         </Modal.Footer>
       </Modal.Content>

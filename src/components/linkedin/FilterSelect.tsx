@@ -7,9 +7,9 @@ import { getSearchRemainingTier } from "@/lib/linkedin/searchLeadLimit";
 
 function limitRingClass(remaining: number): string {
   const tier = getSearchRemainingTier(remaining);
-  if (tier === "green") return "ring-2 ring-emerald-500";
-  if (tier === "red") return "ring-2 ring-red-500";
-  return "ring-2 ring-amber-400";
+  if (tier === "green") return "ring-2 ring-success-base";
+  if (tier === "red") return "ring-2 ring-error-base";
+  return "ring-2 ring-warning-base";
 }
 
 export type FilterSelectOption = {
@@ -57,7 +57,7 @@ function OptionAvatar({
   const ringClass =
     remainingCount !== undefined ? limitRingClass(remainingCount) : "";
   const title =
-    remainingCount !== undefined ? `${remainingCount} searches left today` : undefined;
+    remainingCount !== undefined ? `${remainingCount} buscas restantes hoje` : undefined;
 
   const inner =
     src && !err ? (
@@ -88,7 +88,7 @@ export function FilterSelect({
   onChange,
   options,
   placeholder,
-  clearLabel = "All",
+  clearLabel = "Todos",
   showAvatars = false,
   showLimitBadges = false,
   allowClear = true,

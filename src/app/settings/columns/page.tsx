@@ -4,7 +4,7 @@ import { requirePageOrgContext } from "@/lib/auth/context";
 import { runInOrganization } from "@/lib/tenancy/scope";
 import { listColumns } from "@/lib/leads/columns";
 
-export const metadata = { title: "Lead columns" };
+export const metadata = { title: "Colunas de leads" };
 export const dynamic = "force-dynamic";
 
 /**
@@ -23,7 +23,7 @@ export default async function LeadColumnSettingsPage() {
   const columns = await runInOrganization(ctx.organizationId, () => listColumns(undefined, { includeArchived: true }));
 
   return (
-    <SettingsPage title="Lead columns" description="The fields on People and Companies, including ones you add.">
+    <SettingsPage title="Colunas de leads" description="Os campos de Pessoas e Empresas, inclusive os que você adicionar.">
       <ColumnSettings columns={columns} />
     </SettingsPage>
   );

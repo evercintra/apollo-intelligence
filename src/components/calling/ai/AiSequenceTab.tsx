@@ -8,7 +8,7 @@ import { aiSequencesError, type AiCampaignDetail, type AiStepStat } from "@/lib/
 import { updateAiCampaign } from "@/lib/calls/aiCampaigns/client";
 import type { AiCampaignStep } from "@/lib/calls/aiCampaigns/contract";
 import { cn } from "@/utils/cn";
-import { errorText, useBeforeUnload } from "./aiShared";
+import { aiErrorPt, errorText, useBeforeUnload } from "./aiShared";
 import { AiStepsEditor } from "./AiStepsEditor";
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -48,7 +48,7 @@ export function AiSequenceTab({
   const problem = useMemo(() => aiSequencesError(steps, showChase ? chaseSteps : []), [steps, chaseSteps, showChase]);
 
   async function save() {
-    if (problem) { setError(problem); return; }
+    if (problem) { setError(aiErrorPt(problem)); return; }
     setSaving(true);
     setError(null);
     try {
@@ -61,7 +61,7 @@ export function AiSequenceTab({
       setJustSaved(true);
       onSaved();
     } catch (cause) {
-      setError(errorText(cause, "Could not save the sequence"));
+      setError(aiErrorPt(errorText(cause, "Não foi possível salvar a sequência")));
     } finally {
       setSaving(false);
     }
@@ -77,8 +77,8 @@ export function AiSequenceTab({
     <div className="space-y-4">
       <Frame>
         <FrameHeader
-          title="Reach them"
-          description="Runs for every lead, in order, until they have a real conversation. Picking up and saying nothing does not count as one."
+          title="Abordar"
+          description="Vale para todos os leads, em ordem, até que tenham uma conversa real. Atender e não dizer nada não conta."
         />
         <FramePanel>
           <AiStepsEditor
@@ -89,19 +89,19 @@ export function AiSequenceTab({
             agentVoice={campaign.agentVoice}
             stats={stats}
             statsPhase="reach"
-            emptyText="Add at least one call. A campaign without a call step cannot be launched."
+            emptyText="Adicione pelo menos uma ligação. Uma campanha sem etapa de ligação não pode ser lançada."
           />
         </FramePanel>
         <FrameFooter>
-          The first step runs as soon as a lead is queued and a number is free. Each wait is counted from the previous step. Calls and messages respect the numbers&apos; calling hours and daily limits.
+          A primeira etapa começa assim que o lead entra na fila e há um número livre. Cada espera é contada a partir da etapa anterior. Ligação e mensagens respeitam o horário e o limite diário dos números.
         </FrameFooter>
       </Frame>
 
       {showChase && (
         <Frame>
           <FrameHeader
-            title="If they said yes but haven't booked"
-            description="After a call where they agree to a meeting, the booking message goes out on WhatsApp. These steps then run until a booking arrives, they reply, or the steps run out and a person takes over."
+            title="Se disseram que sim mas não agendaram"
+            description="Depois de uma ligação em que combinam uma reunião, a mensagem de agendamento vai pelo WhatsApp. Estas etapas seguem até o agendamento, uma resposta ou o fim da sequência, quando uma pessoa assume."
           />
           <FramePanel>
             <AiStepsEditor
@@ -113,7 +113,7 @@ export function AiSequenceTab({
               agentVoice={campaign.agentVoice}
               stats={stats}
               statsPhase="chase"
-              emptyText="No follow-ups: once the booking message is sent, a person takes over if they do not book."
+              emptyText="Nenhum follow-up: após o envio da mensagem de agendamento, uma pessoa assume se o lead não agendar."
             />
           </FramePanel>
         </Frame>
@@ -122,14 +122,14 @@ export function AiSequenceTab({
       <div className="flex flex-wrap items-center justify-end gap-3">
         {(problem || error) && (
           <p role="alert" className="mr-auto flex items-center gap-2 rounded-xl bg-error-lighter px-3 py-2 text-paragraph-sm text-error-base">
-            <RiErrorWarningLine className="size-4 shrink-0" />{error ?? problem}
+            <RiErrorWarningLine className="size-4 shrink-0" />{aiErrorPt(error ?? problem ?? "")}
           </p>
         )}
-        {dirty && !problem && <span className="text-paragraph-xs text-warning-dark">Unsaved changes</span>}
-        {justSaved && !dirty && <span role="status" className="text-paragraph-xs text-success-base">Saved</span>}
+        {dirty && !problem && <span className="text-paragraph-xs text-warning-dark">Alterações não salvas</span>}
+        {justSaved && !dirty && <span role="status" className="text-paragraph-xs text-success-base">Salvo</span>}
         <Button.Root variant="primary" mode="filled" size="small" onClick={() => void save()} disabled={saving || !dirty || Boolean(problem)}>
           <Button.Icon as={saving ? RiLoader4Line : RiSaveLine} className={cn(saving && "animate-spin")} />
-          {saving ? "Saving…" : "Save sequence"}
+          {saving ? "Salvando…" : "Salvar sequência"}
         </Button.Root>
       </div>
     </div>

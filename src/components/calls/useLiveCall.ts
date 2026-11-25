@@ -18,7 +18,7 @@ function terminalPhase(call: CallDetail): CloudCallPhase | null {
 
 export type LiveCallState = {
   phase: CloudCallPhase | null;
-  /** Set for a call placed from a cloud calling station — by the AI agent, or a rep talking from AgentSDR (`remoteRep`). */
+  /** Set for a call placed from a cloud calling station — by the AI agent, or a rep talking from Apollo Intelligence (`remoteRep`). */
   cloud: { stationName: string | null; remoteRep: boolean } | null;
 };
 

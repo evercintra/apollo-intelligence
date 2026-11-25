@@ -5,7 +5,7 @@ import { can, requirePageOrgContext } from "@/lib/auth/context";
 import { listApiKeys } from "@/lib/publicApi/keys";
 import { runInOrganization } from "@/lib/tenancy/scope";
 
-export const metadata = { title: "API keys" };
+export const metadata = { title: "Chaves de API" };
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
@@ -14,14 +14,14 @@ export default async function Page() {
   const keys = canManage ? await runInOrganization(ctx.organizationId, listApiKeys) : [];
   return (
     <SettingsPage
-      title="API keys"
-      description="Let another application add leads to your email campaigns and stop their sequences."
+      title="Chaves de API"
+      description="Permita que outro aplicativo adicione leads às suas campanhas de e-mail e interrompa as sequências deles."
       width="narrow"
     >
       {canManage ? (
         <ApiKeysSettings initialKeys={keys} />
       ) : (
-        <Callout tone="info">Only owners and admins can manage API keys.</Callout>
+        <Callout tone="info">Apenas proprietários e administradores podem gerenciar chaves de API.</Callout>
       )}
     </SettingsPage>
   );

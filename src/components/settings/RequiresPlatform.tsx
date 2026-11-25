@@ -55,7 +55,7 @@ export function PlatformConnectPrompt({
   guideHref?: string;
 }) {
   const integration = getPlatformIntegration(platform);
-  const name = integration?.name ?? "this integration";
+  const name = integration?.name ?? "esta integração";
   const guide = guideHref ?? integration?.guideUrl;
 
   return (
@@ -63,16 +63,16 @@ export function PlatformConnectPrompt({
       <FramePanel>
         <EmptyState
           icon={RiPlugLine}
-          title={`Connect ${name} to use this`}
+          title={`Conecte ${name} para usar este recurso`}
           description={
             integration
-              ? `${name} powers ${integration.enables.join(" and ").toLowerCase()}. Add its credentials once and this unlocks.`
+              ? `${name} habilita ${integration.enables.join(" e ").toLowerCase()}. Adicione as credenciais uma vez para desbloquear.`
               : undefined
           }
           action={
             <div className="flex flex-wrap items-center justify-center gap-2">
               <Button.Root asChild variant="primary" mode="filled" size="small">
-                <Link href={settingsHref ?? PLATFORM_SETTINGS_HREF[platform]}>Connect {name}</Link>
+                <Link href={settingsHref ?? PLATFORM_SETTINGS_HREF[platform]}>Conectar {name}</Link>
               </Button.Root>
               {guide && <DocsLink href={guide} />}
             </div>

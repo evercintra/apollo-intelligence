@@ -103,7 +103,7 @@ export function ExpandableText({ text, collapsed = true, lines = 6, className }:
           aria-expanded={open}
           className="mt-1 text-label-xs text-text-sub-600 underline-offset-2 outline-none hover:text-text-strong-950 hover:underline focus-visible:underline"
         >
-          {open ? "Show less" : "Show more"}
+          {open ? "Mostrar menos" : "Mostrar mais"}
         </button>
       )}
     </div>
@@ -143,11 +143,11 @@ export function ChatComposer({
   onSubmit,
   sending = false,
   disabled = false,
-  placeholder = "Write a message…",
-  ariaLabel = "Message",
+  placeholder = "Escreva uma mensagem…",
+  ariaLabel = "Mensagem",
   meta,
   banner,
-  submitLabel = "Send",
+  submitLabel = "Enviar",
   textareaRef,
   tone = "default",
   minRows = 1,
@@ -211,11 +211,11 @@ export function ChatComposer({
       <div className="flex items-center gap-2 px-3 pb-2.5 pt-1">
         <div className="min-w-0 flex-1 truncate text-paragraph-xs text-text-soft-400">{meta}</div>
         <span className="hidden shrink-0 items-center gap-1 text-paragraph-xs text-text-soft-400 @3xl:inline-flex">
-          <Kbd>Enter</Kbd> to send · <Kbd>Shift</Kbd>+<Kbd>Enter</Kbd> new line
+          <Kbd>Enter</Kbd> para enviar · <Kbd>Shift</Kbd>+<Kbd>Enter</Kbd> nova linha
         </span>
-        <Button.Root variant="primary" mode="filled" size="xsmall" onClick={onSubmit} disabled={!canSend} className="shrink-0" title="Send (Enter)">
+        <Button.Root variant="primary" mode="filled" size="xsmall" onClick={onSubmit} disabled={!canSend} className="shrink-0" title="Enviar (Enter)">
           {sending ? <Button.Icon as={RiLoader4Line} className="animate-spin" /> : <Button.Icon as={RiSendPlane2Fill} />}
-          {sending ? "Sending…" : submitLabel}
+          {sending ? "Enviando…" : submitLabel}
         </Button.Root>
       </div>
     </div>
@@ -228,16 +228,16 @@ export function ComposerDock({ children, className }: { children: ReactNode; cla
 }
 
 /** Inside the composer while an AI draft is loaded: what it is, and a way to stop using it. */
-export function ComposerDraftBanner({ onClear, note = "Edit freely — approving sends it as the CRM draft." }: { onClear: () => void; note?: string }) {
+export function ComposerDraftBanner({ onClear, note = "Edite livremente — ao aprovar, ela será enviada como o rascunho do CRM." }: { onClear: () => void; note?: string }) {
   return (
     <div className="flex items-center gap-2 border-b border-primary-alpha-16 bg-primary-alpha-10 px-4 py-1.5">
       <svg viewBox="0 0 24 24" className="size-3.5 shrink-0 text-primary-base" aria-hidden="true" fill="currentColor">
         <path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2zm7 12l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14z" />
       </svg>
-      <span className="text-label-xs text-text-strong-950">AI draft</span>
+      <span className="text-label-xs text-text-strong-950">Rascunho de IA</span>
       <span className="min-w-0 flex-1 truncate text-paragraph-xs text-text-sub-600">{note}</span>
       <button type="button" onClick={onClear} className="shrink-0 text-label-xs text-text-sub-600 underline-offset-2 outline-none hover:text-text-strong-950 hover:underline focus-visible:underline">
-        Don&apos;t use draft
+        Não usar rascunho
       </button>
     </div>
   );

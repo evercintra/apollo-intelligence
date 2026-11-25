@@ -29,21 +29,21 @@ export default function OnboardingPage() {
     e.preventDefault();
     setError("");
     const finalSlug = slugify(slug);
-    if (!name.trim() || !finalSlug) return setError("Enter a name for your organization.");
+    if (!name.trim() || !finalSlug) return setError("Informe um nome para sua organização.");
     setLoading(true);
     const check = await authClient.organization.checkSlug({ slug: finalSlug });
     if (check.error || !check.data?.status) {
-      setError("That URL name is already taken. Try another.");
+      setError("Esse nome de URL já está em uso. Tente outro.");
       return setLoading(false);
     }
     const created = await authClient.organization.create({ name: name.trim(), slug: finalSlug });
     if (created.error || !created.data) {
-      setError(created.error?.message || "Could not create the organization.");
+      setError(created.error?.message || "Não foi possível criar a organização.");
       return setLoading(false);
     }
     const active = await authClient.organization.setActive({ organizationId: created.data.id });
     if (active.error) {
-      setError(active.error.message || "Created, but could not switch into it. Reload and try again.");
+      setError(active.error.message || "Organização criada, mas não foi possível acessá-la. Recarregue a página e tente novamente.");
       return setLoading(false);
     }
     window.location.assign("/analytics");
@@ -54,7 +54,7 @@ export default function OnboardingPage() {
     setSwitching(id);
     const { error: err } = await authClient.organization.setActive({ organizationId: id });
     if (err) {
-      setError(err.message || "Could not switch organization.");
+      setError(err.message || "Não foi possível trocar de organização.");
       return setSwitching(null);
     }
     window.location.assign("/analytics");
@@ -64,8 +64,8 @@ export default function OnboardingPage() {
 
   return (
     <AuthShell
-      title={hasOrgs ? "Choose an organization" : "Create your organization"}
-      subtitle={hasOrgs ? "Pick one to continue, or create another." : "Your workspace for leads, outreach and conversations."}
+      title={hasOrgs ? "Escolha uma organização" : "Crie sua organização"}
+      subtitle={hasOrgs ? "Escolha uma para continuar ou crie outra." : "Seu espaço para leads, prospecção e conversas."}
     >
       <div className="flex flex-col gap-4">
         {hasOrgs && (
@@ -75,17 +75,17 @@ export default function OnboardingPage() {
                 {o.name}
               </SecondaryButton>
             ))}
-            <div className="mt-2 text-xs uppercase tracking-widest text-slate-600">Or create a new one</div>
+            <div className="mt-2 text-xs uppercase tracking-widest text-apollo-graphite-400">Ou crie uma nova</div>
           </div>
         )}
         <form onSubmit={create} className="flex flex-col gap-4">
-          <Field label="Organization name" type="text" autoComplete="organization" required value={name} onChange={(e) => onName(e.target.value)} />
+          <Field label="Nome da organização" type="text" autoComplete="organization" required value={name} onChange={(e) => onName(e.target.value)} />
           <Field
-            label="URL name"
+            label="Nome da URL"
             type="text"
             autoComplete="off"
             required
-            hint="Lowercase letters, numbers and dashes."
+            hint="Letras minúsculas, números e hífens."
             value={slug}
             onChange={(e) => {
               setSlugEdited(true);
@@ -93,8 +93,8 @@ export default function OnboardingPage() {
             }}
           />
           {error && <ErrorCallout>{error}</ErrorCallout>}
-          <SubmitButton loading={loading} loadingLabel="Creating..." disabled={!!switching}>
-            Create organization
+          <SubmitButton loading={loading} loadingLabel="Criando..." disabled={!!switching}>
+            Criar organização
           </SubmitButton>
         </form>
       </div>

@@ -25,12 +25,43 @@ import { dangerButtonClass, fieldClass, primaryButtonClass, secondaryButtonClass
 import { defaultStageChangeNext, STAGE_CHANGE_NOTE_MAX, type StageChangeNext } from "@/lib/crm/stageChange";
 import { followUpNoteError, FOLLOW_UP_NOTE_MAX } from "@/lib/crm/followUpNote";
 import { daysBetween, followUpDateError, followUpDueIn, followUpDueOn, FOLLOW_UP_PRESETS, MAX_FOLLOW_UP_DAYS, toDateInputValue } from "@/lib/crm/followUpDate";
-import { asList, asObject, CATEGORY_COLOR, categoryColor, formatDate } from "./crm-utils";
+import { asList, asObject, CATEGORY_COLOR, CATEGORY_LABELS, categoryColor, formatDate } from "./crm-utils";
 
 type Data = Record<string, unknown>;
 
+const STATUS_LABEL_PT: Record<string, string> = {
+  unclassified: "Sem classificação",
+  awaiting_review: "Aguardando revisão",
+  failed: "Falhou",
+  draft: "Rascunho",
+  proposed: "Proposto",
+  sent: "Enviado",
+  delivered: "Entregue",
+  answered: "Respondido",
+};
+
+const FOLLOW_UP_PRESET_LABEL_PT: Record<string, string> = {
+  Tomorrow: "Amanhã",
+  "1 week": "1 semana",
+  "1 month": "1 mês",
+  "3 months": "3 meses",
+};
+
+function localizeError(message: string | null): string | null {
+  if (!message) return null;
+  return message
+    .replace("Pick a valid date.", "Escolha uma data válida.")
+    .replace("Pick a date in the future.", "Escolha uma data futura.")
+    .replace(/Pick a date within (\d+) days\./, "Escolha uma data dentro de $1 dias.")
+    .replace("Say why it is later and what should happen then.", "Diga por que é depois e o que deve acontecer então.")
+    .replace(/Keep the note under (\d+) characters\./, "Mantenha a nota com menos de $1 caracteres.");
+}
+
 export function humanize(value: unknown): string {
-  const input = String(value ?? "").replaceAll("_", " ").replaceAll(".", " ").trim();
+  const key = String(value ?? "").trim();
+  if (key in CATEGORY_LABELS) return CATEGORY_LABELS[key as keyof typeof CATEGORY_LABELS];
+  if (key in STATUS_LABEL_PT) return STATUS_LABEL_PT[key];
+  const input = key.replaceAll("_", " ").replaceAll(".", " ").trim();
   return input ? input.charAt(0).toUpperCase() + input.slice(1) : "—";
 }
 
@@ -119,7 +150,7 @@ export function ClassificationPicker({ categories, categoryKey, subcategoryId, s
     key: String(category.key),
     subcategories: asList<Data>(category.subcategories).filter((item) => item.active !== false),
   }));
-  const categoryLabel = categoryKey ? humanize(categoryKey) : "Unclassified";
+  const categoryLabel = categoryKey ? humanize(categoryKey) : "Sem classificação";
 
   if (!compact) {
     return (
@@ -131,15 +162,15 @@ export function ClassificationPicker({ categories, categoryKey, subcategoryId, s
         disabled={disabled}
         onValueChange={(next) => save(next)}
       >
-        <Select.Trigger aria-label="Classification" className={cn("max-w-56", className)}>
-          <Select.Value placeholder="Unclassified" />
+        <Select.Trigger aria-label="Classificação" className={cn("max-w-56", className)}>
+          <Select.Value placeholder="Sem classificação" />
         </Select.Trigger>
         <Select.Content>
           {groups.length === 0 && categoryKey && <Select.Item value={value}>{categoryLabel}{subcategoryName ? ` · ${subcategoryName}` : ""}</Select.Item>}
           {groups.map((group) => (
             <Select.Group key={group.key}>
               <Select.GroupLabel>{humanize(group.key)}</Select.GroupLabel>
-              <Select.Item value={`category:${group.key}`}>{humanize(group.key)} · no subcategory</Select.Item>
+              <Select.Item value={`category:${group.key}`}>{humanize(group.key)} · sem subcategoria</Select.Item>
               {group.subcategories.map((item) => <Select.Item key={String(item.id)} value={String(item.id)}>{String(item.name)}</Select.Item>)}
             </Select.Group>
           ))}
@@ -161,7 +192,7 @@ export function ClassificationPicker({ categories, categoryKey, subcategoryId, s
         <button
           type="button"
           disabled={disabled || groups.length === 0}
-          aria-label={`Classification: ${label}. Change`}
+          aria-label={`Classificação: ${label}. Alterar`}
           title={title ?? (subcategoryName ? `${categoryLabel} · ${subcategoryName}` : categoryLabel)}
           className={cn("inline-flex h-6 max-w-full items-center gap-1 rounded-md pl-2 pr-1.5 text-label-xs ring-1 ring-inset transition", categoryKey && "hover:brightness-95", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stroke-strong-950 disabled:opacity-60 data-[state=open]:ring-2 data-[state=open]:ring-stroke-strong-950", tone, className)}
         >
@@ -193,8 +224,8 @@ function StageChangeConfirm({ stage, inboundAnswered, onCancel, onApply }: {
   const [working, setWorking] = useState(false);
   useEffect(() => { if (open) { setNext(defaultStageChangeNext(inboundAnswered)); setNote(""); setWorking(false); } }, [open, inboundAnswered]);
   const choices: { value: StageChangeNext; label: string; detail: string; icon: typeof RiSparklingLine }[] = [
-    { value: "reply", label: "Draft a reply now", detail: "Writes this stage's reply for you to send.", icon: RiSparklingLine },
-    { value: "follow_up", label: "Just schedule follow-ups", detail: "No reply now; this stage's follow-ups start.", icon: RiTimerLine },
+    { value: "reply", label: "Criar uma resposta agora", detail: "Escreve a resposta deste estágio para você enviar.", icon: RiSparklingLine },
+    { value: "follow_up", label: "Apenas agendar acompanhamentos", detail: "Sem resposta agora; os acompanhamentos deste estágio começam.", icon: RiTimerLine },
   ];
   const tooLong = note.length > STAGE_CHANGE_NOTE_MAX;
   const apply = async () => {
@@ -207,11 +238,11 @@ function StageChangeConfirm({ stage, inboundAnswered, onCancel, onApply }: {
       <Modal.Root open={open} onOpenChange={(value) => { if (!value && !working) onCancel(); }}>
         <Modal.Content size="max-w-md">
           <Modal.Header icon={RiArrowRightLine}>
-            <Modal.Title>Move to {stage}</Modal.Title>
-            <Modal.Description>What should happen next?</Modal.Description>
+            <Modal.Title>Mover para {stage}</Modal.Title>
+            <Modal.Description>O que deve acontecer a seguir?</Modal.Description>
           </Modal.Header>
           <Modal.Body className="space-y-3">
-            <div role="radiogroup" aria-label="What next?" className="grid gap-2">
+            <div role="radiogroup" aria-label="Próxima ação?" className="grid gap-2">
               {choices.map((choice) => {
                 const selected = next === choice.value;
                 return (
@@ -224,14 +255,14 @@ function StageChangeConfirm({ stage, inboundAnswered, onCancel, onApply }: {
               })}
             </div>
             <label className="block space-y-1">
-              <span className="text-label-xs text-text-sub-600">What happened? (optional, the AI uses it in drafts)</span>
-              <textarea value={note} maxLength={STAGE_CHANGE_NOTE_MAX} disabled={working} onChange={(event) => setNote(event.target.value)} placeholder="e.g. They want pricing for 50 seats; loop in their CTO" className={cn(fieldClass, "min-h-20 resize-y leading-6")} />
+              <span className="text-label-xs text-text-sub-600">O que aconteceu? (opcional; a IA usa nos rascunhos)</span>
+              <textarea value={note} maxLength={STAGE_CHANGE_NOTE_MAX} disabled={working} onChange={(event) => setNote(event.target.value)} placeholder="Ex.: querem preço para 50 lugares; incluir o CTO deles" className={cn(fieldClass, "min-h-20 resize-y leading-6")} />
             </label>
           </Modal.Body>
           <Modal.Footer>
-            <button type="button" className={secondaryButtonClass} disabled={working} onClick={onCancel}>Cancel</button>
+            <button type="button" className={secondaryButtonClass} disabled={working} onClick={onCancel}>Cancelar</button>
             <button type="button" className={primaryButtonClass} disabled={working || tooLong} onClick={() => void apply()}>
-              <RiCheckLine className="size-4" aria-hidden="true" />{working ? "Applying…" : "Apply"}
+              <RiCheckLine className="size-4" aria-hidden="true" />{working ? "Aplicando…" : "Aplicar"}
             </button>
           </Modal.Footer>
         </Modal.Content>
@@ -380,8 +411,8 @@ export function formatMeetingRange(startAt: unknown, endAt: unknown): string {
   const start = new Date(String(startAt));
   const end = new Date(String(endAt));
   if (Number.isNaN(start.getTime())) return "—";
-  const day = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
-  const time = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
+  const day = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "numeric", month: "short" });
+  const time = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const head = `${day.format(start)}, ${time.format(start)}`;
   if (Number.isNaN(end.getTime())) return head;
   return start.toDateString() === end.toDateString() ? `${head}–${time.format(end)}` : `${head} – ${day.format(end)}, ${time.format(end)}`;
@@ -393,8 +424,8 @@ export type MeetingOutcome = "showed" | "no_show";
 export function MeetingOutcomeButtons({ busy, onAnswer, className }: { busy: boolean; onAnswer: (outcome: MeetingOutcome) => void; className?: string }) {
   return (
     <div data-row-tools className={cn("flex shrink-0 items-center gap-1.5", className)}>
-      <button type="button" className={cn(primaryButtonClass, "h-8")} disabled={busy} onClick={() => onAnswer("showed")}><RiCheckLine className="size-4" aria-hidden="true" />Showed up</button>
-      <button type="button" className={cn(secondaryButtonClass, "h-8")} disabled={busy} onClick={() => onAnswer("no_show")}>No-show</button>
+      <button type="button" className={cn(primaryButtonClass, "h-8")} disabled={busy} onClick={() => onAnswer("showed")}><RiCheckLine className="size-4" aria-hidden="true" />Compareceu</button>
+      <button type="button" className={cn(secondaryButtonClass, "h-8")} disabled={busy} onClick={() => onAnswer("no_show")}>Não compareceu</button>
     </div>
   );
 }
@@ -410,11 +441,11 @@ export function MeetingOutcomeTools({ recordId, meeting, busy, onMutate }: {
     `/records/${recordId}/meeting-outcome`,
     { meetingId: meeting.id, outcome },
     "POST",
-    outcome === "showed" ? "Marked as showed up" : "Marked as no-show",
+     outcome === "showed" ? "Marcado como compareceu" : "Marcado como não compareceu",
   );
   return (
     <div className="min-w-0 space-y-1.5">
-      <p className="truncate text-label-sm text-text-strong-950" title={formatMeetingRange(meeting.startAt, meeting.endAt)}>Meeting {formatMeetingRange(meeting.startAt, meeting.endAt)}</p>
+      <p className="truncate text-label-sm text-text-strong-950" title={formatMeetingRange(meeting.startAt, meeting.endAt)}>Reunião {formatMeetingRange(meeting.startAt, meeting.endAt)}</p>
       <MeetingOutcomeButtons busy={busy} onAnswer={answer} />
     </div>
   );
@@ -422,11 +453,11 @@ export function MeetingOutcomeTools({ recordId, meeting, busy, onMutate }: {
 
 /** Starting points for feedback; each appends a line so several can be combined. */
 const REGENERATE_HINTS: { label: string; text: string }[] = [
-  { label: "Shorter", text: "Make it shorter — three or four lines at most." },
-  { label: "Less formal", text: "Less formal, more like a person writing." },
-  { label: "Answer their question", text: "Answer their actual question before anything else." },
-  { label: "Less salesy", text: "Drop the sales pitch; just be helpful." },
-  { label: "One next step", text: "Propose one concrete next step." },
+  { label: "Mais curto", text: "Resuma em três ou quatro linhas, no máximo." },
+  { label: "Menos formal", text: "Menos formal, mais como uma pessoa escrevendo." },
+  { label: "Responder à pergunta", text: "Responda à pergunta real deles antes de qualquer coisa." },
+  { label: "Menos comercial", text: "Sem tom de venda; apenas seja útil." },
+  { label: "Um próximo passo", text: "Proponha um próximo passo concreto." },
 ];
 
 /**
@@ -460,21 +491,21 @@ export function RegenerateDraftDialog({ open, onOpenChange, onSubmit, busy }: {
     <div className="contents" onClick={(event) => event.stopPropagation()}>
     <Modal.Root open={open} onOpenChange={(next) => { if (!working) onOpenChange(next); }}>
       <Modal.Content size="max-w-lg">
-        <Modal.Header icon={RiRefreshLine}>
-          <Modal.Title>Regenerate this draft</Modal.Title>
-          <Modal.Description>Tell the AI what to change. It rewrites the reply with your notes and the current draft in front of it.</Modal.Description>
-        </Modal.Header>
-        <Modal.Body className="space-y-3">
-          <textarea
-            aria-label="What should change"
-            autoFocus
-            value={feedback}
-            disabled={working}
-            onChange={(event) => setFeedback(event.target.value)}
-            onKeyDown={(event) => { if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); void submit(); } }}
-            placeholder="e.g. Too long and too salesy. They asked about pricing — answer that first, then offer the 20-minute call."
-            className={cn(fieldClass, "min-h-28 resize-y leading-6")}
-          />
+          <Modal.Header icon={RiRefreshLine}>
+            <Modal.Title>Regenerar este rascunho</Modal.Title>
+            <Modal.Description>Diga à IA o que mudar. Ela reescreve a resposta com suas notas e o rascunho atual.</Modal.Description>
+          </Modal.Header>
+          <Modal.Body className="space-y-3">
+            <textarea
+              aria-label="O que deve mudar"
+              autoFocus
+              value={feedback}
+              disabled={working}
+              onChange={(event) => setFeedback(event.target.value)}
+              onKeyDown={(event) => { if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); void submit(); } }}
+              placeholder="Ex.: muito longo e comercial. Eles perguntaram sobre preço — responda isso primeiro e ofereça a ligação de 20 minutos."
+              className={cn(fieldClass, "min-h-28 resize-y leading-6")}
+            />
           <div className="flex flex-wrap gap-1.5">
             {REGENERATE_HINTS.map((hint) => (
               <button key={hint.label} type="button" disabled={working} onClick={() => addHint(hint.text)} className="rounded-full bg-bg-weak-50 px-2.5 py-1 text-label-xs text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-bg-soft-200 hover:text-text-strong-950 disabled:opacity-60">{hint.label}</button>
@@ -482,10 +513,10 @@ export function RegenerateDraftDialog({ open, onOpenChange, onSubmit, busy }: {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <span className="mr-auto text-paragraph-xs text-text-soft-400">⌘↵ to regenerate</span>
-          <Modal.Close asChild><button type="button" className={secondaryButtonClass} disabled={working}>Cancel</button></Modal.Close>
+          <span className="mr-auto text-paragraph-xs text-text-sub-600">⌘↵ para regenerar</span>
+          <Modal.Close asChild><button type="button" className={secondaryButtonClass} disabled={working}>Cancelar</button></Modal.Close>
           <button type="button" className={primaryButtonClass} disabled={!ready} onClick={() => void submit()}>
-            <RiRefreshLine className={cn("size-4", working && "animate-spin")} aria-hidden="true" />{working ? "Rewriting…" : "Regenerate"}
+            <RiRefreshLine className={cn("size-4", working && "animate-spin")} aria-hidden="true" />{working ? "Reescrevendo…" : "Regenerar"}
           </button>
         </Modal.Footer>
       </Modal.Content>
@@ -495,8 +526,8 @@ export function RegenerateDraftDialog({ open, onOpenChange, onSubmit, busy }: {
 }
 
 /** The reason a discard records (crm_records.closed_reason), from every place a rep can discard. */
-export const DISCARD_LEAD_REASON = "Discarded by operator";
-export const DISCARD_LEAD_SUCCESS = "Lead discarded — it comes back if they reply";
+export const DISCARD_LEAD_REASON = "Descartado pelo operador";
+export const DISCARD_LEAD_SUCCESS = "Lead descartado — volta se responderem";
 
 /**
  * Confirms "Discard lead" — one misclick otherwise drops a live lead off the
@@ -526,13 +557,13 @@ export function DiscardLeadDialog({ open, onOpenChange, onConfirm, name }: {
     <Modal.Root open={open} onOpenChange={(next) => { if (!working) onOpenChange(next); }}>
       <Modal.Content size="max-w-md">
         <Modal.Header icon={RiDeleteBinLine}>
-          <Modal.Title>Discard {name?.trim() || "this lead"}?</Modal.Title>
-          <Modal.Description>It leaves Action required, its draft is thrown away and no follow-ups go out. If they reply again it comes back on its own; you can also reopen it from Closed.</Modal.Description>
+          <Modal.Title>Descartar {name?.trim() || "este lead"}?</Modal.Title>
+          <Modal.Description>Sai de Ação necessária, o rascunho é descartado e nenhum acompanhamento é enviado. Se responderem de novo, volta automaticamente; você também pode reabri-lo em Fechados.</Modal.Description>
         </Modal.Header>
         <Modal.Footer>
-          <Modal.Close asChild><button type="button" className={secondaryButtonClass} disabled={working} autoFocus>Cancel</button></Modal.Close>
+          <Modal.Close asChild><button type="button" className={secondaryButtonClass} disabled={working} autoFocus>Cancelar</button></Modal.Close>
           <button type="button" className={dangerButtonClass} disabled={working} onClick={() => void confirm()}>
-            <RiDeleteBinLine className="size-4" aria-hidden="true" />{working ? "Discarding…" : "Discard lead"}
+            <RiDeleteBinLine className="size-4" aria-hidden="true" />{working ? "Descartando…" : "Descartar lead"}
           </button>
         </Modal.Footer>
       </Modal.Content>
@@ -565,8 +596,8 @@ export function FollowUpDialog({ open, onOpenChange, onSubmit }: {
   const [daysText, setDaysText] = useState("7");
   const [failure, setFailure] = useState<string | null>(null);
   useEffect(() => { if (open) { setAt(followUpDueIn(7)); setDaysText("7"); setNote(""); setWorking(false); setFailure(null); } }, [open]);
-  const error = followUpDateError(at);
-  const noteError = followUpNoteError(note);
+  const error = localizeError(followUpDateError(at));
+  const noteError = localizeError(followUpNoteError(note));
   const days = daysBetween(at);
   const pick = (due: Date) => { setAt(due); setDaysText(String(daysBetween(due))); };
   const setDays = (value: string) => {
@@ -588,39 +619,39 @@ export function FollowUpDialog({ open, onOpenChange, onSubmit }: {
     <Modal.Root open={open} onOpenChange={(next) => { if (!working) onOpenChange(next); }}>
       <Modal.Content size="max-w-md">
         <Modal.Header icon={RiCalendarScheduleLine}>
-          <Modal.Title>Follow up later</Modal.Title>
-          <Modal.Description>Nothing is sent until then and automated follow-ups stop. The lead comes back to Action required that day. If they write first, it comes back sooner.</Modal.Description>
+          <Modal.Title>Acompanhar depois</Modal.Title>
+          <Modal.Description>Nada é enviado até então e os acompanhamentos automáticos param. O lead volta para Ação necessária naquele dia. Se eles escreverem primeiro, volta antes.</Modal.Description>
         </Modal.Header>
         <Modal.Body className="space-y-3">
           <div className="flex flex-wrap gap-1.5">
             {FOLLOW_UP_PRESETS.map((preset) => (
-              <button key={preset.label} type="button" disabled={working} onClick={() => pick(followUpDueIn(preset.days))} className={cn("rounded-full px-2.5 py-1 text-label-xs ring-1 ring-inset transition disabled:opacity-60", days === preset.days ? "bg-bg-soft-200 text-text-strong-950 ring-stroke-sub-300" : "bg-bg-weak-50 text-text-sub-600 ring-stroke-soft-200 hover:bg-bg-soft-200 hover:text-text-strong-950")}>{preset.label}</button>
+              <button key={preset.label} type="button" disabled={working} onClick={() => pick(followUpDueIn(preset.days))} className={cn("rounded-full px-2.5 py-1 text-label-xs ring-1 ring-inset transition disabled:opacity-60", days === preset.days ? "bg-bg-soft-200 text-text-strong-950 ring-stroke-sub-300" : "bg-bg-weak-50 text-text-sub-600 ring-stroke-soft-200 hover:bg-bg-soft-200 hover:text-text-strong-950")}>{FOLLOW_UP_PRESET_LABEL_PT[preset.label] ?? preset.label}</button>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <label className="block space-y-1">
-              <span className="text-label-xs text-text-sub-600">In N days</span>
+              <span className="text-label-xs text-text-sub-600">Em N dias</span>
               <input type="number" min={1} max={MAX_FOLLOW_UP_DAYS} step={1} inputMode="numeric" value={daysText} disabled={working} onChange={(event) => setDays(event.target.value)} className={fieldClass} />
             </label>
             <label className="block space-y-1">
-              <span className="text-label-xs text-text-sub-600">On this date</span>
+              <span className="text-label-xs text-text-sub-600">Nesta data</span>
               <input type="date" value={toDateInputValue(at)} min={toDateInputValue(followUpDueIn(1))} disabled={working} onChange={(event) => { const due = followUpDueOn(event.target.value); if (due) pick(due); }} className={fieldClass} />
             </label>
           </div>
           <p className={cn("text-paragraph-sm", error ? "text-error-base" : "text-text-sub-600")}>
-            {error ?? `Back in Action required on ${new Intl.DateTimeFormat(undefined, { dateStyle: "full", timeStyle: "short" }).format(at)}.`}
+            {error ?? `Volta para Ação necessária em ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "full", timeStyle: "short" }).format(at)}.`}
           </p>
           <label className="block space-y-1">
-            <span className="text-label-xs text-text-sub-600">Why later, and what should happen then?</span>
-            <textarea value={note} maxLength={FOLLOW_UP_NOTE_MAX} disabled={working} onChange={(event) => setNote(event.target.value)} placeholder="Said to reconnect after their Q1 budget is set. Send the pricing deck and ask for a call." className={cn(fieldClass, "min-h-24 resize-y leading-6")} />
-            <span className="block text-paragraph-xs text-text-soft-400">The team sees this on the record, and the AI drafts the follow-up from it that day.</span>
+            <span className="text-label-xs text-text-sub-600">Por que depois e o que deve acontecer então?</span>
+            <textarea value={note} maxLength={FOLLOW_UP_NOTE_MAX} disabled={working} onChange={(event) => setNote(event.target.value)} placeholder="Disse para falar depois que o orçamento do Q1 estiver definido. Enviar a proposta de preço e pedir uma ligação." className={cn(fieldClass, "min-h-24 resize-y leading-6")} />
+            <span className="block text-paragraph-xs text-text-sub-600">A equipe vê isso no registro, e a IA cria o acompanhamento com base nisso naquele dia.</span>
           </label>
           {failure && <p role="alert" className="rounded-lg bg-error-lighter px-3 py-2 text-paragraph-sm text-error-dark">{failure}</p>}
         </Modal.Body>
         <Modal.Footer>
-          <Modal.Close asChild><button type="button" className={secondaryButtonClass} disabled={working}>Cancel</button></Modal.Close>
+          <Modal.Close asChild><button type="button" className={secondaryButtonClass} disabled={working}>Cancelar</button></Modal.Close>
           <button type="button" className={primaryButtonClass} disabled={Boolean(error) || Boolean(noteError) || working} onClick={() => void submit()}>
-            <RiCalendarScheduleLine className="size-4" aria-hidden="true" />{working ? "Saving…" : "Set follow-up"}
+            <RiCalendarScheduleLine className="size-4" aria-hidden="true" />{working ? "Salvando…" : "Definir acompanhamento"}
           </button>
         </Modal.Footer>
       </Modal.Content>
@@ -630,7 +661,7 @@ export function FollowUpDialog({ open, onOpenChange, onSubmit }: {
 }
 
 export function followUpSuccessMessage(at: Date): string {
-  return `Follow-up set for ${new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(at)}. Nothing goes out until then.`;
+  return `Acompanhamento definido para ${new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(at)}. Nada é enviado até então.`;
 }
 
 /**
@@ -670,41 +701,41 @@ export function InlineDraftEditor({ action, onMutate, onClose, busy }: { action:
     <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]" onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); onClose(); } }}>
       <div className="min-w-0 rounded-xl bg-bg-weak-50 p-3.5 ring-1 ring-inset ring-stroke-soft-200">
         <div className="mb-2 flex items-baseline justify-between gap-3">
-          <p className="text-label-xs uppercase tracking-wide text-text-soft-400">Their message</p>
-          <p className="text-paragraph-xs text-text-soft-400">{formatDate(inbound.sentAt ?? record.lastInboundAt)}</p>
+          <p className="text-label-xs uppercase tracking-wide text-text-sub-600">Mensagem deles</p>
+          <p className="text-paragraph-xs text-text-sub-600">{formatDate(inbound.sentAt ?? record.lastInboundAt)}</p>
         </div>
         {inboundSubject && <p className="mb-1 text-label-sm text-text-strong-950">{inboundSubject}</p>}
-        <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-paragraph-sm leading-6 text-text-sub-600">{inboundBody || "No message text available."}</p>
+        <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-paragraph-sm leading-6 text-text-sub-600">{inboundBody || "Nenhum texto de mensagem disponível."}</p>
       </div>
       <div className="flex min-w-0 flex-col gap-3">
-        {dnc && <Warning tone="danger" title="Sending is blocked" detail="This person is marked as Do Not Contact." />}
-        {stale && !dnc && <Warning tone="warning" title="This draft may be out of date" detail="A newer reply changed the conversation. Regenerate, or open the record to review before sending." />}
+        {dnc && <Warning tone="danger" title="Envio bloqueado" detail="Esta pessoa está marcada como Não contatar." />}
+        {stale && !dnc && <Warning tone="warning" title="Este rascunho pode estar desatualizado" detail="Uma resposta mais recente mudou a conversa. Regenere ou abra o registro para revisar antes de enviar." />}
         {channel === "email" && <DraftRecipients draft={draft} personEmail={typeof person.email === "string" ? person.email : null} />}
-        {channel === "email" && <input aria-label="Subject" className={fieldClass} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="Email subject" disabled={busy} />}
+        {channel === "email" && <input aria-label="Assunto" className={fieldClass} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="Assunto do e-mail" disabled={busy} />}
         <textarea
-          aria-label="Reply"
+          aria-label="Resposta"
           autoFocus
           className={cn(fieldClass, "min-h-36 resize-y leading-6")}
           value={body}
           onChange={(event) => setBody(event.target.value)}
-          placeholder={`Write a ${channel === "linkedin" ? "LinkedIn" : channel === "whatsapp" ? "WhatsApp" : "email"} reply…`}
+          placeholder={`Escreva uma resposta ${channel === "linkedin" ? "no LinkedIn" : channel === "whatsapp" ? "no WhatsApp" : "por e-mail"}…`}
           disabled={busy}
         />
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" disabled={!ready} className={primaryButtonClass} onClick={() => void onMutate(`/drafts/${draftId}/send`, payload, "POST", "Reply queued for sending")}>
-            <RiSendPlaneLine className="size-4" aria-hidden="true" />{dirty ? "Save & send" : "Approve & send"}
+          <button type="button" disabled={!ready} className={primaryButtonClass} onClick={() => void onMutate(`/drafts/${draftId}/send`, payload, "POST", "Resposta enfileirada para envio")}>
+            <RiSendPlaneLine className="size-4" aria-hidden="true" />{dirty ? "Salvar e enviar" : "Aprovar e enviar"}
           </button>
-          <button type="button" disabled={!draftId || !dirty || busy || !body.trim()} className={secondaryButtonClass} onClick={() => void onMutate(`/drafts/${draftId}`, payload, "PATCH", "Draft saved")}>
-            <RiSaveLine className="size-4" aria-hidden="true" />Save
+          <button type="button" disabled={!draftId || !dirty || busy || !body.trim()} className={secondaryButtonClass} onClick={() => void onMutate(`/drafts/${draftId}`, payload, "PATCH", "Rascunho salvo")}>
+            <RiSaveLine className="size-4" aria-hidden="true" />Salvar
           </button>
           <button type="button" disabled={!draftId || busy} className={subtleButtonClass} onClick={() => setRegenerateOpen(true)}>
-            <RiRefreshLine className="size-4" aria-hidden="true" />Regenerate
+            <RiRefreshLine className="size-4" aria-hidden="true" />Regenerar
           </button>
-          <RegenerateDraftDialog open={regenerateOpen} onOpenChange={setRegenerateOpen} busy={busy} onSubmit={(feedback) => onMutate(`/drafts/${draftId}/regenerate`, { feedback }, "POST", "Draft rewritten with your notes")} />
-          <button type="button" disabled={!draftId || busy} className={dangerButtonClass} onClick={() => void onMutate(`/drafts/${draftId}/discard`, {}, "POST", "Draft discarded")}>
-            <RiDeleteBinLine className="size-4" aria-hidden="true" />Discard
+          <RegenerateDraftDialog open={regenerateOpen} onOpenChange={setRegenerateOpen} busy={busy} onSubmit={(feedback) => onMutate(`/drafts/${draftId}/regenerate`, { feedback }, "POST", "Rascunho reescrito com suas notas")} />
+          <button type="button" disabled={!draftId || busy} className={dangerButtonClass} onClick={() => void onMutate(`/drafts/${draftId}/discard`, {}, "POST", "Rascunho descartado")}>
+            <RiDeleteBinLine className="size-4" aria-hidden="true" />Descartar
           </button>
-          <button type="button" className={cn(subtleButtonClass, "ml-auto")} onClick={onClose}>Cancel</button>
+          <button type="button" className={cn(subtleButtonClass, "ml-auto")} onClick={onClose}>Cancelar</button>
         </div>
       </div>
     </div>

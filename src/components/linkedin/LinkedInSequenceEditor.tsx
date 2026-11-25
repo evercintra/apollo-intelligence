@@ -28,10 +28,43 @@ type PreviewResult = {
 };
 
 const DEFAULT_FIELDS: MergeField[] = [
-  { token: "firstName", label: "First name" },
-  { token: "lastName", label: "Last name" },
-  { token: "company", label: "Company" },
+  { token: "firstName", label: "Nome" },
+  { token: "lastName", label: "Sobrenome" },
+  { token: "company", label: "Empresa" },
 ];
+
+const SEQUENCE_STEP_PT: Partial<Record<LinkedinSequenceField, { label: string; shortLabel: string; timing: string; description: string }>> = {
+  invitationMessage: {
+    label: "Convite de conexão",
+    shortLabel: "Convite",
+    timing: "Imediatamente",
+    description: "Enviado junto com o convite de conexão. Deixe em branco para enviar sem nota.",
+  },
+  acceptanceMessage: {
+    label: "Mensagem de aceite",
+    shortLabel: "Ao aceitar",
+    timing: "Quando aceito",
+    description: "Enviada assim que o prospecto aceita o convite de conexão.",
+  },
+  followUp1Message: {
+    label: "Acompanhamento 1",
+    shortLabel: "Acompanhamento 1",
+    timing: "1 dia depois",
+    description: "Enviado um dia depois da mensagem de aceite.",
+  },
+  followUp2Message: {
+    label: "Acompanhamento 2",
+    shortLabel: "Acompanhamento 2",
+    timing: "2 dias depois",
+    description: "Enviado dois dias depois do acompanhamento 1.",
+  },
+  followUp3Message: {
+    label: "Acompanhamento 3",
+    shortLabel: "Acompanhamento 3",
+    timing: "3 dias depois",
+    description: "Enviado três dias depois do acompanhamento 2. Depois, a sequência termina.",
+  },
+};
 
 function sequenceFromNullable(input: Partial<Record<LinkedinSequenceField, string | null>>): LinkedinCampaignSequence {
   return normalizeLinkedinSequence(input);
@@ -41,7 +74,7 @@ export function LinkedInSequenceEditor({
   campaignId,
   initialSequence,
   onSaved,
-  saveLabel = "Save sequence",
+  saveLabel = "Salvar sequência",
 }: {
   campaignId: string;
   initialSequence?: Partial<Record<LinkedinSequenceField, string | null>>;
@@ -80,7 +113,8 @@ export function LinkedInSequenceEditor({
     return () => { cancelled = true; };
   }, [campaignId]);
 
-  const step = LINKEDIN_SEQUENCE_STEPS[selected]!;
+  const steps = LINKEDIN_SEQUENCE_STEPS.map((candidate) => ({ ...candidate, ...SEQUENCE_STEP_PT[candidate.field] }));
+  const step = steps[selected]!;
   const validationError = useMemo(() => linkedinSequenceError(sequence), [sequence]);
 
   function update(field: LinkedinSequenceField, value: string) {
@@ -114,13 +148,13 @@ export function LinkedInSequenceEditor({
         body: JSON.stringify(sequence),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.ok === false) throw new Error(data.error ?? "Could not save sequence");
+      if (!response.ok || data.ok === false) throw new Error(data.error ?? "Não foi possível salvar a sequência");
       const normalized = normalizeLinkedinSequence(sequence);
       setSequence(normalized);
       setSaved(true);
       onSaved?.(normalized);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not save sequence");
+      setError(cause instanceof Error ? cause.message : "Não foi possível salvar a sequência");
     } finally {
       setSaving(false);
     }
@@ -136,11 +170,11 @@ export function LinkedInSequenceEditor({
         body: JSON.stringify({ field: step.field, template: sequence[step.field], leadId: leadId || undefined }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error ?? "Could not render preview");
+      if (!response.ok) throw new Error(data.error ?? "Não foi possível gerar a prévia");
       setPreview(data as PreviewResult);
     } catch (cause) {
       setPreview(null);
-      setPreviewError(cause instanceof Error ? cause.message : "Could not render preview");
+      setPreviewError(cause instanceof Error ? cause.message : "Não foi possível gerar a prévia");
     } finally {
       setPreviewing(false);
     }
@@ -155,10 +189,10 @@ export function LinkedInSequenceEditor({
     <>
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-5">
         <Frame>
-          <FrameHeader title="Sequence flow" description="Applies to every lead, personalised at send time. Timing follows the live LinkedIn sender." />
+          <FrameHeader title="Fluxo da sequência" description="Aplica-se a cada lead, personalizada no envio. O prazo segue o remetente ativo no LinkedIn." />
           <FramePanel className="p-2 sm:p-2">
             <ol className="flex flex-col">
-              {LINKEDIN_SEQUENCE_STEPS.map((candidate, index) => {
+              {steps.map((candidate, index) => {
                 const hasMessage = Boolean(sequence[candidate.field].trim());
                 const active = selected === index;
                 return (
@@ -186,10 +220,10 @@ export function LinkedInSequenceEditor({
                       <span className="min-w-0 flex-1">
                         <span className="block text-label-sm text-text-strong-950">{candidate.shortLabel}</span>
                         <span className="mt-0.5 block truncate text-paragraph-xs text-text-sub-600">
-                          {hasMessage ? sequence[candidate.field] : "No message — optional"}
+                          {hasMessage ? sequence[candidate.field] : "Sem mensagem — opcional"}
                         </span>
                       </span>
-                      {hasMessage && <Check className="mt-0.5 size-4 shrink-0 text-success-base" aria-label="Written" />}
+                        {hasMessage && <Check className="mt-0.5 size-4 shrink-0 text-success-base" aria-label="Escrito" />}
                     </button>
                   </li>
                 );
@@ -204,12 +238,12 @@ export function LinkedInSequenceEditor({
             description={step.description}
             actions={
               <AlignButton.Root variant="neutral" mode="stroke" size="xsmall" onClick={openPreview}>
-                <AlignButton.Icon as={Eye} />Preview
+                <AlignButton.Icon as={Eye} />Prévia
               </AlignButton.Root>
             }
           />
           <FramePanel>
-            <p className="mb-2 text-paragraph-xs text-text-sub-600">Merge fields from People and imported raw columns — click one to insert it.</p>
+            <p className="mb-2 text-paragraph-xs text-text-sub-600">Campos de Pessoas e colunas importadas — clique para inserir.</p>
             <div className="max-h-24 overflow-y-auto rounded-xl bg-bg-weak-50 p-2.5 ring-1 ring-inset ring-stroke-soft-200">
               <div className="flex flex-wrap gap-1.5">
                 {fields.map((field) => (
@@ -232,7 +266,7 @@ export function LinkedInSequenceEditor({
                 maxLength={step.field === "invitationMessage" ? MAX_INVITATION_MESSAGE_LENGTH : undefined}
                 value={sequence[step.field]}
                 onChange={(event) => update(step.field, event.target.value)}
-                placeholder={`Write your ${step.label.toLowerCase()}…`}
+                placeholder={`Escreva sua mensagem de ${step.label.toLowerCase()}…`}
                 className="min-h-56"
                 hasError={Boolean(validationError)}
               />
@@ -249,10 +283,10 @@ export function LinkedInSequenceEditor({
               </p>
             )}
             <div className="mt-5 flex items-center justify-end gap-3 border-t border-stroke-soft-200 pt-4">
-              {saved && <span role="status" className="text-paragraph-xs text-success-base">Saved</span>}
+              {saved && <span role="status" className="text-paragraph-xs text-success-base">Salvo</span>}
               <AlignButton.Root variant="primary" mode="filled" size="small" onClick={() => void save()} disabled={saving || Boolean(validationError)}>
                 <AlignButton.Icon as={saving ? Loader2 : Save} className={saving ? "animate-spin" : undefined} />
-                {saving ? "Saving…" : saveLabel}
+                {saving ? "Salvando…" : saveLabel}
               </AlignButton.Root>
             </div>
           </FramePanel>
@@ -264,13 +298,13 @@ export function LinkedInSequenceEditor({
           <Modal.Header>
             <div>
               <Modal.Title>Preview · {step.label}</Modal.Title>
-              <Modal.Description>This uses the same People variables and rendering path as the live sender.</Modal.Description>
+              <Modal.Description>Usa as mesmas variáveis de Pessoas e renderização do envio real.</Modal.Description>
             </div>
           </Modal.Header>
           <Modal.Body>
             {leads.length > 0 && (
               <label className="block text-label-sm text-text-strong-950">
-                Preview as
+                Prévia como
                 <Select.Root size="small" value={previewLeadId} onValueChange={(value) => { setPreviewLeadId(value); void renderPreview(value); }}>
                   <Select.Trigger className="mt-1.5 w-full"><Select.Value /></Select.Trigger>
                   <Select.Content>
@@ -281,27 +315,27 @@ export function LinkedInSequenceEditor({
             )}
             <div className="mt-4 min-h-36 rounded-xl bg-bg-weak-50 p-4 ring-1 ring-inset ring-stroke-soft-200">
               {previewing ? (
-                <div className="flex h-28 items-center justify-center gap-2 text-paragraph-sm text-text-sub-600"><Loader2 className="size-4 animate-spin" />Rendering preview…</div>
+                <div className="flex h-28 items-center justify-center gap-2 text-paragraph-sm text-text-sub-600"><Loader2 className="size-4 animate-spin" />Gerando prévia…</div>
               ) : previewError ? (
                 <p className="text-paragraph-sm text-error-base">{previewError}</p>
               ) : preview ? (
                 <>
                   {preview.unresolved.length > 0 && (
                     <p className="mb-3 rounded-lg bg-warning-lighter px-3 py-2 text-paragraph-xs text-warning-dark">
-                      Empty for this person: {preview.unresolved.map((token) => `{{${token}}}`).join(", ")}
+                      Vazio para esta pessoa: {preview.unresolved.map((token) => `{{${token}}}`).join(", ")}
                     </p>
                   )}
                   {preview.exceedsInvitationLimit && (
-                    <p className="mb-3 rounded-lg bg-red-alpha-10 px-3 py-2 text-paragraph-xs text-error-base">This rendered invitation exceeds 300 characters.</p>
+                    <p className="mb-3 rounded-lg bg-red-alpha-10 px-3 py-2 text-paragraph-xs text-error-base">Este convite gerado ultrapassa 300 caracteres.</p>
                   )}
-                  <p className="whitespace-pre-wrap break-words text-paragraph-sm leading-6 text-text-strong-950">{preview.rendered || "(No message — this step will be skipped.)"}</p>
+                  <p className="whitespace-pre-wrap break-words text-paragraph-sm leading-6 text-text-strong-950">{preview.rendered || "(Sem mensagem — esta etapa será ignorada.)"}</p>
                 </>
               ) : null}
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <AlignButton.Root variant="neutral" mode="stroke" size="small" onClick={() => void renderPreview()} disabled={previewing}>Render again</AlignButton.Root>
-            <Modal.Close asChild><AlignButton.Root variant="primary" mode="filled" size="small">Done</AlignButton.Root></Modal.Close>
+            <AlignButton.Root variant="neutral" mode="stroke" size="small" onClick={() => void renderPreview()} disabled={previewing}>Gerar novamente</AlignButton.Root>
+            <Modal.Close asChild><AlignButton.Root variant="primary" mode="filled" size="small">Concluir</AlignButton.Root></Modal.Close>
           </Modal.Footer>
         </Modal.Content>
       </Modal.Root>

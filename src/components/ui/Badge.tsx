@@ -1,10 +1,10 @@
 const TONE_CLS = {
   slate: "bg-bg-weak-50 text-text-sub-600",
-  indigo: "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400",
-  emerald: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-  amber: "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
-  red: "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400",
-  sky: "bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400",
+  indigo: "bg-complement-surface text-complement-deep",
+  emerald: "bg-success-lighter dark:bg-success-base/10 text-success-dark dark:text-success-base",
+  amber: "bg-warning-lighter dark:bg-warning-base/10 text-warning-dark dark:text-warning-base",
+  red: "bg-error-lighter dark:bg-error-base/10 text-error-dark dark:text-error-base",
+  sky: "bg-information-lighter dark:bg-information-base/10 text-information-dark dark:text-information-base",
 } as const;
 
 export type BadgeTone = keyof typeof TONE_CLS;

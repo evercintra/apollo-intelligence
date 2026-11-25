@@ -70,10 +70,10 @@ export function CallsCard({ personId, refreshKey }: { personId: string; refreshK
     <div className="space-y-3">
       <LiveCallStrip callId={mostRecentCallId} serverStatus={sorted[0]?.status ?? null} agentOutcome={sorted[0]?.agentOutcome ?? null} onCancelled={() => void load()} />
       <Frame>
-        <FrameHeader title="Calls" description={sorted.length ? `${sorted.length} WhatsApp call${sorted.length === 1 ? "" : "s"}, newest first` : "WhatsApp calls placed from AgentSDR"} />
+        <FrameHeader title="Chamadas" description={sorted.length ? `${sorted.length} ${sorted.length === 1 ? "chamada do WhatsApp" : "chamadas do WhatsApp"}, mais recentes primeiro` : "Chamadas do WhatsApp feitas pelo Apollo Intelligence"} />
         <FramePanel aria-busy={refreshing || undefined} className={cn("p-0 transition-opacity sm:p-0", refreshing && "opacity-60")}>
           {loading ? (
-            <div aria-busy="true" aria-label="Loading calls" className="divide-y divide-stroke-soft-200">
+            <div aria-busy="true" aria-label="Carregando chamadas" className="divide-y divide-stroke-soft-200">
               {Array.from({ length: 3 }, (_, index) => (
                 <div key={index} className="flex items-center gap-3 px-4 py-3.5">
                   <Skeleton className="h-3.5 w-28" />
@@ -89,7 +89,7 @@ export function CallsCard({ personId, refreshKey }: { personId: string; refreshK
               {sorted.map((call) => <CallRow key={call.id} call={call} />)}
             </div>
           ) : (
-            <EmptyState compact icon={RiPhoneLine} title="No calls yet" description="Calls placed with the Call button show up here, with their recording." />
+            <EmptyState compact icon={RiPhoneLine} title="Nenhuma chamada ainda" description="As chamadas feitas pelo botão Ligar aparecem aqui, com a gravação." />
           )}
         </FramePanel>
       </Frame>

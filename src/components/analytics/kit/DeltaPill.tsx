@@ -15,19 +15,19 @@ export function DeltaPill({ metric, upIsGood = true }: { metric: { value: number
   if (c === null) {
     const isNew = metric.previous === 0 && (metric.value ?? 0) > 0;
     return (
-      <Badge.Root variant="lighter" color="gray" size="medium" title={isNew ? "Nothing in the previous period" : "No previous-period data to compare"}>
-        {isNew ? "New" : "—"}
+      <Badge.Root variant="lighter" color="gray" size="medium" title={isNew ? "Nenhum dado no período anterior" : "Sem dados anteriores para comparar"}>
+        {isNew ? "Novo" : "—"}
       </Badge.Root>
     );
   }
   const tone = deltaTone(c, upIsGood);
   const Icon = c >= 0 ? RiArrowUpLine : RiArrowDownLine;
-  const word = tone === "good" ? "improved" : tone === "bad" ? "worsened" : "unchanged";
+  const word = tone === "good" ? "melhorou" : tone === "bad" ? "piorou" : "sem mudança";
   return (
     <Badge.Root variant="lighter" color={tone === "good" ? "green" : tone === "bad" ? "red" : "gray"} size="medium">
       <Badge.Icon as={Icon} />
       {Math.abs(c) >= 10 ? ">999%" : formatPercent(Math.abs(c), 1)}
-      <span className="sr-only"> {word} versus the previous period</span>
+      <span className="sr-only"> {word} em relação ao período anterior</span>
     </Badge.Root>
   );
 }

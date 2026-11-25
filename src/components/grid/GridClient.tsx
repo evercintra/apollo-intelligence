@@ -224,7 +224,7 @@ function MultiSelectEditor(props: CustomCellEditorProps<RowData, unknown> & { op
   };
   return (
     <div className="max-h-64 min-w-[200px] overflow-auto rounded-lg border border-stroke-soft-200 bg-bg-white-0 p-1.5 shadow-lg">
-      {choices.length === 0 && <p className="px-2 py-1.5 text-[12px] text-text-sub-600">This column has no options.</p>}
+      {choices.length === 0 && <p className="px-2 py-1.5 text-[12px] text-text-sub-600">Esta coluna não tem opções.</p>}
       {choices.map((value) => (
         <label key={value} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-text-strong-950 hover:bg-bg-weak-50">
           <input type="checkbox" checked={current.includes(value)} onChange={() => toggle(value)} />
@@ -382,10 +382,10 @@ function ColumnHeader(props: IHeaderParams & {
     <meta.icon className={`size-[15px] shrink-0 ${iconClass}`} />
   );
   return (
-    <div className={`-mx-3 flex h-full w-[calc(100%+24px)] items-center overflow-hidden transition ${props.active ? "bg-blue-600 text-white" : "hover:bg-bg-weak-50"}`}>
+    <div className={`-mx-3 flex h-full w-[calc(100%+24px)] items-center overflow-hidden transition ${props.active ? "bg-[var(--color-action-bg)] text-[var(--color-action-text)]" : "hover:bg-bg-weak-50"}`}>
       <button
         type="button"
-        title="Select column (Shift-click to extend)"
+        title="Selecionar coluna (Shift+clique para estender)"
         onClick={(event) => props.onSelect(event.shiftKey)}
         onDoubleClick={(event) => {
           event.preventDefault();
@@ -398,18 +398,18 @@ function ColumnHeader(props: IHeaderParams & {
       </button>
       <button
         type="button"
-        title={`Configure ${props.displayName}`}
-        aria-label={`Configure ${props.displayName}`}
+        title={`Configurar ${props.displayName}`}
+        aria-label={`Configurar ${props.displayName}`}
         onClick={(event) => {
           event.stopPropagation();
           props.onOpen(event.currentTarget.getBoundingClientRect());
         }}
-        className={`rounded-md p-1 ${props.active ? "text-white hover:bg-blue-500" : "text-text-soft-400 hover:bg-bg-weak-50 hover:text-text-strong-950"}`}
+        className={`rounded-md p-1 ${props.active ? "text-white hover:bg-[var(--color-action-bg-hover)]" : "text-text-soft-400 hover:bg-bg-weak-50 hover:text-text-strong-950"}`}
       >
         <RiArrowDownSLine className="size-4" />
       </button>
       {props.onRun && (
-        <button type="button" title="Run column" aria-label={`Run ${props.displayName}`} onClick={(event) => { event.stopPropagation(); props.onRun?.(event.currentTarget.getBoundingClientRect()); }} className={`mr-1 rounded-md border p-1.5 ${props.active ? "border-blue-400 text-white hover:bg-blue-500" : "border-stroke-soft-200 bg-bg-white-0 text-text-strong-950 hover:bg-bg-weak-50"}`}>
+        <button type="button" title="Executar coluna" aria-label={`Executar ${props.displayName}`} onClick={(event) => { event.stopPropagation(); props.onRun?.(event.currentTarget.getBoundingClientRect()); }} className={`mr-1 rounded-md border p-1.5 ${props.active ? "border-[var(--color-action-ring)] text-[var(--color-action-text)] hover:bg-[var(--color-action-bg-hover)]" : "border-stroke-soft-200 bg-bg-white-0 text-text-strong-950 hover:bg-bg-weak-50"}`}>
           <RiPlayLine className="size-4" />
         </button>
       )}
@@ -426,7 +426,7 @@ function AddColumnHeader(props: IHeaderParams & { onOpen: (rect: DOMRect) => voi
       className="-mx-3 flex h-full w-[calc(100%+24px)] items-center gap-1.5 px-3 text-text-sub-600 transition hover:bg-bg-weak-50"
     >
       <RiAddLine className="size-[15px] shrink-0" />
-      <span className="font-medium">Add column</span>
+      <span className="font-medium">Adicionar coluna</span>
     </button>
   );
 }
@@ -441,7 +441,7 @@ function GutterHeader(props: IHeaderParams & {
       <Checkbox.Root
         checked={props.checked}
         onCheckedChange={(checked) => props.onCheckedChange(checked !== false)}
-        aria-label="Select all rows on this page"
+        aria-label="Selecionar todas as linhas desta página"
       />
     </div>
   );
@@ -464,7 +464,7 @@ function GutterCell(props: ICellRendererParams<RowData> & {
       <Checkbox.Root
         checked={selected}
         onCheckedChange={() => props.onToggle(props.data!.__id)}
-        aria-label={`${selected ? "Deselect" : "Select"} row ${rowOffset + (props.node.rowIndex ?? 0) + 1}`}
+        aria-label={`${selected ? "Desmarcar" : "Marcar"} linha ${rowOffset + (props.node.rowIndex ?? 0) + 1}`}
         className={`absolute inset-0 m-auto ${selected ? "" : "invisible group-hover:visible group-focus-within:visible"}`}
       />
     </div>
@@ -477,7 +477,7 @@ function isMiss(meta: CellMeta | undefined): boolean {
 }
 
 /** A run that finished without finding anything, as opposed to one that has not run. */
-const NO_RESULT = <span className="italic text-text-soft-400">No result</span>;
+const NO_RESULT = <span className="italic text-text-soft-400">Sem resultado</span>;
 
 function IntegrationActionCell(props: ICellRendererParams<RowData> & { onRun?: (rowId: string) => void; disabled?: boolean }) {
   if (props.node.rowPinned === "top") return props.value ?? "";
@@ -486,19 +486,19 @@ function IntegrationActionCell(props: ICellRendererParams<RowData> & { onRun?: (
 
   let content: React.ReactNode;
   if (meta?.status === "queued") {
-    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiTimeLine className="size-4" />Queued…</span>;
+    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiTimeLine className="size-4" />Na fila…</span>;
   } else if (meta?.status === "running") {
-    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiLoader4Line className="size-4 animate-spin" />Running…</span>;
+    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiLoader4Line className="size-4 animate-spin" />Em execução…</span>;
   } else if (meta?.status === "processing") {
-    content = <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400"><RiLoader4Line className="size-4 animate-spin" />Waiting for provider…</span>;
+    content = <span className="flex items-center gap-1.5 text-[var(--color-complement-deep)]"><RiLoader4Line className="size-4 animate-spin" />Aguardando provedor…</span>;
   } else if (meta?.status === "error") {
-    content = <span title={meta.error} className="flex items-center gap-1.5 truncate font-medium text-red-700 dark:text-red-400"><RiCloseCircleLine className="size-4 shrink-0" /><span className="truncate">{meta.error || "API call failed"}</span></span>;
+    content = <span title={meta.error} className="flex items-center gap-1.5 truncate font-medium text-[var(--color-error-dark)]"><RiCloseCircleLine className="size-4 shrink-0" /><span className="truncate">{meta.error || "Falha na chamada de API"}</span></span>;
   } else if (meta?.status === "success" && isMiss(meta) && (props.value === undefined || props.value === null || props.value === "")) {
     content = NO_RESULT;
   } else if (meta?.status === "success") {
-    content = <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400"><RiCheckboxCircleLine className="size-4" />{String(props.value ?? "Completed")}</span>;
+    content = <span className="flex items-center gap-1.5 text-[var(--color-success-dark)]"><RiCheckboxCircleLine className="size-4" />{String(props.value ?? "Concluído")}</span>;
   } else {
-    content = <span className="text-text-soft-400">Not run</span>;
+    content = <span className="text-text-soft-400">Não executado</span>;
   }
 
   return (
@@ -508,14 +508,14 @@ function IntegrationActionCell(props: ICellRendererParams<RowData> & { onRun?: (
         <button
           type="button"
           disabled={props.disabled}
-          title="Run this row"
-          aria-label="Run this row"
+          title="Executar esta linha"
+          aria-label="Executar esta linha"
           onMouseDown={(event) => event.stopPropagation()}
           onClick={(event) => {
             event.stopPropagation();
             props.onRun?.(props.data!.__id);
           }}
-          className="shrink-0 rounded-md bg-blue-600 p-1 text-white opacity-0 shadow-sm transition hover:bg-blue-700 focus:opacity-100 disabled:cursor-not-allowed disabled:bg-blue-300 group-hover/action:opacity-100"
+          className="shrink-0 rounded-md bg-[var(--color-action-bg)] p-1 text-[var(--color-action-text)] opacity-0 shadow-sm transition hover:bg-[var(--color-action-bg-hover)] focus:opacity-100 disabled:cursor-not-allowed disabled:bg-[var(--color-apollo-graphite-300)] disabled:text-[var(--color-apollo-graphite-700)] group-hover/action:opacity-100"
         >
           <RiPlayLine className="size-3.5" />
         </button>
@@ -533,11 +533,11 @@ function RunnerValueCell(props: ICellRendererParams<RowData> & { onRun?: (rowId:
 
   let content: React.ReactNode;
   if (meta?.status === "queued") {
-    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiTimeLine className="size-4" />Queued…</span>;
+    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiTimeLine className="size-4" />Na fila…</span>;
   } else if (meta?.status === "running" || meta?.status === "processing") {
-    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiLoader4Line className="size-4 animate-spin" />Running…</span>;
+    content = <span className="flex items-center gap-1.5 text-text-sub-600"><RiLoader4Line className="size-4 animate-spin" />Em execução…</span>;
   } else if (meta?.status === "error") {
-    content = <span title={meta.error} className="flex items-center gap-1.5 truncate font-medium text-red-700 dark:text-red-400"><RiCloseCircleLine className="size-4 shrink-0" /><span className="truncate">{meta.error || "Run failed"}</span></span>;
+    content = <span title={meta.error} className="flex items-center gap-1.5 truncate font-medium text-[var(--color-error-dark)]"><RiCloseCircleLine className="size-4 shrink-0" /><span className="truncate">{meta.error || "Falha na execução"}</span></span>;
   } else if (isMiss(meta) && text === "") {
     content = NO_RESULT;
   } else {
@@ -551,14 +551,14 @@ function RunnerValueCell(props: ICellRendererParams<RowData> & { onRun?: (rowId:
         <button
           type="button"
           disabled={props.disabled}
-          title="Run this row"
-          aria-label="Run this row"
+          title="Executar esta linha"
+          aria-label="Executar esta linha"
           onMouseDown={(event) => event.stopPropagation()}
           onClick={(event) => {
             event.stopPropagation();
             props.onRun?.(props.data!.__id);
           }}
-          className="shrink-0 rounded-md bg-blue-600 p-1 text-white opacity-0 shadow-sm transition hover:bg-blue-700 focus:opacity-100 disabled:cursor-not-allowed disabled:bg-blue-300 group-hover/action:opacity-100"
+          className="shrink-0 rounded-md bg-[var(--color-action-bg)] p-1 text-[var(--color-action-text)] opacity-0 shadow-sm transition hover:bg-[var(--color-action-bg-hover)] focus:opacity-100 disabled:cursor-not-allowed disabled:bg-[var(--color-apollo-graphite-300)] disabled:text-[var(--color-apollo-graphite-700)] group-hover/action:opacity-100"
         >
           <RiPlayLine className="size-3.5" />
         </button>
@@ -575,12 +575,12 @@ function IntegrationOutputCell(props: ICellRendererParams<RowData> & { sourceCol
       const src = props.value.trim();
       if (/^(?:https?:\/\/|data:image\/)/i.test(src)) {
         // eslint-disable-next-line @next/next/no-img-element
-        return <img src={src} alt="Generated result" className="h-8 max-w-full rounded object-cover" />;
+        return <img src={src} alt="Resultado gerado" className="h-8 max-w-full rounded object-cover" />;
       }
     }
     const href = displayHref(props.value, type);
     if (href) {
-      return <a href={href} target={type === "email" ? undefined : "_blank"} rel={type === "email" ? undefined : "noreferrer"} onClick={(event) => event.stopPropagation()} className="truncate text-blue-600 dark:text-blue-400 hover:underline">{String(props.value)}</a>;
+      return <a href={href} target={type === "email" ? undefined : "_blank"} rel={type === "email" ? undefined : "noreferrer"} onClick={(event) => event.stopPropagation()} className="truncate text-[var(--color-complement-deep)] hover:underline">{String(props.value)}</a>;
     }
     if (type === "date") {
       const raw = String(props.value);
@@ -591,7 +591,7 @@ function IntegrationOutputCell(props: ICellRendererParams<RowData> & { sourceCol
     if (type === "number" && Number.isFinite(Number(props.value))) return Number(props.value).toLocaleString(undefined, props.ungrouped ? { useGrouping: false } : undefined);
     if (type === "boolean") {
       const checked = props.value === true || props.value === 1 || String(props.value).toLowerCase() === "true";
-      return <span className="flex items-center gap-1.5"><RiCheckboxCircleLine className={`size-4 ${checked ? "text-emerald-600 dark:text-emerald-400" : "text-text-disabled-300"}`} />{checked ? "True" : "False"}</span>;
+      return <span className="flex items-center gap-1.5"><RiCheckboxCircleLine className={`size-4 ${checked ? "text-[var(--color-success-dark)]" : "text-text-disabled-300"}`} />{checked ? "Sim" : "Não"}</span>;
     }
     if (type === "json" || typeof props.value === "object") {
       const json = JSON.stringify(props.value);
@@ -603,10 +603,10 @@ function IntegrationOutputCell(props: ICellRendererParams<RowData> & { sourceCol
     ? props.data?.__meta?.[props.sourceColumnKey] as CellMeta | undefined
     : undefined;
   if (sourceMeta?.status === "queued" || sourceMeta?.status === "running" || sourceMeta?.status === "processing") {
-    return <span className="flex items-center gap-1.5 italic text-text-soft-400"><RiTimeLine className="size-4" />Waiting for result…</span>;
+    return <span className="flex items-center gap-1.5 italic text-text-soft-400"><RiTimeLine className="size-4" />Aguardando resultado…</span>;
   }
   if (sourceMeta?.status === "error") {
-    return <span className="italic text-text-soft-400">Action failed</span>;
+    return <span className="italic text-text-soft-400">Ação falhou</span>;
   }
   if (isMiss(sourceMeta)) return NO_RESULT;
   return "";
@@ -627,7 +627,7 @@ function AddRowsControl(props: {
         className="flex items-center gap-1.5 rounded-lg border border-stroke-soft-200 px-2.5 py-[7px] text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50 disabled:opacity-50"
       >
         <RiAddLine className="size-4" />
-        Add
+        Adicionar
       </button>
       <input
         type="number"
@@ -637,9 +637,9 @@ function AddRowsControl(props: {
         onChange={(event) =>
           props.onCountChange(Math.max(1, Math.min(1000, Number(event.target.value) || 1)))
         }
-        className="w-[68px] rounded-lg border border-stroke-soft-200 px-2 py-[7px] text-[13px] text-text-strong-950 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        className="w-[68px] rounded-lg border border-stroke-soft-200 px-2 py-[7px] text-[13px] text-text-strong-950 outline-none focus:border-[var(--color-action-ring)] focus:ring-1 focus:ring-[var(--color-action-ring)]"
       />
-      <span className="text-[13px] text-text-sub-600">more rows at the bottom</span>
+      <span className="text-[13px] text-text-sub-600">linhas adicionais no fim</span>
     </div>
   );
 }
@@ -2538,8 +2538,8 @@ export default function GridClient({
               autoRun ? "text-text-strong-950 hover:bg-bg-weak-50" : "text-text-soft-400 hover:bg-bg-weak-50"
             }`}
           >
-            <RiRefreshLine className={`size-4 ${autoRun ? "text-emerald-500" : "text-text-disabled-300"}`} />
-            Auto-run
+            <RiRefreshLine className={`size-4 ${autoRun ? "text-[var(--color-accent-ring)]" : "text-text-disabled-300"}`} />
+            Execução automática
           </button>
           <div className="h-5 w-px bg-bg-soft-200" />
           <span className="flex items-center gap-1.5 px-2.5 py-[7px] text-[13px] text-text-sub-600">
@@ -2549,19 +2549,19 @@ export default function GridClient({
         </div>
 
         {(activeJobs > 0 || pendingCells) && (
-          <div className="flex items-center gap-1.5 rounded-lg border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 py-[3px] pl-2.5 pr-[3px] text-[13px] font-medium text-blue-700 dark:text-blue-400">
+          <div className="flex items-center gap-1.5 rounded-lg border border-[var(--color-complement-ring)] bg-[var(--color-complement-surface)] py-[3px] pl-2.5 pr-[3px] text-[13px] font-medium text-[var(--color-complement-deep)]">
             <RiLoader4Line className="size-4 animate-spin" />
             <span>
-              Running{activeJobs > 0 ? ` · ${activeJobs.toLocaleString()} left` : ""}
+              Em execução{activeJobs > 0 ? ` · ${activeJobs.toLocaleString()} restantes` : ""}
             </span>
             <button
               type="button"
               disabled={stopping}
               onClick={() => void stopRun()}
-              className="flex items-center gap-1 rounded-md bg-bg-white-0 px-2 py-1 text-[12px] font-semibold text-red-600 dark:text-red-400 shadow-sm ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-50"
+              className="flex items-center gap-1 rounded-md bg-bg-white-0 px-2 py-1 text-[12px] font-semibold text-[var(--color-error-dark)] shadow-sm ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-[var(--color-error-lighter)] disabled:opacity-50"
             >
               <RiStopCircleLine className="size-3.5" />
-              {stopping ? "Stopping…" : "Stop"}
+              {stopping ? "Interrompendo…" : "Interromper"}
             </button>
           </div>
         )}
@@ -2571,14 +2571,14 @@ export default function GridClient({
           className="flex items-center gap-1.5 rounded-lg px-2.5 py-[7px] text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50"
         >
           <RiTableLine className="size-4 text-text-soft-400" />
-          Default view
+          Visualização padrão
         </button>
 
         <div className="flex items-center rounded-lg border border-stroke-soft-200">
           <button
             type="button"
-            aria-label="Undo"
-            title="Undo (Ctrl/Cmd+Z)"
+            aria-label="Desfazer"
+            title="Desfazer (Ctrl/Cmd+Z)"
             disabled={busy || historyCounts.undo === 0}
             onClick={() => void undoLastCellChange()}
             className="rounded-l-lg p-[7px] text-text-sub-600 transition hover:bg-bg-weak-50 disabled:cursor-not-allowed disabled:text-text-disabled-300"
@@ -2588,8 +2588,8 @@ export default function GridClient({
           <div className="h-5 w-px bg-bg-soft-200" />
           <button
             type="button"
-            aria-label="Redo"
-            title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)"
+            aria-label="Refazer"
+            title="Refazer (Ctrl/Cmd+Shift+Z ou Ctrl/Cmd+Y)"
             disabled={busy || historyCounts.redo === 0}
             onClick={() => void redoLastCellChange()}
             className="rounded-r-lg p-[7px] text-text-sub-600 transition hover:bg-bg-weak-50 disabled:cursor-not-allowed disabled:text-text-disabled-300"
@@ -2600,7 +2600,7 @@ export default function GridClient({
 
         <ToolbarToggle
           icon={RiLayoutColumnLine}
-          label={`${visibleColumns.length}/${columns.length} columns`}
+          label={`${visibleColumns.length}/${columns.length} colunas`}
           active={panel?.name === "columns"}
           highlight={hidden.length > 0}
           onClick={openPanel("columns")}
@@ -2608,13 +2608,13 @@ export default function GridClient({
 
         <span className="flex items-center gap-1.5 rounded-lg px-2.5 py-[7px] text-[13px] font-medium text-text-strong-950">
           <RiTableLine className="size-4 text-text-soft-400" />
-          {rowCount}/{unfiltered} rows
+          {rowCount}/{unfiltered} linhas
         </span>
 
         <ToolbarToggle
           icon={RiFilter3Line}
           label={activeFilterCount ? String(activeFilterCount) : undefined}
-          title="Filter"
+          title="Filtrar"
           active={panel?.name === "filter"}
           highlight={activeFilterCount > 0}
           onClick={openPanel("filter")}
@@ -2622,14 +2622,14 @@ export default function GridClient({
         <ToolbarToggle
           icon={RiSortDesc}
           label={sorts.length ? String(sorts.length) : undefined}
-          title="Sort"
+          title="Ordenar"
           active={panel?.name === "sort"}
           highlight={sorts.length > 0}
           onClick={openPanel("sort")}
         />
         <ToolbarToggle
           icon={RiSearchLine}
-          title="Search"
+          title="Pesquisar"
           active={panel?.name === "search"}
           highlight={appliedSearch.length > 0}
           onClick={openPanel("search")}
@@ -2642,7 +2642,7 @@ export default function GridClient({
               setSearch("");
               void runSearch("");
             }}
-            className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-500/10 px-2 py-1 text-[12px] font-medium text-blue-700 dark:text-blue-400"
+            className="flex items-center gap-1 rounded-md bg-[var(--color-complement-surface)] px-2 py-1 text-[12px] font-medium text-[var(--color-complement-deep)]"
           >
             “{appliedSearch}”
             <RiCloseLine className="size-3.5" />
@@ -2653,8 +2653,8 @@ export default function GridClient({
 
         <div className="ml-auto flex items-center gap-1.5">
           {selectedRowIds.length > 0 && (
-            <span className="rounded-md bg-blue-50 dark:bg-blue-500/10 px-2.5 py-[7px] text-[13px] font-medium text-blue-700 dark:text-blue-400">
-              {selectedRowIds.length} selected
+            <span className="rounded-md bg-[var(--color-complement-surface)] px-2.5 py-[7px] text-[13px] font-medium text-[var(--color-complement-deep)]">
+              {selectedRowIds.length} selecionadas
             </span>
           )}
           <button
@@ -2663,15 +2663,15 @@ export default function GridClient({
             className="flex items-center gap-1.5 rounded-lg border border-stroke-soft-200 px-2.5 py-[7px] text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50"
           >
             <RiUploadCloud2Line className="size-4 text-text-soft-400" />
-            Import
-          </button>
+              Importar
+            </button>
           <button
             type="button"
             onClick={(event) => setRowActionsRect(event.currentTarget.getBoundingClientRect())}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-[7px] text-[13px] font-medium text-white transition hover:bg-blue-700"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--color-action-bg)] px-3 py-[7px] text-[13px] font-medium text-[var(--color-action-text)] transition hover:bg-[var(--color-action-bg-hover)]"
           >
             {selectedRowIds.length ? <RiMore2Line className="size-4" /> : <RiToolsLine className="size-4" />}
-            Actions
+            Ações
             <RiArrowDownSLine className="size-4" />
           </button>
         </div>
@@ -2681,8 +2681,8 @@ export default function GridClient({
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-primary-alpha-20 bg-primary-alpha-10 px-3 py-2 text-[13px] text-text-sub-600">
           <span>
             {allMatchingSelected
-              ? `All ${rowCount.toLocaleString()} matching rows are selected.`
-              : `${selectedOnPage.toLocaleString()} row${selectedOnPage === 1 ? "" : "s"} on this page selected.`}
+              ? `Todas as ${rowCount.toLocaleString()} linhas correspondentes estão selecionadas.`
+              : `${selectedOnPage.toLocaleString()} linha${selectedOnPage === 1 ? "" : "s"} nesta página selecionada${selectedOnPage === 1 ? "" : "s"}.`}
           </span>
           <div className="flex items-center gap-3 whitespace-nowrap">
             {!allMatchingSelected && selectedOnPage === pageRowIds.length && rowCount > pageRowIds.length && (
@@ -2692,7 +2692,7 @@ export default function GridClient({
                 disabled={busy}
                 className="font-semibold text-primary-base hover:text-primary-dark disabled:opacity-50"
               >
-                Select all {rowCount.toLocaleString()} matching rows
+                Selecionar todas as {rowCount.toLocaleString()} linhas correspondentes
               </button>
             )}
             <button
@@ -2703,7 +2703,7 @@ export default function GridClient({
               }}
               className="font-medium text-text-soft-400 hover:text-text-strong-950"
             >
-              Clear selection
+              Limpar seleção
             </button>
           </div>
         </div>
@@ -2764,7 +2764,7 @@ export default function GridClient({
             </div>
           )}
           {cellSavingLabel && (
-            <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-md border border-blue-200 dark:border-blue-500/30 bg-bg-white-0/95 px-2.5 py-1.5 text-[12px] font-medium text-blue-700 dark:text-blue-400 shadow-sm">
+            <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-md border border-[var(--color-complement-ring)] bg-bg-white-0/95 px-2.5 py-1.5 text-[12px] font-medium text-[var(--color-complement-deep)] shadow-sm">
               <RiLoader4Line className="size-3.5 animate-spin" />
               {cellSavingLabel}
             </div>
@@ -2775,16 +2775,16 @@ export default function GridClient({
       <div className="flex min-h-14 shrink-0 items-center justify-between gap-4 border-t border-stroke-soft-200 bg-bg-white-0 px-3 text-[13px] text-text-sub-600">
         <AddRowsControl addRows={addRows} busy={busy} onAdd={appendRows} onCountChange={setAddRows} />
         <span className="ml-auto whitespace-nowrap tabular-nums">
-          {visibleRange.start.toLocaleString()}–{visibleRange.end.toLocaleString()} of {rowCount.toLocaleString()}
+          {visibleRange.start.toLocaleString()}–{visibleRange.end.toLocaleString()} de {rowCount.toLocaleString()}
         </span>
         <div className="flex items-center gap-1.5">
-          <button type="button" disabled={busy || page === 0} onClick={() => void goToPage(0)} className="rounded-lg border border-stroke-soft-200 px-2.5 py-1.5 font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40">First</button>
-          <button type="button" aria-label="Previous page" disabled={busy || page === 0} onClick={() => void goToPage(page - 1)} className="rounded-lg border border-stroke-soft-200 p-1.5 text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40"><RiArrowLeftSLine className="size-4" /></button>
+          <button type="button" disabled={busy || page === 0} onClick={() => void goToPage(0)} className="rounded-lg border border-stroke-soft-200 px-2.5 py-1.5 font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40">Primeira</button>
+          <button type="button" aria-label="Página anterior" disabled={busy || page === 0} onClick={() => void goToPage(page - 1)} className="rounded-lg border border-stroke-soft-200 p-1.5 text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40"><RiArrowLeftSLine className="size-4" /></button>
           <label className="flex items-center gap-1.5 tabular-nums">
-            <span>Page</span>
+            <span>Página</span>
             <input
               key={page}
-              aria-label="Page number"
+              aria-label="Número da página"
               type="number"
               min={1}
               max={totalPages}
@@ -2802,12 +2802,12 @@ export default function GridClient({
                   void goToPage(target);
                 }
               }}
-              className="w-16 rounded-lg border border-stroke-soft-200 px-2 py-1.5 text-center text-text-strong-950 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-16 rounded-lg border border-stroke-soft-200 px-2 py-1.5 text-center text-text-strong-950 outline-none focus:border-[var(--color-action-ring)] focus:ring-1 focus:ring-[var(--color-action-ring)]"
             />
-            <span>of {totalPages}</span>
+            <span>de {totalPages}</span>
           </label>
-          <button type="button" aria-label="Next page" disabled={busy || page >= totalPages - 1} onClick={() => void goToPage(page + 1)} className="rounded-lg border border-stroke-soft-200 p-1.5 text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40"><RiArrowRightSLine className="size-4" /></button>
-          <button type="button" disabled={busy || page >= totalPages - 1} onClick={() => void goToPage(totalPages - 1)} className="rounded-lg border border-stroke-soft-200 px-2.5 py-1.5 font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40">Last</button>
+          <button type="button" aria-label="Próxima página" disabled={busy || page >= totalPages - 1} onClick={() => void goToPage(page + 1)} className="rounded-lg border border-stroke-soft-200 p-1.5 text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40"><RiArrowRightSLine className="size-4" /></button>
+          <button type="button" disabled={busy || page >= totalPages - 1} onClick={() => void goToPage(totalPages - 1)} className="rounded-lg border border-stroke-soft-200 px-2.5 py-1.5 font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-40">Última</button>
         </div>
       </div>
 
@@ -2816,14 +2816,14 @@ export default function GridClient({
         <Popover anchorRect={runMenu.rect} onClose={closeRunMenu} width={260}>
           <div className="p-2">
             <p className="truncate px-3 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-wide text-text-soft-400">
-              Run {runMenu.column.name}
+              Executar {runMenu.column.name}
             </p>
             {selectedRowIds.length > 0 && (
-              <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column, selectedRowIds)} className="flex w-full items-center gap-2 rounded-lg bg-primary-alpha-10 px-3 py-2 text-left text-[13px] font-semibold text-primary-base hover:bg-primary-alpha-20 disabled:opacity-50"><RiPlayLine className="size-4" />Run {selectedRowIds.length.toLocaleString()} selected row{selectedRowIds.length === 1 ? "" : "s"}</button>
+              <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column, selectedRowIds)} className="flex w-full items-center gap-2 rounded-lg bg-primary-alpha-10 px-3 py-2 text-left text-[13px] font-semibold text-primary-base hover:bg-primary-alpha-20 disabled:opacity-50"><RiPlayLine className="size-4" />              Executar {selectedRowIds.length.toLocaleString()} linha{selectedRowIds.length === 1 ? "" : "s"} selecionada{selectedRowIds.length === 1 ? "" : "s"}</button>
             )}
-            <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column, rowData.slice(0, 10).map((row) => row.__id))} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-50"><RiPlayLine className="size-4" />Run first 10 rows on this page</button>
-            <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column)} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-50"><RiPlayLine className="size-4" />Run all rows</button>
-            <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column, undefined, { onlyEmpty: true })} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-50"><RiPlayLine className="size-4" />Run empty cells only</button>
+            <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column, rowData.slice(0, 10).map((row) => row.__id))} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-50"><RiPlayLine className="size-4" />Executar as primeiras 10 linhas desta página</button>
+            <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column)} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-50"><RiPlayLine className="size-4" />Executar todas as linhas</button>
+            <button type="button" disabled={busy} onClick={() => void runColumn(runMenu.column, undefined, { onlyEmpty: true })} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-text-strong-950 hover:bg-bg-weak-50 disabled:opacity-50"><RiPlayLine className="size-4" />Executar apenas células vazias</button>
           </div>
         </Popover>
       )}
@@ -2874,7 +2874,7 @@ export default function GridClient({
                 autoFocus
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search"
+                placeholder="Pesquisar"
                 className="min-w-0 flex-1 bg-transparent text-[13px] text-text-strong-950 outline-none placeholder:text-text-soft-400"
               />
             </div>
@@ -2882,7 +2882,7 @@ export default function GridClient({
               type="submit"
               className="shrink-0 rounded-lg border border-stroke-soft-200 px-2.5 py-2 text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50"
             >
-              Search
+              Pesquisar
             </button>
           </form>
         </Popover>
@@ -3052,7 +3052,7 @@ export default function GridClient({
                     setRowActionsRect(null);
                     setCreateCampaignOpen(true);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-blue-700 dark:text-blue-400 transition hover:bg-blue-50 dark:hover:bg-blue-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-[var(--color-complement-deep)] transition hover:bg-[var(--color-complement-surface)] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <RiMegaphoneLine className="size-[17px]" />
                   Create campaign
@@ -3063,7 +3063,7 @@ export default function GridClient({
                     setRowActionsRect(null);
                     void deleteSelectedRows();
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-red-600 dark:text-red-400 transition hover:bg-red-50 dark:hover:bg-red-500/10"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-[var(--color-error-dark)] transition hover:bg-[var(--color-error-lighter)]"
                 >
                   <RiDeleteBin6Line className="size-[17px]" />
                   Delete {selectedRowIds.length} row{selectedRowIds.length === 1 ? "" : "s"}
@@ -3198,8 +3198,8 @@ function Toast({ tone, onClose, children }: { tone: "error" | "success"; onClose
     <div
       className={`pointer-events-auto flex max-w-xl items-start gap-2 rounded-lg border px-3 py-2 text-[13px] shadow-lg ${
         tone === "error"
-          ? "border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400"
-          : "border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400"
+          ? "border-[var(--color-error-light)] bg-[var(--color-error-lighter)] text-[var(--color-error-dark)]"
+          : "border-[var(--color-success-light)] bg-[var(--color-success-lighter)] text-[var(--color-success-dark)]"
       }`}
     >
       <span className="min-w-0 flex-1 break-words">{children}</span>
@@ -3234,11 +3234,11 @@ function ToolbarToggle({
         active
           ? "bg-bg-weak-50 text-text-strong-950"
           : highlight
-            ? "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/15"
+            ? "bg-[var(--color-complement-surface)] text-[var(--color-complement-deep)] hover:bg-[var(--color-complement-light)]"
             : "text-text-strong-950 hover:bg-bg-weak-50"
       }`}
     >
-      <Icon className={`size-4 ${highlight && !active ? "text-blue-500" : "text-text-soft-400"}`} />
+      <Icon className={`size-4 ${highlight && !active ? "text-[var(--color-accent-ring)]" : "text-text-soft-400"}`} />
       {label}
     </button>
   );

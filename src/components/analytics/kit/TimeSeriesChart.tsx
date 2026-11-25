@@ -170,10 +170,10 @@ export function TimeSeriesChart<K extends string>({
 }
 
 /** The table twin of a TimeSeriesChart: one row per bucket, one column per key (plus Total when stacked/multi). */
-export function TimeSeriesTable<K extends string>({ series, keys, bucket, valueFormat = (n) => n.toLocaleString("en-US"), caption }: { series: TimeSeries<K>; keys: SeriesKeys<K>; bucket: AnalyticsRange["bucket"]; valueFormat?: (value: number) => string; caption: string }) {
+export function TimeSeriesTable<K extends string>({ series, keys, bucket, valueFormat = (n) => n.toLocaleString("pt-BR"), caption }: { series: TimeSeries<K>; keys: SeriesKeys<K>; bucket: AnalyticsRange["bucket"]; valueFormat?: (value: number) => string; caption: string }) {
   const order = (Object.keys(keys) as K[]).filter((k) => series.keys.includes(k));
   const columns: TableColumn[] = [
-    { key: "date", label: bucket === "week" ? "Week of" : "Date" },
+    { key: "date", label: bucket === "week" ? "Semana de" : "Data" },
     ...order.map((k) => ({ key: k, label: keys[k].label, align: "right" as const, swatch: keys[k].color, format: (v: string | number | null) => valueFormat(Number(v ?? 0)) })),
   ];
   if (order.length > 1) columns.push({ key: "total", label: "Total", align: "right", format: (v) => valueFormat(Number(v ?? 0)) });

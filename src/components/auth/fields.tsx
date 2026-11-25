@@ -4,10 +4,10 @@ import { useId, useState } from "react";
 import { RiEyeLine, RiEyeOffLine } from "@remixicon/react";
 import { cn } from "@/utils/cn";
 
-/*
+/**
  * The auth pages' form pieces. They sit on AuthShell's fixed dark
- * background (auth pages do not follow the app theme), so colours are set
- * here rather than taken from the theme tokens.
+ * background, so colours are tied to the Apollo palette rather than the app
+ * theme.
  */
 
 export function Spinner() {
@@ -21,7 +21,7 @@ export function Spinner() {
 
 /**
  * A labelled input. `labelAside` sits at the right end of the label row
- * (e.g. "Forgot password?"). A password input gets a show/hide toggle.
+ * (e.g. "Esqueceu a senha?"). A password input gets a show/hide toggle.
  */
 export function Field({
   label,
@@ -37,7 +37,7 @@ export function Field({
   return (
     <div>
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-medium text-zinc-100">
+        <label htmlFor={id} className="text-sm font-medium text-apollo-soft-white">
           {label}
         </label>
         {labelAside && <span className="text-xs">{labelAside}</span>}
@@ -48,7 +48,7 @@ export function Field({
           type={isPassword && revealed ? "text" : type}
           aria-describedby={hint ? `${id}-hint` : undefined}
           className={cn(
-            "h-11 w-full rounded-lg border border-white/12 bg-white/[0.03] px-3.5 text-sm text-white placeholder:text-zinc-500 transition-colors hover:border-white/20 focus:border-white/30 focus:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-[#335cff]/40",
+            "h-11 w-full rounded-lg border border-apollo-purple-300/20 bg-apollo-graphite-900/60 px-3.5 text-sm text-apollo-soft-white placeholder:text-apollo-graphite-400 transition-colors hover:border-apollo-purple-300/40 focus:border-apollo-lime-400/60 focus:bg-apollo-graphite-900 focus:outline-none focus:ring-2 focus:ring-apollo-lime-400/30",
             isPassword && "pr-11",
             className,
           )}
@@ -58,16 +58,16 @@ export function Field({
           <button
             type="button"
             onClick={() => setRevealed((v) => !v)}
-            aria-label={revealed ? "Hide password" : "Show password"}
+            aria-label={revealed ? "Ocultar senha" : "Mostrar senha"}
             aria-pressed={revealed}
-            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-zinc-400 transition-colors hover:text-zinc-100 focus-visible:text-zinc-100 focus-visible:outline-none"
+            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-apollo-purple-300 transition-colors hover:text-apollo-soft-white focus-visible:text-apollo-lime-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apollo-lime-400/50"
           >
             {revealed ? <RiEyeOffLine className="size-[18px]" /> : <RiEyeLine className="size-[18px]" />}
           </button>
         )}
       </div>
       {hint && (
-        <p id={`${id}-hint`} className="mt-1.5 text-xs text-zinc-500">
+        <p id={`${id}-hint`} className="mt-1.5 text-xs text-apollo-graphite-400">
           {hint}
         </p>
       )}
@@ -77,7 +77,7 @@ export function Field({
 
 export function ErrorCallout({ children }: { children: React.ReactNode }) {
   return (
-    <div role="alert" className="rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2.5 text-sm text-red-300">
+    <div role="alert" className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2.5 text-sm leading-relaxed text-red-200">
       {children}
     </div>
   );
@@ -85,7 +85,7 @@ export function ErrorCallout({ children }: { children: React.ReactNode }) {
 
 export function InfoCallout({ children }: { children: React.ReactNode }) {
   return (
-    <div role="status" className="rounded-lg border border-[#335cff]/30 bg-[#335cff]/10 px-3 py-2.5 text-sm text-[#c7d2ff]">
+    <div role="status" className="rounded-lg border border-apollo-purple-400/40 bg-apollo-purple-500/10 px-3 py-2.5 text-sm leading-relaxed text-apollo-purple-200">
       {children}
     </div>
   );
@@ -107,7 +107,7 @@ export function SubmitButton({
     <button
       type="submit"
       disabled={loading || disabled}
-      className="h-11 w-full rounded-lg bg-zinc-100 text-sm font-medium text-zinc-950 shadow-[inset_0_-1px_0_rgb(0_0_0/0.12)] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#335cff]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0b0d] disabled:cursor-not-allowed disabled:opacity-60"
+      className="h-11 w-full rounded-lg bg-apollo-lime-400 text-sm font-semibold text-apollo-graphite-900 shadow-[inset_0_-1px_0_rgb(15_18_14/0.18)] transition-colors hover:bg-apollo-lime-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apollo-lime-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-apollo-graphite-950 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {loading ? (
         <span className="flex items-center justify-center gap-2">
@@ -132,7 +132,7 @@ export function SecondaryButton({
       type="button"
       disabled={loading || props.disabled}
       className={cn(
-        "flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/12 bg-white/[0.03] text-sm font-medium text-zinc-100 transition-colors hover:border-white/20 hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#335cff]/50 disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-apollo-purple-300/20 bg-apollo-graphite-900/60 text-sm font-medium text-apollo-soft-white transition-colors hover:border-apollo-purple-300/40 hover:bg-apollo-graphite-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apollo-lime-400/50 disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}
@@ -143,6 +143,6 @@ export function SecondaryButton({
   );
 }
 
-/** Quiet inline links ("Forgot password?") and footer actions ("Create one"). */
-export const linkClass = "font-medium text-zinc-100 underline-offset-4 transition-colors hover:text-white hover:underline";
-export const quietLinkClass = "text-zinc-400 underline-offset-4 transition-colors hover:text-zinc-100 hover:underline";
+/** Quiet inline links ("Esqueceu a senha?") and footer actions ("Crie uma"). */
+export const linkClass = "font-medium text-apollo-soft-white underline-offset-4 transition-colors hover:text-apollo-lime-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-apollo-lime-400/50";
+export const quietLinkClass = "text-apollo-purple-300 underline-offset-4 transition-colors hover:text-apollo-soft-white hover:underline";

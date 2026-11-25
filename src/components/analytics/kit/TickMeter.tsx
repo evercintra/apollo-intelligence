@@ -26,7 +26,7 @@ export function TickMeter({ label, used, limit, caption, ticks = 48, delta }: { 
         {state !== "ok" && (
           <span className="flex items-center gap-1 text-label-xs text-text-sub-600">
             {state === "critical" ? <RiErrorWarningLine className="size-4" style={{ color }} aria-hidden="true" /> : <RiAlertLine className="size-4" style={{ color }} aria-hidden="true" />}
-            {state === "critical" ? "At limit" : "Near limit"}
+            {state === "critical" ? "No limite" : "Perto do limite"}
           </span>
         )}
       </div>
@@ -35,7 +35,7 @@ export function TickMeter({ label, used, limit, caption, ticks = 48, delta }: { 
           <span key={i} className="h-full min-w-0 flex-1 rounded-full" style={{ backgroundColor: i < filled ? color : "var(--color-bg-soft-200)", maxWidth: 3 }} />
         ))}
       </div>
-      <p className="mt-2 text-paragraph-xs text-text-sub-600">{caption ?? `${used.toLocaleString("en-US")} of ${limit.toLocaleString("en-US")}`}</p>
+      <p className="mt-2 text-paragraph-xs text-text-sub-600">{caption ?? `${used.toLocaleString("pt-BR")} de ${limit.toLocaleString("pt-BR")}`}</p>
     </div>
   );
 }

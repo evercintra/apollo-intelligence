@@ -57,8 +57,8 @@ type StepPayload = {
 };
 
 const MAX_STEPS = 30;
-const DEFAULT_IMMEDIATE_GOAL = "Respond to the latest inbound message and move the conversation forward naturally.";
-const DEFAULT_FOLLOW_UP_GOAL = "Follow up naturally, add value, and avoid repeating the previous message.";
+const DEFAULT_IMMEDIATE_GOAL = "Responda à última mensagem recebida e faça a conversa avançar naturalmente.";
+const DEFAULT_FOLLOW_UP_GOAL = "Faça um acompanhamento natural, agregue valor e evite repetir a mensagem anterior.";
 const inputClass = fieldClass;
 
 function newClientId() {
@@ -79,7 +79,7 @@ function delayInMinutes(amount: number, unit: DelayUnit) {
 function immediateStep(): EditorStep {
   return {
     clientId: newClientId(),
-    storedName: "Immediate reply",
+    storedName: "Resposta imediata",
     delayAmount: 0,
     delayUnit: "minutes",
     timing: "after_previous",
@@ -94,7 +94,7 @@ function immediateStep(): EditorStep {
 function followUpStep(): EditorStep {
   return {
     clientId: newClientId(),
-    storedName: "Follow-up",
+    storedName: "Acompanhamento",
     delayAmount: 2,
     delayUnit: "days",
     timing: "after_previous",
@@ -123,11 +123,11 @@ function parseStep(value: Record<string, unknown>, index: number): EditorStep {
 }
 
 function stepLabel(index: number) {
-  return index === 0 ? "Immediate reply" : `Follow-up ${index}`;
+  return index === 0 ? "Resposta imediata" : `Acompanhamento ${index}`;
 }
 
 function persistedStepName(step: EditorStep, index: number) {
-  const generated = /^(immediate reply|follow-up(?: \d+)?)$/i.test(step.storedName.trim());
+  const generated = /^(immediate reply|resposta imediata|follow-up(?: \d+)?|acompanhamento(?: \d+)?)$/i.test(step.storedName.trim());
   return generated ? stepLabel(index) : step.storedName.trim();
 }
 
@@ -193,7 +193,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
         body: JSON.stringify({ autoSendFollowUps: value }),
       });
       setSequence((current) => ({ ...current, autoSendFollowUps: value }));
-      setNotice(value ? "Follow-ups will now send automatically." : "Automatic follow-ups turned off. Waiting follow-ups are now in Action required.");
+      setNotice(value ? "Os acompanhamentos agora serão enviados automaticamente." : "Envio automático de acompanhamentos desligado. Os pendentes estão em Ação necessária.");
     } catch (cause) {
       setError(errorMessage(cause));
     } finally {
@@ -212,7 +212,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
         method: "PATCH",
         body: JSON.stringify({ autoSendReply: value }),
       });
-      setNotice(value ? "The immediate reply will now send itself after a 15-minute hold." : "The immediate reply now waits for you in Action required.");
+      setNotice(value ? "A resposta imediata será enviada sozinha após 15 minutos." : "A resposta imediata agora espera por você em Ação necessária.");
     } catch (cause) {
       setSequence((current) => ({ ...current, autoSendReply: previous }));
       setError(errorMessage(cause));
@@ -233,7 +233,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
         method: "PATCH",
         body: JSON.stringify({ thenSequenceId: value }),
       });
-      setNotice("Saved what happens when the steps run out.");
+      setNotice("Salvo o que acontece quando as etapas terminam.");
     } catch (cause) {
       setSequence((current) => ({ ...current, thenSequenceId: previous }));
       setError(errorMessage(cause));
@@ -265,13 +265,13 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
   };
 
   const validationError = useMemo(() => {
-    if (!name.trim()) return "Sequence name is required.";
-    if (!steps.length) return "Add an immediate reply step before saving.";
-    if (steps.length > MAX_STEPS) return `A sequence can contain at most ${MAX_STEPS} steps.`;
+    if (!name.trim()) return "O nome da sequência é obrigatório.";
+    if (!steps.length) return "Adicione uma etapa de resposta imediata antes de salvar.";
+    if (steps.length > MAX_STEPS) return `Uma sequência pode ter no máximo ${MAX_STEPS} etapas.`;
     const missingGoal = steps.findIndex((step) => !step.messageGoal.trim());
-    if (missingGoal >= 0) return `${stepLabel(missingGoal)} needs a message goal.`;
+    if (missingGoal >= 0) return `${stepLabel(missingGoal)} precisa de um objetivo de mensagem.`;
     const invalidDelay = steps.findIndex((step, index) => index > 0 && (!Number.isInteger(step.delayAmount) || step.delayAmount < 1));
-    if (invalidDelay >= 0) return `${stepLabel(invalidDelay)} needs a positive whole-number delay.`;
+    if (invalidDelay >= 0) return `${stepLabel(invalidDelay)} precisa de um intervalo positivo e inteiro.`;
     return "";
   }, [name, steps]);
 
@@ -305,7 +305,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
       });
       setSequence((current) => ({ ...current, name: payload.name, description: payload.description }));
       setDirty(false);
-      if (showNotice) setNotice("Draft saved.");
+      if (showNotice) setNotice("Rascunho salvo.");
       return true;
     } catch (cause) {
       setError(errorMessage(cause));
@@ -331,7 +331,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
       await crmFetch(`/sequences/${sequenceId}/publish`, { method: "POST" });
       await load(false);
       setDirty(false);
-      setNotice("Sequence published. Future CRM runs will use this version.");
+      setNotice("Sequência publicada. As próximas execuções no CRM usarão esta versão.");
     } catch (cause) {
       setError(errorMessage(cause));
     } finally {
@@ -350,10 +350,10 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
     try {
       const created = asObject(await crmFetch("/sequences", {
         method: "POST",
-        body: JSON.stringify({ ...payload, name: `${payload.name} copy` }),
+        body: JSON.stringify({ ...payload, name: `${payload.name} (cópia)` }),
       }));
       const id = asObject(created.sequence).id;
-      if (!id) throw new Error("The duplicated sequence did not return an ID");
+      if (!id) throw new Error("A sequência duplicada não retornou um ID");
       router.push(`/crm/sequences/${String(id)}`);
     } catch (cause) {
       setError(errorMessage(cause));
@@ -362,23 +362,23 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
   };
 
   if (loading) return <EditorBody />;
-  if (error && !sequence.id) return <div className="space-y-6"><PageHeader back={BACK} title="Sequence" /><ErrorState message={error} onRetry={() => void load()} /></div>;
+  if (error && !sequence.id) return <div className="space-y-6"><PageHeader back={BACK} title="Sequência" /><ErrorState message={error} onRetry={() => void load()} /></div>;
 
   const archived = sequence.status === "archived";
   const published = Boolean(sequence.latestPublishedVersionId);
   const publishedVersion = asList<Record<string, unknown>>(sequence.versions).find((version) => version.id === sequence.latestPublishedVersionId)?.version;
-  const status = archived ? { label: "Archived", color: "orange" as const } : published ? { label: "Published", color: "green" as const } : { label: "Draft", color: "gray" as const };
+  const status = archived ? { label: "Arquivada", color: "orange" as const } : published ? { label: "Publicada", color: "green" as const } : { label: "Rascunho", color: "gray" as const };
   const spanMinutes = steps.reduce((sum, step, index) => sum + (index === 0 || step.timing === "before_meeting" ? 0 : delayInMinutes(step.delayAmount || 0, step.delayUnit)), 0);
   return (
     <div className="space-y-5">
       <PageHeader
         back={BACK}
-        title={name.trim() || "Untitled sequence"}
+        title={name.trim() || "Sequência sem título"}
         badge={<>
           <Badge.Root variant="lighter" size="medium" color={status.color}><Badge.Dot />{status.label}</Badge.Root>
-          {dirty && <Badge.Root variant="lighter" size="medium" color="yellow"><Badge.Dot />Unsaved changes</Badge.Root>}
+          {dirty && <Badge.Root variant="lighter" size="medium" color="yellow"><Badge.Dot />Alterações não salvas</Badge.Root>}
         </>}
-        description="Runs on Email or LinkedIn — the inbound conversation decides which. Every message waits for approval."
+        description="Executada por e-mail ou LinkedIn — a conversa recebida define o canal. Cada mensagem segue as opções de envio automático ou espera aprovação."
         actions={<>
           <Button.Root
             variant="neutral"
@@ -388,7 +388,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
             onClick={() => void save()}
           >
             <Button.Icon as={RiSaveLine} />
-            {busy === "save" ? "Saving…" : "Save draft"}
+            {busy === "save" ? "Salvando…" : "Salvar rascunho"}
           </Button.Root>
           <Button.Root
             variant="primary"
@@ -398,11 +398,11 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
             onClick={() => void publish()}
           >
             <Button.Icon as={RiSendPlaneLine} />
-            {busy === "publish" ? "Publishing…" : "Publish"}
+            {busy === "publish" ? "Publicando…" : "Publicar"}
           </Button.Root>
           <Dropdown.Root>
             <Dropdown.Trigger asChild>
-              <Button.Root variant="neutral" mode="stroke" size="small" disabled={Boolean(busy)} aria-label="Sequence actions">
+              <Button.Root variant="neutral" mode="stroke" size="small" disabled={Boolean(busy)} aria-label="Ações da sequência">
                 <Button.Icon as={RiMoreLine} />
               </Button.Root>
             </Dropdown.Trigger>
@@ -412,7 +412,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
                 onSelect={() => void duplicate()}
               >
                 <Dropdown.ItemIcon as={RiFileCopyLine} />
-                {busy === "duplicate" ? "Duplicating…" : "Duplicate"}
+                {busy === "duplicate" ? "Duplicando…" : "Duplicar"}
               </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown.Root>
@@ -429,23 +429,23 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
       </div>
       {archived && (
         <div className="rounded-xl bg-warning-lighter px-4 py-2.5 text-paragraph-sm text-warning-dark ring-1 ring-inset ring-warning-light">
-          This archived sequence cannot be published or assigned. Duplicate it to continue, or delete it from the sequence library.
+          Esta sequência arquivada não pode ser publicada nem atribuída. Duplique-a para continuar ou exclua-a da biblioteca de sequências.
         </div>
       )}
 
       <StatRow items={[
-        { label: "Steps", value: `${steps.length}`, icon: RiListOrdered2 },
-        { label: "Follow-ups", value: `${Math.max(steps.length - 1, 0)}`, icon: RiRepeatLine },
-        { label: "Runs over", value: spanMinutes ? formatSpan(spanMinutes) : "Immediate only", icon: RiTimeLine, hint: "From the first reply to the last follow-up, if the lead never answers" },
-        { label: "Live version", value: publishedVersion ? `v${String(publishedVersion)}` : published ? "Published" : "Not published", icon: RiSendPlaneLine, hint: "Only the published version runs. Edits change the draft until you publish again." },
+        { label: "Etapas", value: `${steps.length}`, icon: RiListOrdered2 },
+        { label: "Acompanhamentos", value: `${Math.max(steps.length - 1, 0)}`, icon: RiRepeatLine },
+        { label: "Duração", value: spanMinutes ? formatSpan(spanMinutes) : "Só resposta imediata", icon: RiTimeLine, hint: "Da primeira resposta ao último acompanhamento, se o lead não responder" },
+        { label: "Versão ativa", value: publishedVersion ? `v${String(publishedVersion)}` : published ? "Publicada" : "Não publicada", icon: RiSendPlaneLine, hint: "Só a versão publicada é executada. As edições ficam no rascunho até você publicar de novo." },
       ]} />
 
       <Frame>
-        <FrameHeader title="Details" description="How this sequence shows up in the library and in CRM Settings." />
+        <FrameHeader title="Detalhes" description="Como esta sequência aparece na biblioteca e nas Configurações do CRM." />
         <FramePanel className="grid gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-paragraph-sm">
-              <span className="mb-1.5 block text-label-xs text-text-sub-600">Sequence name</span>
+              <span className="mb-1.5 block text-label-xs text-text-sub-600">Nome da sequência</span>
               <input
                 required
                 maxLength={160}
@@ -457,7 +457,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
             </label>
             <label className="text-paragraph-sm">
               <span className="mb-1.5 block text-label-xs text-text-sub-600">
-                Description <span className="font-normal text-text-soft-400">(optional)</span>
+                Descrição <span className="font-normal text-text-sub-600">(opcional)</span>
               </span>
               <input
                 maxLength={4000}
@@ -465,7 +465,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
                 value={description}
                 onChange={(event) => updateMetadata("description", event.target.value)}
                 className={inputClass}
-                placeholder="When should this sequence be used?"
+                placeholder="Quando esta sequência deve ser usada?"
               />
             </label>
           </div>
@@ -477,8 +477,8 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
               onCheckedChange={(checked) => void toggleAutoSend(checked === true)}
             />
             <span>
-              <span className="block text-label-sm text-text-strong-950">Send follow-ups automatically</span>
-              <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">After the immediate reply goes out from AgentSDR, this sequence&apos;s follow-ups are drafted by the AI and sent on their own — at most one every 30 minutes (by default; see Sending rules) from each mailbox, LinkedIn account or WhatsApp number, inside its sending hours. The immediate reply waits for you unless the next option is on. Turning this off moves waiting follow-ups to Action required.</span>
+              <span className="block text-label-sm text-text-strong-950">Enviar acompanhamentos automaticamente</span>
+              <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">Depois que a resposta imediata é enviada pela automação, os acompanhamentos desta sequência são criados pela IA e enviados sozinhos — no máximo um a cada 30 minutos (por padrão; veja Regras de envio) por caixa de entrada, conta do LinkedIn ou número de WhatsApp, dentro do horário de envio. A resposta imediata espera por você, a menos que a próxima opção esteja ligada. Desligar isto move os acompanhamentos pendentes para Ação necessária.</span>
             </span>
           </label>
           <label className="flex cursor-pointer items-start gap-3 text-paragraph-sm">
@@ -489,27 +489,27 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
               onCheckedChange={(checked) => void toggleAutoSendReply(checked === true)}
             />
             <span>
-              <span className="block text-label-sm text-text-strong-950">Send the immediate reply automatically (after a 15-minute hold)</span>
-              <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">The AI-drafted reply is held for 15 minutes, then sent on its own. A person can still stop it with Review before sending during the hold.</span>
+              <span className="block text-label-sm text-text-strong-950">Enviar a resposta imediata automaticamente (após 15 minutos)</span>
+              <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">A resposta criada pela IA fica retida por 15 minutos e depois é enviada sozinha. Durante esse período, uma pessoa ainda pode barrá-la com Revisar antes de enviar.</span>
             </span>
           </label>
           <div className="text-paragraph-sm">
-            <span className="mb-1.5 block text-label-xs text-text-sub-600">When the steps run out, continue with:</span>
+            <span className="mb-1.5 block text-label-xs text-text-sub-600">Quando as etapas terminam, continuar com:</span>
             <Select.Root
               size="small"
               value={String(sequence.thenSequenceId ?? "none")}
               disabled={Boolean(busy) || archived}
               onValueChange={(value) => void changeThenSequence(value === "none" ? null : value)}
             >
-              <Select.Trigger aria-label="Continue with after the last step" className="w-full sm:max-w-sm">
+              <Select.Trigger aria-label="Continuar com após a última etapa" className="w-full sm:max-w-sm">
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="none">Nothing — stop here</Select.Item>
-                <Select.Item value={sequenceId}>This sequence (repeat)</Select.Item>
+                <Select.Item value="none">Nada — encerrar aqui</Select.Item>
+                <Select.Item value={sequenceId}>Esta sequência (repetir)</Select.Item>
                 {allSequences
                   .filter((row) => String(row.id) !== sequenceId && row.status !== "archived")
-                  .map((row) => <Select.Item key={String(row.id)} value={String(row.id)}>{String(row.name ?? "Unnamed sequence")}</Select.Item>)}
+                  .map((row) => <Select.Item key={String(row.id)} value={String(row.id)}>{String(row.name ?? "Sequência sem nome")}</Select.Item>)}
               </Select.Content>
             </Select.Root>
           </div>
@@ -519,7 +519,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-5">
         <Frame className="lg:sticky lg:top-5 lg:col-span-4">
-          <FrameHeader title="Timeline" description="When each message is prepared." />
+          <FrameHeader title="Linha do tempo" description="Quando cada mensagem é preparada." />
           <FramePanel className="p-0 sm:p-0">
             <ol className="relative px-4 py-2">
               {steps.map((step, index) => (
@@ -531,28 +531,28 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
                   <div className="min-w-0 flex-1">
                     <p className="text-label-sm text-text-strong-950">{stepLabel(index)}</p>
                     {index === 0 ? (
-                      <p className="mt-0.5 text-paragraph-xs text-text-sub-600">Immediately after classification</p>
+                      <p className="mt-0.5 text-paragraph-xs text-text-sub-600">Imediatamente após a classificação</p>
                     ) : (
                       <fieldset disabled={Boolean(busy)} className="mt-2">
                         <legend className="mb-1.5 text-paragraph-xs text-text-sub-600">
-                          {step.timing === "before_meeting" ? "Send before the meeting starts" : "Wait after previous message"}
+                          {step.timing === "before_meeting" ? "Enviar antes da reunião começar" : "Aguardar após a mensagem anterior"}
                         </legend>
                         <Select.Root
                           size="xsmall"
                           value={step.timing}
                           onValueChange={(value) => updateStep(index, { timing: value as StepTiming })}
                         >
-                          <Select.Trigger aria-label={`${stepLabel(index)} timing`} className="mb-1.5 w-full">
+                          <Select.Trigger aria-label={`Intervalo de ${stepLabel(index)}`} className="mb-1.5 w-full">
                             <Select.Value />
                           </Select.Trigger>
                           <Select.Content>
-                            <Select.Item value="after_previous">After the previous message</Select.Item>
-                            <Select.Item value="before_meeting">Before the meeting</Select.Item>
+                            <Select.Item value="after_previous">Após a mensagem anterior</Select.Item>
+                            <Select.Item value="before_meeting">Antes da reunião</Select.Item>
                           </Select.Content>
                         </Select.Root>
                         <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-1.5">
                           <input
-                            aria-label={`${stepLabel(index)} delay amount`}
+                            aria-label={`Quantidade de intervalo de ${stepLabel(index)}`}
                             type="number"
                             min={1}
                             step={1}
@@ -565,35 +565,35 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
                             value={step.delayUnit}
                             onValueChange={(value) => updateStep(index, { delayUnit: value as DelayUnit })}
                           >
-                            <Select.Trigger aria-label={`${stepLabel(index)} delay unit`} className="w-full">
+                            <Select.Trigger aria-label={`Unidade de intervalo de ${stepLabel(index)}`} className="w-full">
                               <Select.Value />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="minutes">Minutes</Select.Item>
-                              <Select.Item value="hours">Hours</Select.Item>
-                              <Select.Item value="days">Days</Select.Item>
+                              <Select.Item value="minutes">Minutos</Select.Item>
+                              <Select.Item value="hours">Horas</Select.Item>
+                              <Select.Item value="days">Dias</Select.Item>
                             </Select.Content>
                           </Select.Root>
                         </div>
                         {step.timing === "before_meeting" && (
-                          <p className="mt-1.5 text-paragraph-xs text-text-sub-600">before the meeting starts. Skipped if no meeting is booked.</p>
+                          <p className="mt-1.5 text-paragraph-xs text-text-sub-600">antes da reunião começar. Ignorado se não houver reunião agendada.</p>
                         )}
-                        <p className="mb-1.5 mt-2 text-paragraph-xs text-text-sub-600">Send on</p>
+                        <p className="mb-1.5 mt-2 text-paragraph-xs text-text-sub-600">Enviar em</p>
                         <Select.Root
                           size="xsmall"
                           value={step.channel}
                           onValueChange={(value) => updateStep(index, { channel: value as StepChannel })}
                         >
-                          <Select.Trigger aria-label={`${stepLabel(index)} channel`} className="w-full">
+                          <Select.Trigger aria-label={`Canal de ${stepLabel(index)}`} className="w-full">
                             <Select.Value />
                           </Select.Trigger>
                           <Select.Content>
-                            <Select.Item value="same">The channel they replied on</Select.Item>
-                            <Select.Item value="other">Their other channel (email ↔ LinkedIn)</Select.Item>
+                            <Select.Item value="same">O canal em que eles responderam</Select.Item>
+                            <Select.Item value="other">O outro canal (e-mail ↔ LinkedIn)</Select.Item>
                           </Select.Content>
                         </Select.Root>
                         {step.channel === "other" && (
-                          <p className="mt-1.5 text-paragraph-xs text-text-sub-600">Email if they replied on LinkedIn, LinkedIn if by email. Sent on the channel they replied on when they cannot be reached there.</p>
+                          <p className="mt-1.5 text-paragraph-xs text-text-sub-600">E-mail se responderam no LinkedIn; LinkedIn se responderam por e-mail. Se não for possível alcançá-los no outro canal, o envio usa o canal da resposta.</p>
                         )}
                       </fieldset>
                     )}
@@ -602,16 +602,16 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
               ))}
             </ol>
           </FramePanel>
-          <FrameFooter>A new inbound reply interrupts any pending follow-up. Every message waits for human approval; nothing sends on its own.</FrameFooter>
+          <FrameFooter>Uma nova resposta recebida interrompe qualquer acompanhamento pendente. As mensagens são preparadas pela IA e enviadas conforme as opções de envio automático; sem elas, esperam aprovação.</FrameFooter>
         </Frame>
 
         <div className="min-w-0 space-y-4 lg:col-span-8">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-label-md text-text-strong-950">Message goals</h2>
-              <p className="mt-0.5 text-paragraph-sm text-text-sub-600">AI writes each message from the conversation and the goal you set here.</p>
+              <h2 className="text-label-md text-text-strong-950">Objetivos da mensagem</h2>
+              <p className="mt-0.5 text-paragraph-sm text-text-sub-600">A IA escreve cada mensagem a partir da conversa e do objetivo definido aqui.</p>
             </div>
-            <span className="text-paragraph-xs text-text-soft-400">Up to {MAX_STEPS - 1} follow-ups</span>
+            <span className="text-paragraph-xs text-text-sub-600">Até {MAX_STEPS - 1} acompanhamentos</span>
           </div>
           {steps.map((step, index) => (
             <StepEditor
@@ -632,7 +632,7 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
             onClick={addFollowUp}
           >
             <Button.Icon as={RiAddLine} />
-            Add follow-up
+            Adicionar acompanhamento
           </Button.Root>
         </div>
       </div>
@@ -640,17 +640,17 @@ export default function CrmSequenceEditor({ sequenceId }: { sequenceId: string }
   );
 }
 
-const BACK = { href: "/crm/sequences", label: "Sequences" };
+const BACK = { href: "/crm/sequences", label: "Sequências" };
 
 /** "9 days", "1 day 4 hours", "45 minutes" — how long the whole sequence spans. */
 function formatSpan(minutes: number) {
   const days = Math.floor(minutes / 1440);
   const hours = Math.floor((minutes % 1440) / 60);
   const rest = minutes % 60;
-  const part = (value: number, unit: string) => `${value} ${unit}${value === 1 ? "" : "s"}`;
-  if (days) return hours ? `${part(days, "day")} ${part(hours, "hour")}` : part(days, "day");
-  if (hours) return rest ? `${part(hours, "hour")} ${part(rest, "minute")}` : part(hours, "hour");
-  return part(rest, "minute");
+  const part = (value: number, singular: string, plural: string) => `${value} ${value === 1 ? singular : plural}`;
+  if (days) return hours ? `${part(days, "dia", "dias")} ${part(hours, "hora", "horas")}` : part(days, "dia", "dias");
+  if (hours) return rest ? `${part(hours, "hora", "horas")} ${part(rest, "minuto", "minutos")}` : part(hours, "hora", "horas");
+  return part(rest, "minuto", "minutos");
 }
 
 function StepEditor({
@@ -674,16 +674,16 @@ function StepEditor({
           <span className={cn("flex size-5 items-center justify-center rounded-full text-label-xs", index === 0 ? "bg-primary-base text-static-white" : "bg-bg-white-0 text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200")}>{index + 1}</span>
           {label}
         </span>}
-        description={index === 0 ? "Created as soon as a reply is classified." : "Prepared only when there is no newer inbound reply."}
+        description={index === 0 ? "Criada assim que uma resposta é classificada." : "Preparada somente quando não há uma resposta recebida mais recente."}
         actions={index > 0 && (
-          <Button.Root variant="error" mode="ghost" size="xsmall" disabled={busy} onClick={onRemove} aria-label={`Remove ${label}`}>
+          <Button.Root variant="error" mode="ghost" size="xsmall" disabled={busy} onClick={onRemove} aria-label={`Remover ${label}`}>
             <Button.Icon as={RiDeleteBinLine} />
           </Button.Root>
         )}
       />
       <FramePanel>
         <label className="block text-paragraph-sm">
-          <span className="mb-1.5 block text-label-xs text-text-sub-600">Message goal</span>
+          <span className="mb-1.5 block text-label-xs text-text-sub-600">Objetivo da mensagem</span>
           <textarea
             required
             maxLength={8000}
@@ -693,12 +693,12 @@ function StepEditor({
             onChange={(event) => onChange({ messageGoal: event.target.value })}
             className={`${inputClass} resize-y`}
             placeholder={index === 0
-              ? "For example: Answer their question clearly and suggest a suitable next step."
-              : "For example: Share one useful proof point and ask whether they want to continue."}
-          />
-          <span className="mt-1 block text-paragraph-xs text-text-soft-400">
-            Describe the outcome and tone. AI will use the Person, company, thread, classification, and Knowledge context.
-          </span>
+              ? "Por exemplo: responda à pergunta deles com clareza e sugira um próximo passo adequado."
+              : "Por exemplo: compartilhe uma prova útil e pergunte se eles querem continuar."}
+            />
+            <span className="mt-1 block text-paragraph-xs text-text-sub-600">
+              Descreva o resultado e o tom. A IA usará o contato, a empresa, a conversa, a classificação e o contexto da Base de conhecimento.
+            </span>
         </label>
       </FramePanel>
     </Frame>

@@ -49,13 +49,13 @@ function EditForm({ campaign, onCancel, onSaved }: { campaign: EditableWhatsappC
     let cancelled = false;
     fetchWhatsappAccounts()
       .then((list) => { if (!cancelled) setAccounts(list); })
-      .catch((cause) => { if (!cancelled) setAccountsError(errorText(cause, "Could not load numbers")); });
+      .catch((cause) => { if (!cancelled) setAccountsError(errorText(cause, "Não foi possível carregar os números")); });
     return () => { cancelled = true; };
   }, []);
 
   async function save() {
     const trimmed = name.trim();
-    if (!trimmed) { setError("Campaign name is required"); return; }
+    if (!trimmed) { setError("O nome da campanha é obrigatório"); return; }
     setSaving(true);
     setError(null);
     try {
@@ -72,12 +72,12 @@ function EditForm({ campaign, onCancel, onSaved }: { campaign: EditableWhatsappC
   return (
     <>
       <Modal.Header icon={RiPencilLine}>
-        <Modal.Title>Edit campaign</Modal.Title>
-        <Modal.Description>Rename it, or change which WhatsApp numbers send.</Modal.Description>
+        <Modal.Title>Editar campanha</Modal.Title>
+        <Modal.Description>Renomeie ou altere quais números do WhatsApp enviam mensagens.</Modal.Description>
       </Modal.Header>
       <Modal.Body className="space-y-4">
         <label className="block">
-          <span className="mb-1.5 block text-label-sm text-text-strong-950">Campaign name</span>
+          <span className="mb-1.5 block text-label-sm text-text-strong-950">Nome da campanha</span>
           <Input.Root hasError={Boolean(error && !name.trim())}>
             <Input.Wrapper>
               <Input.Input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void save(); }} autoFocus />
@@ -86,12 +86,12 @@ function EditForm({ campaign, onCancel, onSaved }: { campaign: EditableWhatsappC
         </label>
         <label className="block">
           <span className="mb-1.5 block text-label-sm text-text-strong-950">
-            Description <span className="text-text-soft-400">(optional)</span>
+            Descrição <span className="text-text-sub-600">(opcional)</span>
           </span>
-          <Textarea.Root simple rows={2} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional notes about this campaign…" />
+          <Textarea.Root simple rows={2} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Notas opcionais sobre esta campanha…" />
         </label>
         <div>
-          <span className="mb-1.5 block text-label-sm text-text-strong-950">WhatsApp numbers</span>
+          <span className="mb-1.5 block text-label-sm text-text-strong-950">Números do WhatsApp</span>
           <SenderPicker accounts={accounts} selectedIds={accountIds} onChange={setAccountIds} error={accountsError} />
         </div>
         {error && (
@@ -101,10 +101,10 @@ function EditForm({ campaign, onCancel, onSaved }: { campaign: EditableWhatsappC
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button.Root variant="neutral" mode="stroke" size="small" onClick={onCancel}>Cancel</Button.Root>
+        <Button.Root variant="neutral" mode="stroke" size="small" onClick={onCancel}>Cancelar</Button.Root>
         <Button.Root variant="primary" mode="filled" size="small" onClick={() => void save()} disabled={saving}>
           <Button.Icon as={saving ? RiLoader4Line : RiSaveLine} className={cn(saving && "animate-spin")} />
-          Save changes
+          Salvar alterações
         </Button.Root>
       </Modal.Footer>
     </>

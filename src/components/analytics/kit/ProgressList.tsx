@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/utils/cn";
-import { STATUS } from "../theme";
+import { ACCENT, STATUS } from "../theme";
 
 /**
  * Rows with a status dot, label, value, a muted subline and — when `progress`
@@ -30,7 +30,7 @@ const TONE_COLOR: Record<ProgressTone, string> = {
   warning: STATUS.warning,
   serious: STATUS.serious,
   critical: STATUS.critical,
-  accent: "#335cff",
+  accent: ACCENT,
 };
 
 export function ProgressList({ items }: { items: ProgressItem[] }) {
@@ -44,7 +44,7 @@ export function ProgressList({ items }: { items: ProgressItem[] }) {
             <div className="flex items-center gap-2.5">
               {Icon ? <Icon className="size-[18px] shrink-0" style={{ color }} aria-hidden="true" /> : <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />}
               <span className="min-w-0 flex-1 truncate text-label-sm text-text-strong-950">{item.label}</span>
-              <span className="text-label-sm tabular-nums text-text-strong-950">{typeof item.value === "number" ? item.value.toLocaleString("en-US") : item.value}</span>
+              <span className="text-label-sm tabular-nums text-text-strong-950">{typeof item.value === "number" ? item.value.toLocaleString("pt-BR") : item.value}</span>
             </div>
             {item.subline && <p className="ml-7 mt-0.5 truncate text-paragraph-xs text-text-sub-600">{item.subline}</p>}
             {item.progress !== undefined && (

@@ -30,36 +30,36 @@ export function SetupForm() {
       const data = (await res.json().catch(() => ({}))) as { error?: string; signedIn?: boolean };
       if (res.status === 409) return void window.location.assign("/sign-in");
       if (!res.ok) {
-        setError(data.error || "Something went wrong. Please try again.");
+        setError(data.error || "Algo deu errado. Tente novamente.");
         return setLoading(false);
       }
       // If the account was made but the automatic sign-in failed, sign in by hand.
       window.location.assign(data.signedIn ? "/analytics" : "/sign-in");
     } catch {
-      setError("Could not reach the server. Please try again.");
+      setError("Não foi possível conectar ao servidor. Tente novamente.");
       setLoading(false);
     }
   }
 
   return (
-    <AuthShell title="Set up AgentSDR" subtitle="Create the first admin account and organization for this instance.">
+    <AuthShell title="Configure a Apollo Intelligence" subtitle="Crie a primeira conta de administrador e a organização desta instância.">
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <Field label="Your name" type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} />
-        <Field label="Organization name" type="text" autoComplete="organization" required value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} />
-        <Field label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Field label="Seu nome" type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} />
+        <Field label="Nome da organização" type="text" autoComplete="organization" required value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} />
+        <Field label="E-mail" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         <Field
-          label="Password"
+          label="Senha"
           type="password"
           autoComplete="new-password"
           required
           minLength={MIN_PASSWORD_LENGTH}
-          hint={`At least ${MIN_PASSWORD_LENGTH} characters.`}
+          hint={`Pelo menos ${MIN_PASSWORD_LENGTH} caracteres.`}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         {error && <ErrorCallout>{error}</ErrorCallout>}
-        <SubmitButton loading={loading} loadingLabel="Creating...">
-          Create admin account
+        <SubmitButton loading={loading} loadingLabel="Criando...">
+          Criar conta de administrador
         </SubmitButton>
       </form>
     </AuthShell>

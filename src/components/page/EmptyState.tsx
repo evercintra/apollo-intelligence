@@ -24,8 +24,8 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center justify-center text-center", compact ? "px-4 py-8" : "px-6 py-16", className)}>
-      <span className="flex size-10 items-center justify-center rounded-xl bg-bg-weak-50 ring-1 ring-inset ring-stroke-soft-200">
-        <Icon className="size-5 text-text-sub-600" />
+      <span className="flex size-10 items-center justify-center rounded-xl bg-complement-surface ring-1 ring-inset ring-complement-light">
+        <Icon className="size-5 text-complement-deep" />
       </span>
       <p className="mt-3 text-label-sm text-text-strong-950">{title}</p>
       {description && <p className="mt-1 max-w-sm text-paragraph-sm text-text-sub-600">{description}</p>}

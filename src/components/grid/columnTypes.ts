@@ -39,29 +39,29 @@ export type ColumnTypeMeta = {
  * allowing users to create columns that cannot be configured or executed.
  */
 export const COLUMN_TYPE_GROUPS: ColumnTypeMeta[][] = [
-  [{ type: "enrichment", label: "Add enrichment", icon: RiFlashlightLine, available: true }],
+  [{ type: "enrichment", label: "Adicionar enriquecimento", icon: RiFlashlightLine, available: true }],
   [
-    { type: "http", label: "HTTP API", icon: RiGlobalLine, available: true },
-    { type: "ai", label: "Use AI", icon: RiMagicLine, available: true },
-    { type: "functions", label: "Functions", icon: RiCpuLine, available: false },
-    { type: "message", label: "Message", icon: RiChat1Line, available: false },
-    { type: "waterfall", label: "Waterfall", icon: RiCornerRightDownLine, available: false },
-    { type: "formula", label: "Formula", icon: RiFunctions, available: true },
-    { type: "merge", label: "Merge columns", icon: RiGitMergeLine, available: false },
+    { type: "http", label: "API HTTP", icon: RiGlobalLine, available: true },
+    { type: "ai", label: "Usar IA", icon: RiMagicLine, available: true },
+    { type: "functions", label: "Funções", icon: RiCpuLine, available: false },
+    { type: "message", label: "Mensagem", icon: RiChat1Line, available: false },
+    { type: "waterfall", label: "Cascata", icon: RiCornerRightDownLine, available: false },
+    { type: "formula", label: "Fórmula", icon: RiFunctions, available: true },
+    { type: "merge", label: "Mesclar colunas", icon: RiGitMergeLine, available: false },
   ],
   [
-    { type: "text", label: "Text", icon: RiText, available: true },
-    { type: "number", label: "Number", icon: RiHashtag, available: true },
-    { type: "currency", label: "Currency", icon: RiMoneyDollarCircleLine, available: true },
-    { type: "date", label: "Date", icon: RiCalendar2Line, available: true },
+    { type: "text", label: "Texto", icon: RiText, available: true },
+    { type: "number", label: "Número", icon: RiHashtag, available: true },
+    { type: "currency", label: "Moeda", icon: RiMoneyDollarCircleLine, available: true },
+    { type: "date", label: "Data", icon: RiCalendar2Line, available: true },
     { type: "url", label: "URL", icon: RiLinkM, available: true },
-    { type: "email", label: "Email", icon: RiAtLine, available: true },
-    { type: "image", label: "Image from URL", icon: RiImageLine, available: true },
+    { type: "email", label: "E-mail", icon: RiAtLine, available: true },
+    { type: "image", label: "Imagem a partir da URL", icon: RiImageLine, available: true },
   ],
   [
-    { type: "boolean", label: "Checkbox", icon: RiCheckboxLine, available: true },
-    { type: "select", label: "Select", icon: RiCheckboxCircleLine, available: true },
-    { type: "multiselect", label: "Multi-select", icon: RiListCheck, available: true },
+    { type: "boolean", label: "Caixa de seleção", icon: RiCheckboxLine, available: true },
+    { type: "select", label: "Seleção", icon: RiCheckboxCircleLine, available: true },
+    { type: "multiselect", label: "Multisseleção", icon: RiListCheck, available: true },
     { type: "json", label: "JSON", icon: RiBracesLine, available: true },
   ],
 ];
@@ -69,8 +69,8 @@ export const COLUMN_TYPE_GROUPS: ColumnTypeMeta[][] = [
 const BY_TYPE = new Map<ColumnType, ColumnTypeMeta>(
   [
     ...COLUMN_TYPE_GROUPS.flat(),
-    { type: "integration_output" as const, label: "Integration output", icon: RiFlashlightLine, available: false },
-    { type: "ai_output" as const, label: "AI output", icon: RiMagicLine, available: false },
+    { type: "integration_output" as const, label: "Saída da integração", icon: RiFlashlightLine, available: false },
+    { type: "ai_output" as const, label: "Saída de IA", icon: RiMagicLine, available: false },
   ].map((m) => [m.type, m]),
 );
 

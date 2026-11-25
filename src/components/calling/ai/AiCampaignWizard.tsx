@@ -45,21 +45,21 @@ import {
   setAiCampaignStations,
   updateAiCampaign,
 } from "@/lib/calls/aiCampaigns/client";
-import { AI_CAMPAIGN_GOALS, AI_CAMPAIGN_GOAL_LABELS, type AiCampaignGoal, type AiCampaignStep } from "@/lib/calls/aiCampaigns/contract";
+import { AI_CAMPAIGN_GOALS, type AiCampaignGoal, type AiCampaignStep } from "@/lib/calls/aiCampaigns/contract";
 import { listCallingStations } from "@/lib/calls/client";
-import { AGENT_VOICES, DEFAULT_AGENT_NAME, DEFAULT_AGENT_VOICE, MAX_AGENT_NAME_CHARS } from "@/lib/calls/contract";
+import { AGENT_VOICES, DEFAULT_AGENT_NAME, DEFAULT_AGENT_VOICE, MAX_AGENT_NAME_CHARS, type AgentVoiceId } from "@/lib/calls/contract";
 import type { CallingStation } from "@/lib/calls/stationContract";
 import { cn } from "@/utils/cn";
-import { errorText, NumberPicker } from "./aiShared";
+import { AGENT_VOICE_LABELS_PT, AI_GOAL_TEXT_PT, aiErrorPt, errorText, NumberPicker } from "./aiShared";
 import { importSummary } from "./AiLeadsTab";
 import { AiStepsEditor } from "./AiStepsEditor";
 
 const STEPS = [
-  { id: "goal", label: "Name & goal", hint: "What the calls are for", icon: RiDraftLine },
-  { id: "numbers", label: "Numbers", hint: "Where calls come from", icon: RiSmartphoneLine },
-  { id: "leads", label: "Leads", hint: "People or spreadsheet", icon: RiTeamLine },
-  { id: "sequence", label: "Script & sequence", hint: "Instructions and steps", icon: RiStackLine },
-  { id: "review", label: "Review & launch", hint: "Confirm readiness", icon: RiCheckLine },
+  { id: "goal", label: "Nome e objetivo", hint: "Para que servem as ligações", icon: RiDraftLine },
+  { id: "numbers", label: "Números", hint: "De onde vêm as ligações", icon: RiSmartphoneLine },
+  { id: "leads", label: "Leads", hint: "Pessoas ou planilha", icon: RiTeamLine },
+  { id: "sequence", label: "Roteiro e sequência", hint: "Instruções e etapas", icon: RiStackLine },
+  { id: "review", label: "Revisar e lançar", hint: "Confirmar a prontidão", icon: RiCheckLine },
 ] as const;
 
 const DEFAULT_VOICE = "default";
@@ -94,7 +94,7 @@ export function AiCampaignWizard() {
     let cancelled = false;
     listCallingStations()
       .then((response) => { if (!cancelled) setStations(response.stations); })
-      .catch((cause) => { if (!cancelled) setStationsError(errorText(cause, "Could not load numbers")); });
+      .catch((cause) => { if (!cancelled) setStationsError(aiErrorPt(errorText(cause, "Não foi possível carregar os números"))); });
     return () => { cancelled = true; };
   }, []);
 
@@ -113,7 +113,7 @@ export function AiCampaignWizard() {
   const handover = goal === "human_callback";
   const blocker = campaign
     ? aiLaunchBlocker({ numbers: campaign.numbers.length, steps: campaign.steps, instructions: campaign.instructions, goal: campaign.goal, bookingUrl: campaign.bookingUrl, leads: campaign.leads })
-    : "Save the details first";
+    : "Salve os detalhes primeiro";
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -121,14 +121,14 @@ export function AiCampaignWizard() {
     try {
       await action();
     } catch (cause) {
-      setError(errorText(cause));
+      setError(aiErrorPt(errorText(cause)));
     } finally {
       setBusy(false);
     }
   }
 
   const saveGoal = () => run(async () => {
-    if (!name.trim()) throw new Error("Enter a campaign name");
+    if (!name.trim()) throw new Error("Informe o nome da campanha");
     if (campaign) {
       setCampaign(await updateAiCampaign(campaign.id, { name: name.trim(), description: description.trim() || null, goal }));
     } else {
@@ -156,7 +156,7 @@ export function AiCampaignWizard() {
 
   const saveSequence = () => run(async () => {
     if (!campaign) return;
-    if (sequenceProblem) throw new Error(sequenceProblem);
+    if (sequenceProblem) throw new Error(aiErrorPt(sequenceProblem));
     setCampaign(
       await updateAiCampaign(campaign.id, {
         instructions,
@@ -181,14 +181,14 @@ export function AiCampaignWizard() {
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        back={{ href: "/calling/campaigns", label: "Call campaigns" }}
-        title="New AI calling campaign"
-        description="The AI agent calls your leads by itself from your calling numbers, follows up on WhatsApp, and hands over interested people. It stays a draft until you launch it."
+        back={{ href: "/calling/campaigns", label: "Campanhas de chamadas" }}
+        title="Nova campanha de chamadas com IA"
+        description="O agente de IA liga para seus leads a partir dos seus números, faz follow-up pelo WhatsApp e encaminha as pessoas interessadas. Ela permanece como rascunho até você lançá-la."
       />
 
       <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-5">
         <Frame>
-          <FrameHeader title="Steps" description={`Step ${step + 1} of ${STEPS.length}`} />
+          <FrameHeader title="Etapas" description={`Etapa ${step + 1} de ${STEPS.length}`} />
           <FramePanel className="p-2 sm:p-2">
             <ol className="grid grid-cols-2 gap-1 sm:grid-cols-5 lg:grid-cols-1">
               {STEPS.map((item, index) => {
@@ -216,13 +216,13 @@ export function AiCampaignWizard() {
               })}
             </ol>
             <div className="mx-1 mb-1 mt-3 hidden border-t border-stroke-soft-200 px-2 pt-3 lg:block">
-              <p className="text-paragraph-xs text-text-soft-400">Summary</p>
+              <p className="text-paragraph-xs text-text-soft-400">Resumo</p>
               <dl className="mt-2 space-y-2 text-paragraph-sm">
-                <SummaryRow label="Name" value={name || "Not named yet"} truncate />
-                <SummaryRow label="Goal" value={AI_CAMPAIGN_GOAL_LABELS[goal].label} truncate />
-                <SummaryRow label="Numbers" value={numberIds.length.toLocaleString()} />
-                <SummaryRow label="Leads" value={leadCount.toLocaleString()} />
-                <SummaryRow label="Steps" value={String(steps.length)} />
+                <SummaryRow label="Nome" value={name || "Ainda sem nome"} truncate />
+                <SummaryRow label="Objetivo" value={AI_GOAL_TEXT_PT[goal].label} truncate />
+                <SummaryRow label="Números" value={numberIds.length.toLocaleString("pt-BR")} />
+                <SummaryRow label="Leads" value={leadCount.toLocaleString("pt-BR")} />
+                <SummaryRow label="Etapas" value={String(steps.length)} />
               </dl>
             </div>
           </FramePanel>
@@ -232,23 +232,23 @@ export function AiCampaignWizard() {
           <FramePanel className="min-h-[560px] p-5 sm:p-7">
             {step === 0 && (
               <div className="mx-auto max-w-2xl">
-                <Heading title="Name and goal" description="Name the campaign and say what its calls are for." />
+                <Heading title="Nome e objetivo" description="Dê um nome à campanha e diga para que servem as ligações." />
                 <div className="mt-6 space-y-5">
                   <label className="block">
-                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Campaign name</span>
+                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Nome da campanha</span>
                     <Input.Root hasError={Boolean(error && !name.trim())}>
                       <Input.Wrapper>
-                        <Input.Input value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. D2C founders, India" autoFocus />
+                        <Input.Input value={name} onChange={(event) => setName(event.target.value)} placeholder="ex.: fundadores D2C, Índia" autoFocus />
                       </Input.Wrapper>
                     </Input.Root>
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Description <span className="text-text-soft-400">(optional)</span></span>
-                    <Textarea.Root simple rows={2} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What is this campaign for?" />
+                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Descrição <span className="text-text-soft-400">(opcional)</span></span>
+                    <Textarea.Root simple rows={2} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Qual é a finalidade desta campanha?" />
                   </label>
                   <fieldset>
-                    <legend className="mb-2 block text-label-sm text-text-strong-950">Goal</legend>
-                    <div role="radiogroup" aria-label="Goal" className="grid gap-2">
+                    <legend className="mb-2 block text-label-sm text-text-strong-950">Objetivo</legend>
+                    <div role="radiogroup" aria-label="Objetivo" className="grid gap-2">
                       {AI_CAMPAIGN_GOALS.map((value) => {
                         const active = goal === value;
                         return (
@@ -260,50 +260,50 @@ export function AiCampaignWizard() {
                             onClick={() => setGoal(value)}
                             className={cn("rounded-xl p-3.5 text-left outline-none ring-1 ring-inset transition focus-visible:ring-2 focus-visible:ring-primary-base", active ? "bg-bg-weak-50 ring-primary-base" : "ring-stroke-soft-200 hover:bg-bg-weak-50")}
                           >
-                            <span className="block text-label-sm text-text-strong-950">{AI_CAMPAIGN_GOAL_LABELS[value].label}</span>
-                            <span className="mt-1 block text-paragraph-xs text-text-sub-600">{AI_CAMPAIGN_GOAL_LABELS[value].help}</span>
+                            <span className="block text-label-sm text-text-strong-950">{AI_GOAL_TEXT_PT[value].label}</span>
+                            <span className="mt-1 block text-paragraph-xs text-text-sub-600">{AI_GOAL_TEXT_PT[value].help}</span>
                           </button>
                         );
                       })}
                     </div>
                   </fieldset>
                 </div>
-                <Footer error={error} backLabel="Cancel" onBack={() => router.push("/calling/campaigns")} onNext={() => void saveGoal()} busy={busy} nextLabel="Continue to numbers" />
+                <Footer error={error} backLabel="Cancelar" onBack={() => router.push("/calling/campaigns")} onNext={() => void saveGoal()} busy={busy} nextLabel="Continuar para números" />
               </div>
             )}
 
             {step === 1 && campaign && (
               <div className="mx-auto max-w-3xl">
-                <Heading title="Calling numbers" description="Pick the numbers this campaign calls from. Each lead is called and messaged from one of them and keeps hearing from the same one." />
+                <Heading title="Números para ligações" description="Escolha os números usados pela campanha. Cada lead recebe ligações e mensagens de um deles e continua falando com o mesmo." />
                 <div className="mt-6">
                   <NumberPicker stations={stations} selectedIds={numberIds} onChange={setNumberIds} error={stationsError} />
-                  <p className="mt-3 text-paragraph-xs text-text-sub-600">A new number warms up gradually, and every number has its own daily limit and calling hours (Settings → WhatsApp → Calling numbers and Sending rules). You can launch with a number still being linked, but nothing is called until it is.</p>
+                  <p className="mt-3 text-paragraph-xs text-text-sub-600">Um número novo é aquecido gradualmente, e cada um tem seu limite diário e horário de ligações (Configurações → WhatsApp → Números para ligações e Regras de envio). Você pode lançar com um número ainda sendo vinculado, mas nenhuma ligação sai até a vinculação.</p>
                 </div>
-                <Footer error={error} onBack={() => setStep(0)} onNext={() => void saveNumbers()} busy={busy} nextLabel="Continue to leads" />
+                <Footer error={error} onBack={() => setStep(0)} onNext={() => void saveNumbers()} busy={busy} nextLabel="Continuar para leads" />
               </div>
             )}
 
             {step === 2 && campaign && (
               <div className="mx-auto max-w-3xl">
-                <Heading title="Add leads" description="Import a spreadsheet with phone numbers, or select people already in your database." />
+                <Heading title="Adicionar leads" description="Importe uma planilha com números de telefone ou selecione pessoas da sua base." />
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   <button type="button" onClick={() => fileRef.current?.click()} className="flex min-h-44 flex-col items-center justify-center rounded-2xl border border-dashed border-stroke-sub-300 bg-bg-weak-50 p-6 text-center outline-none transition hover:border-primary-base focus-visible:ring-2 focus-visible:ring-primary-base">
                     <span className="flex size-10 items-center justify-center rounded-xl bg-bg-white-0 ring-1 ring-inset ring-stroke-soft-200"><RiFileExcel2Line className="size-5 text-text-sub-600" /></span>
-                    <span className="mt-3 text-label-md text-text-strong-950">Import CSV or Excel</span>
-                    <span className="mt-1 text-paragraph-xs text-text-sub-600">You map the phone column before anything is imported.</span>
+                    <span className="mt-3 text-label-md text-text-strong-950">Importar CSV ou Excel</span>
+                    <span className="mt-1 text-paragraph-xs text-text-sub-600">Você mapeia a coluna do telefone antes de importar qualquer coisa.</span>
                   </button>
                   <button type="button" onClick={() => setShowPeople(true)} className="flex min-h-44 flex-col items-center justify-center rounded-2xl bg-bg-white-0 p-6 text-center shadow-regular-xs outline-none ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-bg-weak-50 focus-visible:ring-2 focus-visible:ring-primary-base">
                     <span className="flex size-10 items-center justify-center rounded-xl bg-bg-weak-50 ring-1 ring-inset ring-stroke-soft-200"><RiUserAddLine className="size-5 text-text-sub-600" /></span>
-                    <span className="mt-3 text-label-md text-text-strong-950">Add from People</span>
-                    <span className="mt-1 text-paragraph-xs text-text-sub-600">Select existing people who already have a phone number.</span>
+                    <span className="mt-3 text-label-md text-text-strong-950">Adicionar de Pessoas</span>
+                    <span className="mt-1 text-paragraph-xs text-text-sub-600">Selecione pessoas da base que já tenham número de telefone.</span>
                   </button>
                 </div>
                 <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={(event) => setPendingFile(event.target.files?.[0] ?? null)} />
                 <div role="status" className="mt-4 rounded-xl bg-bg-weak-50 p-4 ring-1 ring-inset ring-stroke-soft-200">
-                  <p className="text-label-sm text-text-strong-950">{leadCount.toLocaleString()} {leadCount === 1 ? "lead" : "leads"} added</p>
-                  <p className="mt-1 text-paragraph-xs text-text-sub-600">{importNote ?? "You can continue with no leads and add them later; the campaign cannot launch until it has some."}</p>
+                  <p className="text-label-sm text-text-strong-950">{leadCount.toLocaleString("pt-BR")} {leadCount === 1 ? "lead adicionado" : "leads adicionados"}</p>
+                  <p className="mt-1 text-paragraph-xs text-text-sub-600">{importNote ?? "Você pode continuar sem leads e adicioná-los depois; a campanha não pode ser lançada até ter pelo menos um."}</p>
                 </div>
-                <Footer error={error} onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Continue to the script" />
+                <Footer error={error} onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Continuar para o roteiro" />
                 {pendingFile && (
                   <CampaignCsvMappingDialog
                     file={pendingFile}
@@ -327,7 +327,7 @@ export function AiCampaignWizard() {
                     onClose={() => setShowPeople(false)}
                     onAdded={(result) => {
                       setLeadCount((current) => current + result.added);
-                      setImportNote(`${result.added} added from People${result.skippedDuplicate ? ` · ${result.skippedDuplicate} already in the campaign` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} without a phone number` : ""}`);
+                      setImportNote(`${result.added} ${result.added === 1 ? "adicionado" : "adicionados"} de Pessoas${result.skippedDuplicate ? ` · ${result.skippedDuplicate} ${result.skippedDuplicate === 1 ? "já estava" : "já estavam"} na campanha` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} sem número de telefone` : ""}`);
                     }}
                   />
                 )}
@@ -336,28 +336,28 @@ export function AiCampaignWizard() {
 
             {step === 3 && campaign && (
               <div>
-                <Heading title="Script and sequence" description="What every call is about, who the agent is, and the calls and messages to send. The defaults are a sensible start." />
+                <Heading title="Roteiro e sequência" description="Sobre o que cada ligação vai falar, quem é o agente e quais ligações e mensagens enviar. Os valores padrão são um bom começo." />
                 <div className="mt-6 grid gap-6">
                   <div>
-                    <label className="mb-1.5 block text-label-sm text-text-strong-950">Knowledge</label>
+                    <label className="mb-1.5 block text-label-sm text-text-strong-950">Conhecimento</label>
                     <KnowledgePicker value={knowledgeIds} onChange={setKnowledgeIds} />
                   </div>
                   <div>
-                    <label htmlFor="wiz-instructions" className="mb-1.5 block text-label-sm text-text-strong-950">Campaign instructions</label>
-                    <p className="mb-2 text-paragraph-xs text-text-sub-600">What every call is about, on top of the Knowledge above: who you are calling, what you offer, what to find out.</p>
-                    <Textarea.Root id="wiz-instructions" simple rows={6} maxLength={AI_CAMPAIGN_MAX_INSTRUCTIONS} value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="You are calling founders of D2C brands who run Meta ads. We help them …" hasError={!instructions.trim()} />
+                    <label htmlFor="wiz-instructions" className="mb-1.5 block text-label-sm text-text-strong-950">Instruções da campanha</label>
+                    <p className="mb-2 text-paragraph-xs text-text-sub-600">Sobre o que cada ligação vai falar, além do Conhecimento acima: para quem você está ligando, o que oferece e o que precisa descobrir.</p>
+                    <Textarea.Root id="wiz-instructions" simple rows={6} maxLength={AI_CAMPAIGN_MAX_INSTRUCTIONS} value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Você está ligando para fundadores de marcas D2C que anunciam no Meta. Ajudamos eles a …" hasError={!instructions.trim()} />
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <TextField label="Agent name" value={agentName} onChange={setAgentName} placeholder={DEFAULT_AGENT_NAME} maxLength={MAX_AGENT_NAME_CHARS + 10} />
+                    <TextField label="Nome do agente" value={agentName} onChange={setAgentName} placeholder={DEFAULT_AGENT_NAME} maxLength={MAX_AGENT_NAME_CHARS + 10} />
                     <div>
-                      <label className="mb-1.5 block text-label-sm text-text-strong-950">Voice</label>
+                      <label className="mb-1.5 block text-label-sm text-text-strong-950">Voz</label>
                       <div className="flex items-center gap-2">
                         <div className="min-w-0 flex-1">
                           <Select.Root size="small" value={agentVoice} onValueChange={setAgentVoice}>
-                            <Select.Trigger aria-label="Voice"><Select.Value /></Select.Trigger>
+                            <Select.Trigger aria-label="Voz"><Select.Value /></Select.Trigger>
                             <Select.Content>
-                              <Select.Item value={DEFAULT_VOICE}>Default ({DEFAULT_AGENT_VOICE})</Select.Item>
-                              {AGENT_VOICES.map((voice) => <Select.Item key={voice.id} value={voice.id}>{voice.label}</Select.Item>)}
+                              <Select.Item value={DEFAULT_VOICE}>Padrão ({DEFAULT_AGENT_VOICE})</Select.Item>
+                              {AGENT_VOICES.map((voice) => <Select.Item key={voice.id} value={voice.id}>{AGENT_VOICE_LABELS_PT[voice.id]}</Select.Item>)}
                             </Select.Content>
                           </Select.Root>
                         </div>
@@ -367,60 +367,60 @@ export function AiCampaignWizard() {
                   </div>
                   {!handover && (
                     <div className="space-y-3">
-                      <BookingLinkField label="Booking link (Cal.com)" value={bookingUrl} onChange={setBookingUrl} />
+                      <BookingLinkField label="Link de agendamento (Cal.com)" value={bookingUrl} onChange={setBookingUrl} />
                       <div>
-                        <label htmlFor="wiz-booking-message" className="mb-1.5 block text-label-sm text-text-strong-950">Booking message</label>
+                        <label htmlFor="wiz-booking-message" className="mb-1.5 block text-label-sm text-text-strong-950">Mensagem de agendamento</label>
                         <Textarea.Root id="wiz-booking-message" simple rows={3} value={bookingMessage} onChange={(event) => setBookingMessage(event.target.value)} hasError={Boolean(bookingUrl.trim()) && !bookingMessage.includes("{{bookingLink}}")} />
-                        <p className="mt-1 text-paragraph-xs text-text-sub-600">The WhatsApp sent right after they agree to book. Must include <code className="font-mono">{"{{bookingLink}}"}</code>.</p>
+                        <p className="mt-1 text-paragraph-xs text-text-sub-600">A mensagem enviada pelo WhatsApp logo após a pessoa aceitar agendar. Deve incluir <code className="font-mono">{"{{bookingLink}}"}</code>.</p>
                       </div>
                     </div>
                   )}
                   <div>
-                    <h3 className="mb-3 text-label-md text-text-strong-950">Reach them</h3>
-                    <AiStepsEditor steps={steps} onChange={setSteps} campaignId={campaign.id} agentName={agentName.trim() || null} agentVoice={agentVoice === DEFAULT_VOICE ? null : agentVoice} statsPhase="reach" emptyText="Add at least one call." />
+                    <h3 className="mb-3 text-label-md text-text-strong-950">Abordar</h3>
+                    <AiStepsEditor steps={steps} onChange={setSteps} campaignId={campaign.id} agentName={agentName.trim() || null} agentVoice={agentVoice === DEFAULT_VOICE ? null : agentVoice} statsPhase="reach" emptyText="Adicione pelo menos uma ligação." />
                   </div>
                   {!handover && (
                     <div>
-                      <h3 className="text-label-md text-text-strong-950">If they said yes but haven&apos;t booked</h3>
-                      <p className="mb-3 mt-1 text-paragraph-xs text-text-sub-600">Runs after the booking message, until they book, reply, or the steps run out and a person takes over.</p>
-                      <AiStepsEditor steps={chaseSteps} onChange={setChaseSteps} allowEmpty campaignId={campaign.id} agentName={agentName.trim() || null} agentVoice={agentVoice === DEFAULT_VOICE ? null : agentVoice} statsPhase="chase" emptyText="No follow-ups." />
+                      <h3 className="text-label-md text-text-strong-950">Se disseram que sim mas não agendaram</h3>
+                      <p className="mb-3 mt-1 text-paragraph-xs text-text-sub-600">Começa depois da mensagem de agendamento e segue até a pessoa agendar, responder ou as etapas terminarem e alguém assumir.</p>
+                      <AiStepsEditor steps={chaseSteps} onChange={setChaseSteps} allowEmpty campaignId={campaign.id} agentName={agentName.trim() || null} agentVoice={agentVoice === DEFAULT_VOICE ? null : agentVoice} statsPhase="chase" emptyText="Nenhum follow-up." />
                     </div>
                   )}
                 </div>
-                <Footer error={error} onBack={() => setStep(2)} onNext={() => void saveSequence()} busy={busy} nextDisabled={Boolean(sequenceProblem)} nextLabel="Save and review" />
-                {sequenceProblem && <p className="mt-2 text-right text-paragraph-xs text-error-base">{sequenceProblem}</p>}
+                <Footer error={error} onBack={() => setStep(2)} onNext={() => void saveSequence()} busy={busy} nextDisabled={Boolean(sequenceProblem)} nextLabel="Salvar e revisar" />
+                {sequenceProblem && <p className="mt-2 text-right text-paragraph-xs text-error-base">{aiErrorPt(sequenceProblem)}</p>}
               </div>
             )}
 
             {step === 4 && campaign && (
               <div className="mx-auto max-w-3xl">
-                <Heading title="Review and launch" description="Nothing is called until you launch. You can save it as a draft and finish later." />
+                <Heading title="Revisar e lançar" description="Nenhuma ligação acontece até você lançar. Você pode salvar como rascunho e terminar depois." />
                 <div className="mt-6 grid gap-3 sm:grid-cols-4">
-                  <SummaryCard label="Campaign" value={campaign.name} detail={AI_CAMPAIGN_GOAL_LABELS[campaign.goal].label} />
-                  <SummaryCard label="Leads" value={campaign.leads.toLocaleString()} detail="queued to be called" />
-                  <SummaryCard label="Numbers" value={campaign.numbers.length.toLocaleString()} detail={`${campaign.numbers.filter((n) => n.status === "active").length} active`} />
-                  <SummaryCard label="Agent" value={campaign.agentName || DEFAULT_AGENT_NAME} detail={campaign.agentVoice || DEFAULT_AGENT_VOICE} />
+                  <SummaryCard label="Campanha" value={campaign.name} detail={AI_GOAL_TEXT_PT[campaign.goal].label} />
+                  <SummaryCard label="Leads" value={campaign.leads.toLocaleString("pt-BR")} detail="na fila para ligar" />
+                  <SummaryCard label="Números" value={campaign.numbers.length.toLocaleString("pt-BR")} detail={`${campaign.numbers.filter((n) => n.status === "active").length} ${campaign.numbers.filter((n) => n.status === "active").length === 1 ? "ativa" : "ativas"}`} />
+                  <SummaryCard label="Agente" value={campaign.agentName || DEFAULT_AGENT_NAME} detail={AGENT_VOICE_LABELS_PT[(campaign.agentVoice ?? DEFAULT_AGENT_VOICE) as AgentVoiceId] ?? campaign.agentVoice ?? DEFAULT_AGENT_VOICE} />
                 </div>
                 <div className="mt-4 rounded-2xl bg-bg-weak-50 p-1 ring-1 ring-inset ring-stroke-soft-200">
-                  <h3 className="px-3 pb-2 pt-2 text-label-sm text-text-strong-950">Sequence</h3>
+                  <h3 className="px-3 pb-2 pt-2 text-label-sm text-text-strong-950">Sequência</h3>
                   <ul className="divide-y divide-stroke-soft-200 rounded-xl bg-bg-white-0 px-4 ring-1 ring-inset ring-stroke-soft-200">
                     {campaign.steps.map((item, index) => (
                       <li key={item.id} className="flex items-center justify-between gap-4 py-2.5 text-paragraph-sm">
                         <span className="min-w-0">
-                          <span className="block text-text-sub-600">{item.kind === "call" ? "AI call" : "WhatsApp message"}{index > 0 ? ` · after ${formatDelay(item.delayHours)}` : " · first"}</span>
-                          <span className="block max-w-md truncate text-paragraph-xs text-text-soft-400">{item.kind === "call" ? item.instructions || "No extra instructions" : item.body}</span>
+                          <span className="block text-text-sub-600">{item.kind === "call" ? "Ligação com IA" : "Mensagem pelo WhatsApp"}{index > 0 ? ` · depois de ${formatDelay(item.delayHours)}` : " · primeira"}</span>
+                          <span className="block max-w-md truncate text-paragraph-xs text-text-soft-400">{item.kind === "call" ? item.instructions || "Sem instruções extras" : item.body}</span>
                         </span>
                         <RiCheckLine className="size-4 shrink-0 text-success-base" aria-hidden="true" />
                       </li>
                     ))}
                   </ul>
                   {campaign.goal !== "human_callback" && campaign.chaseSteps.length > 0 && (
-                    <p className="px-3 py-2 text-paragraph-xs text-text-sub-600">Then {campaign.chaseSteps.length} follow-up {campaign.chaseSteps.length === 1 ? "step" : "steps"} for leads who say yes but do not book.</p>
+                    <p className="px-3 py-2 text-paragraph-xs text-text-sub-600">Depois, {campaign.chaseSteps.length} {campaign.chaseSteps.length === 1 ? "etapa de follow-up" : "etapas de follow-up"} para leads que dizem que sim mas não agendam.</p>
                   )}
                 </div>
-                <p className="mt-4 text-paragraph-xs text-text-sub-600">Calls start within the numbers&apos; calling hours, spaced out and capped per day. A reply on any channel stops the sequence and lands in CRM → Action required.</p>
-                {blocker && <p className="mt-4 rounded-xl bg-warning-lighter p-3 text-paragraph-sm text-warning-dark">{blocker} before launching. You can save it as a draft and finish later.</p>}
-                <Footer error={error} onBack={() => setStep(3)} busy={busy} secondaryLabel="Save as draft" onSecondary={() => void finish(false)} nextLabel="Launch campaign" onNext={() => void finish(true)} nextDisabled={Boolean(blocker)} nextIcon={RiRocketLine} />
+                <p className="mt-4 text-paragraph-xs text-text-sub-600">As ligações começam dentro do horário dos números, com intervalos e limite diário. Uma resposta em qualquer canal interrompe a sequência e vai para CRM → Ação necessária.</p>
+                {blocker && <p className="mt-4 rounded-xl bg-warning-lighter p-3 text-paragraph-sm text-warning-dark">{aiErrorPt(blocker)} antes de lançar. Você pode salvar como rascunho e terminar depois.</p>}
+                <Footer error={error} onBack={() => setStep(3)} busy={busy} secondaryLabel="Salvar como rascunho" onSecondary={() => void finish(false)} nextLabel="Lançar campanha" onNext={() => void finish(true)} nextDisabled={Boolean(blocker)} nextIcon={RiRocketLine} />
               </div>
             )}
           </FramePanel>
@@ -463,7 +463,7 @@ function Footer({
   onBack,
   onNext,
   busy,
-  backLabel = "Back",
+  backLabel = "Voltar",
   nextLabel,
   nextDisabled,
   secondaryLabel,
@@ -492,7 +492,7 @@ function Footer({
           {secondaryLabel && onSecondary && <Button.Root variant="neutral" mode="stroke" size="small" onClick={onSecondary} disabled={busy}>{secondaryLabel}</Button.Root>}
           <Button.Root variant="primary" mode="filled" size="small" onClick={onNext} disabled={busy || nextDisabled}>
             <Button.Icon as={busy ? RiLoader4Line : NextIcon} className={cn(busy && "animate-spin")} />
-            {busy ? "Saving…" : nextLabel}
+            {busy ? "Salvando…" : nextLabel}
           </Button.Root>
         </div>
       </div>

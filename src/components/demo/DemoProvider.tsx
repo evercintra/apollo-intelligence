@@ -76,16 +76,16 @@ function ReadOnlyToast({ onClose }: { onClose: () => void }) {
         <RiLockLine className="size-4" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-label-sm">This is a read-only demo</p>
+        <p className="text-label-sm">Esta é uma demonstração somente leitura</p>
         <p className="mt-0.5 text-paragraph-xs text-white/70">
-          Look around as much as you like. Changes are not saved here.{" "}
+          Explore à vontade. As alterações feitas aqui não são salvas.{" "}
           <a href={SELF_HOST_DOCS} target="_blank" rel="noreferrer" className="text-static-white underline underline-offset-2">
-            Self-host AgentSDR
+            Instale o AgentSDR por conta própria
           </a>{" "}
-          to use it for real.
+          para usar de verdade.
         </p>
       </div>
-      <button type="button" onClick={onClose} aria-label="Dismiss" className="rounded-md p-0.5 text-white/60 transition hover:text-static-white">
+      <button type="button" onClick={onClose} aria-label="Dispensar" className="rounded-md p-0.5 text-white/60 transition hover:text-static-white">
         <RiCloseLine className="size-4" />
       </button>
     </div>
@@ -104,8 +104,8 @@ export function DemoBanner() {
           <span className="relative inline-flex size-2 rounded-full bg-success-base" />
         </span>
         <span className="truncate">
-          <span className="text-label-sm text-text-strong-950">Live demo</span>
-          <span className="hidden sm:inline"> · sample data: the people and conversations are made up, and nothing you change is saved</span>
+          <span className="text-label-sm text-text-strong-950">Demonstração ao vivo</span>
+          <span className="hidden sm:inline"> · dados de exemplo: pessoas e conversas são fictícias, e nada do que você alterar é salvo</span>
         </span>
       </span>
       <span className="flex shrink-0 items-center gap-2">
@@ -116,7 +116,7 @@ export function DemoBanner() {
           className="hidden items-center gap-1.5 rounded-md px-2 py-1 text-label-xs text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-bg-white-0 hover:text-text-strong-950 sm:flex"
         >
           <RiGithubFill className="size-3.5" />
-          Star on GitHub
+          Curtir no GitHub
         </a>
         <a
           href={SELF_HOST_DOCS}
@@ -124,7 +124,7 @@ export function DemoBanner() {
           rel="noreferrer"
           className="flex items-center gap-1.5 rounded-md bg-bg-strong-950 px-2.5 py-1 text-label-xs text-text-white-0 transition hover:opacity-90"
         >
-          Self-host it free
+          Instale grátis
         </a>
       </span>
     </div>

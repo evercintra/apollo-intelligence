@@ -47,10 +47,10 @@ import { numberRule } from "@/lib/channels/rules";
 import { cn } from "@/utils/cn";
 
 const STATUS_LABEL: Record<WhatsappAccountStatus, string> = {
-  connected: "Connected",
-  credentials: "Needs credentials",
-  disconnected: "Disconnected",
-  error: "Error",
+  connected: "Conectado",
+  credentials: "Precisa de credenciais",
+  disconnected: "Desconectado",
+  error: "Erro",
 };
 const STATUS_COLOR: Record<WhatsappAccountStatus, React.ComponentProps<typeof Badge.Root>["color"]> = {
   connected: "green",
@@ -99,7 +99,7 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
     try {
       const response = await syncWhatsappAccounts();
       setAccounts(response.accounts);
-      setNotice(response.accounts.length ? "Synced from Unipile." : "Synced — Unipile has no WhatsApp number linked yet.");
+      setNotice(response.accounts.length ? "Sincronizado com a Unipile." : "Sincronizado — a Unipile ainda não tem nenhum número do WhatsApp vinculado.");
     } catch (cause) {
       setError(errorMessage(cause));
     } finally {
@@ -126,7 +126,7 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
     setError("");
     try {
       await backfillWhatsappAccount(account.id);
-      setNotice(`Importing recent chats for ${account.name || account.phone || "this number"}. They appear in Messages shortly.`);
+      setNotice(`Importando conversas recentes de ${account.name || account.phone || "este número"}. Elas aparecem em Mensagens em instantes.`);
     } catch (cause) {
       setError(errorMessage(cause));
     } finally {
@@ -152,14 +152,14 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
   const syncAction = (
     <Button.Root variant="primary" mode="filled" size="small" disabled={syncing} onClick={() => void sync()}>
       <Button.Icon as={RiRefreshLine} className={cn(syncing && "animate-spin")} />
-      {syncing ? "Syncing…" : "Sync from Unipile"}
+      {syncing ? "Sincronizando…" : "Sincronizar com a Unipile"}
     </Button.Root>
   );
 
   return (
     <SettingsPage
-      title="WhatsApp accounts"
-      description="The numbers AgentSDR messages from, linked in Unipile. Calls are placed from web.whatsapp.com by the recorder extension."
+      title="Contas do WhatsApp"
+      description="Os números usados pelo Apollo Intelligence para enviar mensagens, vinculados na Unipile. As ligações são feitas em web.whatsapp.com pela extensão gravadora."
       actions={syncAction}
     >
       <div className="space-y-5">
@@ -170,7 +170,7 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
             action={
               !accounts && (
                 <Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void load()}>
-                  Try again
+                  Tentar novamente
                 </Button.Root>
               )
             }
@@ -186,8 +186,8 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
             <FramePanel>
               <EmptyState
                 icon={WhatsappLogo}
-                title="No WhatsApp numbers yet"
-                description="In the Unipile dashboard choose Accounts → Connect → WhatsApp and scan the QR with the phone the rep calls from. Then sync here."
+                title="Nenhum número do WhatsApp ainda"
+                description="No painel da Unipile, escolha Accounts → Connect → WhatsApp e leia o QR com o celular usado pelo vendedor. Depois sincronize aqui."
                 action={syncAction}
               />
             </FramePanel>
@@ -195,39 +195,39 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
         ) : (
           <div>
             <KpiStrip columns={4}>
-              <KpiCell icon={RiPhoneLine} label="Connected" value={String(connected)} context={`of ${total} ${total === 1 ? "number" : "numbers"}`} />
+              <KpiCell icon={RiPhoneLine} label="Conectados" value={String(connected)} context={`de ${total} ${total === 1 ? "número" : "números"}`} />
               <KpiCell
                 icon={RiErrorWarningLine}
-                label="Needs attention"
+                label="Precisam de atenção"
                 value={String(attention)}
-                context={attention === 0 ? "Every number can message" : "Relink these in Unipile, then sync"}
-                hint="Numbers that are disconnected, need credentials, or report an error. A banned number also loses its calling."
+                context={attention === 0 ? "Todos os números podem enviar" : "Vincule novamente na Unipile e sincronize"}
+                hint="Números desconectados, sem credenciais ou com erro. Um número bloqueado também perde a ligação."
               />
               <KpiCell
                 icon={RiFireLine}
-                label="Warming up"
+                label="Aquecendo"
                 value={String(warmingCount)}
-                context={`No new chats for ${rules.warmupHours} h after linking`}
-                hint="A newly linked number can reply to existing chats straight away, but starts new ones only after the warm-up, to protect it from bans."
+                context={`Sem novas conversas por ${rules.warmupHours} h após a vinculação`}
+                hint="Um número recém-vinculado pode responder conversas existentes na hora, mas só inicia novas após o aquecimento, para evitar bloqueios."
               />
               <KpiCell
                 icon={RiChat1Line}
-                label="New chats a day"
+                label="Novas conversas por dia"
                 value={String((accounts ?? []).filter(healthy).reduce((sum, a) => sum + newChatsOf(a), 0))}
-                context={`${rules.newChatsPerDay} per number · ${rules.secondsBetweenSends} s between sends`}
-                hint="Each connected number starts at most this many new chats a day, and messages from one number are spaced apart. Change it in WhatsApp → Sending rules, or per number."
+                context={`${rules.newChatsPerDay} por número · ${rules.secondsBetweenSends} s entre envios`}
+                hint="Cada número conectado inicia no máximo esse número de conversas novas por dia, com intervalo entre envios. Altere em WhatsApp → Regras de envio ou por número."
               />
             </KpiStrip>
 
             <AccountsFrame
-              title="Numbers"
-              description={defaultAccount ? `${defaultAccount.name || defaultAccount.phone || "The default number"} is used when no other number is chosen.` : "No default number yet — make one the default from its menu."}
+              title="Números"
+              description={defaultAccount ? `${defaultAccount.name || defaultAccount.phone || "O número padrão"} é usado quando nenhum outro é escolhido.` : "Ainda não há número padrão — defina um pelo menu do número."}
               filter={filter}
               onFilterChange={setFilter}
               counts={{ all: total, healthy: connected, attention }}
               search={query}
               onSearchChange={setQuery}
-              searchPlaceholder="Search numbers…"
+              searchPlaceholder="Buscar números…"
             >
               {filtered.length === 0 ? (
                 <AccountsNoMatch noun="numbers" />
@@ -235,18 +235,18 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
                 <Table.Root className="min-w-180 [&>table]:table-fixed">
                   <Table.Header>
                     <Table.Row>
-                      <Table.Head scope="col" className="px-4">Number</Table.Head>
+                      <Table.Head scope="col" className="px-4">Número</Table.Head>
                       <Table.Head scope="col" className="w-64 px-4">Status</Table.Head>
-                      <Table.Head scope="col" className="w-36 px-4">New chats a day</Table.Head>
-                      <Table.Head scope="col" className="w-36 px-4">Last synced</Table.Head>
-                      <Table.Head scope="col" className="w-16 px-4"><span className="sr-only">Actions</span></Table.Head>
+                      <Table.Head scope="col" className="w-36 px-4">Novas conversas por dia</Table.Head>
+                      <Table.Head scope="col" className="w-36 px-4">Última sincronização</Table.Head>
+                      <Table.Head scope="col" className="w-16 px-4"><span className="sr-only">Ações</span></Table.Head>
                     </Table.Row>
                   </Table.Header>
                   <Table.Body spacing={4}>
                     {filtered.map((account) => {
                       const warming = isFuture(account.warmUpEndsAt);
                       const busy = busyId === account.id;
-                      const label = account.name || account.phone || "this number";
+                      const label = account.name || account.phone || "este número";
                       return (
                         <Table.Row key={account.id} className={cn(busy && "opacity-60")} aria-busy={busy || undefined}>
                           <Table.Cell className="h-16 px-4">
@@ -259,11 +259,11 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
                               }
                               name={
                                 <>
-                                  <span className="truncate text-label-sm text-text-strong-950">{account.name || account.phone || "WhatsApp number"}</span>
+                                  <span className="truncate text-label-sm text-text-strong-950">{account.name || account.phone || "Número do WhatsApp"}</span>
                                   {account.isDefault && (
-                                    <Badge.Root size="small" variant="lighter" color="gray" className="shrink-0">
+                                    <Badge.Root size="small" variant="lighter" color="purple" className="shrink-0">
                                       <Badge.Icon as={RiStarFill} />
-                                      Default
+                                      Padrão
                                     </Badge.Root>
                                   )}
                                 </>
@@ -279,23 +279,23 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
                               </Badge.Root>
                               {warming && (
                                 <span className="text-paragraph-xs text-text-sub-600" suppressHydrationWarning>
-                                  Warming up until {formatDate(account.warmUpEndsAt)}
+                                  Aquecendo até {formatDate(account.warmUpEndsAt)}
                                 </span>
                               )}
                             </div>
                           </Table.Cell>
                           <Table.Cell className="px-4">
                             <p className="text-paragraph-sm tabular-nums text-text-strong-950">{newChatsOf(account)}</p>
-                            {account.newChatsPerDay !== null && <p className="text-paragraph-xs text-text-soft-400">Own limit</p>}
+                            {account.newChatsPerDay !== null && <p className="text-paragraph-xs text-text-sub-600">Limite próprio</p>}
                           </Table.Cell>
                           <Table.Cell className="whitespace-nowrap px-4 text-paragraph-sm text-text-sub-600" suppressHydrationWarning>
-                            {account.lastSyncedAt ? formatDate(account.lastSyncedAt) : "Never"}
+                            {account.lastSyncedAt ? formatDate(account.lastSyncedAt) : "Nunca"}
                           </Table.Cell>
                           <Table.Cell className="px-4">
                             <div className="flex justify-end">
                               <Dropdown.Root>
                                 <Dropdown.Trigger asChild>
-                                  <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`More actions for ${label}`}>
+                                  <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Mais ações para ${label}`}>
                                     <Button.Icon as={busy ? RiLoader4Line : RiMoreLine} className={cn(busy && "animate-spin")} />
                                   </Button.Root>
                                 </Dropdown.Trigger>
@@ -303,16 +303,16 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
                                   {!account.isDefault && (
                                     <Dropdown.Item onSelect={() => void makeDefault(account)}>
                                       <Dropdown.ItemIcon as={RiStarLine} />
-                                      Make default
+                                      Definir como padrão
                                     </Dropdown.Item>
                                   )}
                                   <Dropdown.Item disabled={account.status !== "connected"} onSelect={() => void backfill(account)}>
                                     <Dropdown.ItemIcon as={RiDownloadLine} />
-                                    Import recent chats
+                                    Importar conversas recentes
                                   </Dropdown.Item>
                                   <Dropdown.Item onSelect={() => setLimitAccount(account)}>
                                     <Dropdown.ItemIcon as={RiDashboard3Line} />
-                                    New chats a day
+                                    Novas conversas por dia
                                   </Dropdown.Item>
                                 </Dropdown.Content>
                               </Dropdown.Root>
@@ -331,8 +331,8 @@ export function WhatsappAccountsClient({ rules }: { rules: WhatsappNumberRules }
       {limitAccount && (
         <AccountLimitDialog
           key={limitAccount.id}
-          title="New chats a day"
-          accountLabel={limitAccount.name || limitAccount.phone || "this number"}
+          title="Novas conversas por dia"
+          accountLabel={limitAccount.name || limitAccount.phone || "este número"}
           rule={numberRule("whatsapp", "newChatsPerDay")}
           organizationValue={rules.newChatsPerDay}
           value={limitAccount.newChatsPerDay}

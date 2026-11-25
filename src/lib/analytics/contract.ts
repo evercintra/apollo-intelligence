@@ -12,11 +12,17 @@
  * - "now" snapshots (queues, capacity, pipeline) ignore the range.
  */
 
-export const ANALYTICS_VIEWS = ["overview", "email", "linkedin", "whatsapp"] as const;
+export const ANALYTICS_VIEWS = ["overview", "market", "prospecting", "pipeline", "actions", "email", "linkedin", "whatsapp"] as const;
 export type AnalyticsView = (typeof ANALYTICS_VIEWS)[number];
+
+export const ANALYTICS_AREAS = ["overview", "market", "prospecting", "pipeline", "actions"] as const;
+export type AnalyticsArea = (typeof ANALYTICS_AREAS)[number];
 
 export const ANALYTICS_CHANNELS = ["email", "linkedin", "whatsapp"] as const;
 export type AnalyticsChannel = (typeof ANALYTICS_CHANNELS)[number];
+
+export const ANALYTICS_CHANNEL_VIEWS = ["email", "linkedin", "whatsapp"] as const;
+export type AnalyticsChannelView = (typeof ANALYTICS_CHANNEL_VIEWS)[number];
 
 /** The longest range the endpoint answers, in days. Past 62 days points are weekly. */
 export const MAX_ANALYTICS_RANGE_DAYS = 180;
@@ -50,6 +56,16 @@ export type BreakdownRow<K extends string = string> = { key: K; label: string; v
 // ---------------------------------------------------------------- overview
 
 export type FunnelStageKey = "reached" | "replied" | "positive" | "meeting" | "customer";
+
+export type CommercialBase = {
+  companies: { total: number; new: Metric };
+  people: { total: number; new: Metric };
+  analyzedDomains: { total: number; inRange: Metric };
+  qualifiedDomains: { total: number; inRange: Metric };
+  opportunities: number;
+  customers: number;
+  notInterested: number;
+};
 
 /**
  * The Overview is CRM-first: `crm` (conversations, pipeline, AI) leads, and
@@ -88,6 +104,7 @@ export type OverviewAnalytics = {
     linkedinDisconnected: number;
     whatsappDisconnected: number;
   };
+  commercial: CommercialBase;
   crm: CrmSummary;
   conversion: ConversionReport;
 };
@@ -322,7 +339,116 @@ export type CrmSummary = {
   attention: { actionRequired: number; overdue: number };
 };
 
-export type AnalyticsResponse = OverviewAnalytics | EmailAnalytics | LinkedinAnalytics | WhatsappAnalytics;
+export type MarketAnalytics = {
+  view: "market";
+  range: AnalyticsRange;
+  kpis: {
+    analyzedDomains: { total: number; inRange: Metric };
+    qualifiedDomains: { total: number; inRange: Metric };
+    qualificationRate: { value: number | null; previous: number | null };
+    countries: number;
+    segments: number;
+    medianRevenue: number | null;
+  };
+  universe: { total: number };
+  byCountry: BreakdownRow[];
+  bySegment: BreakdownRow[];
+  bySubsegment: BreakdownRow[];
+  byPlatform: BreakdownRow[];
+  byRevenue: BreakdownRow[];
+  byStatus: BreakdownRow[];
+  topApps: BreakdownRow[];
+};
+
+export type ProspectingAnalytics = {
+  view: "prospecting";
+  range: AnalyticsRange;
+  commercial: CommercialBase;
+  channels: OverviewAnalytics["channels"];
+  activeCampaigns: number;
+  qualificationCampaigns: Array<{
+    id: string;
+    name: string;
+    status: string;
+    targetMode: string;
+    targetLeadCount: number;
+    targetDomainCount: number | null;
+    analyzed: number;
+    qualified: number;
+    pending: number;
+    qualifiedRate: number | null;
+    lastCheckedAt: string | null;
+  }>;
+  campaignCounts: Array<{
+    channel: AnalyticsChannel;
+    active: number;
+    paused: number;
+    draft: number;
+    completed: number;
+    total: number;
+  }>;
+  recentQualified: Array<{
+    domain: string;
+    campaignName: string | null;
+    checkedAt: string | null;
+    revenue: number | null;
+    countryCode: string | null;
+  }>;
+};
+
+export type UpcomingMeeting = {
+  id: string;
+  personName: string;
+  companyName: string | null;
+  startAt: string;
+  endAt: string;
+  status: string;
+  outcome: string | null;
+};
+
+export type PipelineAnalytics = {
+  view: "pipeline";
+  range: AnalyticsRange;
+  commercial: CommercialBase;
+  kpis: OverviewAnalytics["kpis"];
+  crm: CrmSummary;
+  conversion: ConversionReport;
+  upcomingMeetings: UpcomingMeeting[];
+};
+
+export type ActionSignalKey =
+  | "actionRequired"
+  | "followUpsDue"
+  | "draftsAwaitingReview"
+  | "failingMailboxes"
+  | "linkedinDisconnected"
+  | "whatsappDisconnected"
+  | "failedEmailSends"
+  | "failedQualificationJobs"
+  | "parentPending";
+
+export type ActionsAnalytics = {
+  view: "actions";
+  range: AnalyticsRange;
+  signals: Array<{ key: ActionSignalKey; value: number }>;
+  campaignsWithIssues: Array<{
+    id: string;
+    name: string;
+    status: string;
+    failedJobs: number;
+    lastFailedAt: string | null;
+  }>;
+};
+
+export type AnalyticsResponse =
+  | OverviewAnalytics
+  | MarketAnalytics
+  | ProspectingAnalytics
+  | PipelineAnalytics
+  | ActionsAnalytics
+  | EmailAnalytics
+  | LinkedinAnalytics
+  | WhatsappAnalytics;
 
 export type AnalyticsResponseFor<V extends AnalyticsView> = Extract<AnalyticsResponse, { view: V }>;
 

@@ -20,9 +20,9 @@ import { cn } from "@/utils/cn";
 export type AccountFilter = "all" | "healthy" | "attention";
 
 export const ACCOUNT_FILTER_LABEL: Record<AccountFilter, string> = {
-  all: "All",
-  healthy: "Healthy",
-  attention: "Needs attention",
+  all: "Todas",
+  healthy: "Saudáveis",
+  attention: "Precisam de atenção",
 };
 
 export function AccountsFrame({
@@ -62,7 +62,7 @@ export function AccountsFrame({
               {(Object.keys(ACCOUNT_FILTER_LABEL) as AccountFilter[]).map((key) => (
                 <SegmentedControl.Trigger key={key} value={key} className="gap-1.5 px-2.5 sm:px-3">
                   {ACCOUNT_FILTER_LABEL[key]}
-                  <span className="tabular-nums text-text-soft-400">{counts[key]}</span>
+                  <span className="tabular-nums text-text-sub-600">{counts[key]}</span>
                 </SegmentedControl.Trigger>
               ))}
             </SegmentedControl.List>
@@ -93,8 +93,8 @@ export function AccountsNoMatch({ noun }: { noun: string }) {
     <EmptyState
       compact
       icon={RiSearchLine}
-      title={`No ${noun} match`}
-      description="Try another filter, or clear the search."
+      title={`Nenhum ${noun} encontrado`}
+      description="Tente outro filtro ou limpe a busca."
     />
   );
 }
@@ -162,16 +162,16 @@ export function AccountsPager({
   return (
     <div className="flex items-center justify-between gap-3 px-4 pb-1.5 pt-2">
       <p className="text-paragraph-xs tabular-nums text-text-sub-600">
-        {from}–{to} of {total} {noun}
+        {from}–{to} de {total} {noun}
       </p>
       <div className="flex items-center gap-1.5">
-        <Button.Root variant="neutral" mode="stroke" size="xxsmall" disabled={page === 0} onClick={() => onPage(page - 1)} aria-label="Previous page">
+        <Button.Root variant="neutral" mode="stroke" size="xxsmall" disabled={page === 0} onClick={() => onPage(page - 1)} aria-label="Página anterior">
           <Button.Icon as={RiArrowLeftSLine} />
         </Button.Root>
         <span className="text-paragraph-xs tabular-nums text-text-sub-600">
           {page + 1} / {pages}
         </span>
-        <Button.Root variant="neutral" mode="stroke" size="xxsmall" disabled={page >= pages - 1} onClick={() => onPage(page + 1)} aria-label="Next page">
+        <Button.Root variant="neutral" mode="stroke" size="xxsmall" disabled={page >= pages - 1} onClick={() => onPage(page + 1)} aria-label="Próxima página">
           <Button.Icon as={RiArrowRightSLine} />
         </Button.Root>
       </div>

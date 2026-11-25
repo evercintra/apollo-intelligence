@@ -6,27 +6,10 @@ import Select from "./ui/Select";
 import CategoryFilter from "./CategoryFilter";
 import AppFilter from "./AppFilter";
 import { useNavigation } from "./NavigationProvider";
-
-const COUNTRY_OPTIONS = [
-  { value: "US", label: "🇺🇸 United States" },
-  { value: "GB", label: "🇬🇧 United Kingdom" },
-  { value: "CA", label: "🇨🇦 Canada" },
-  { value: "AU", label: "🇦🇺 Australia" },
-  { value: "IN", label: "🇮🇳 India" },
-  { value: "DE", label: "🇩🇪 Germany" },
-  { value: "FR", label: "🇫🇷 France" },
-  { value: "NL", label: "🇳🇱 Netherlands" },
-  { value: "BR", label: "🇧🇷 Brazil" },
-  { value: "MX", label: "🇲🇽 Mexico" },
-  { value: "SG", label: "🇸🇬 Singapore" },
-  { value: "NZ", label: "🇳🇿 New Zealand" },
-  { value: "SE", label: "🇸🇪 Sweden" },
-  { value: "NO", label: "🇳🇴 Norway" },
-  { value: "DK", label: "🇩🇰 Denmark" },
-];
+import { COUNTRY_OPTIONS, DEFAULT_COUNTRY_CODE } from "@/lib/prospectingLabels";
 
 const PLATFORM_OPTIONS = [
-  { value: "", label: "All Platforms" },
+  { value: "", label: "Todas as plataformas" },
   { value: "Shopify", label: "Shopify" },
   { value: "WooCommerce", label: "WooCommerce" },
   { value: "BigCommerce", label: "BigCommerce" },
@@ -36,20 +19,20 @@ const PLATFORM_OPTIONS = [
 ];
 
 const SORT_OPTIONS = [
-  { value: "annualSales", label: "Annual Sales" },
-  { value: "rank", label: "Rank" },
-  { value: "domain", label: "Default ⚡" },
+  { value: "annualSales", label: "Faturamento anual" },
+  { value: "rank", label: "Classificação" },
+  { value: "domain", label: "Domínio" },
 ];
 
 const DIR_OPTIONS = [
-  { value: "desc", label: "↓ Desc" },
-  { value: "asc", label: "↑ Asc" },
+  { value: "desc", label: "↓ Decrescente" },
+  { value: "asc", label: "↑ Crescente" },
 ];
 
 const PAGE_SIZE_OPTIONS = [
-  { value: "10", label: "10 rows" },
-  { value: "20", label: "20 rows" },
-  { value: "50", label: "50 rows" },
+  { value: "10", label: "10 linhas" },
+  { value: "20", label: "20 linhas" },
+  { value: "50", label: "50 linhas" },
 ];
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -75,6 +58,8 @@ export default function Filters() {
   const maxRef = useRef<HTMLInputElement>(null);
 
   const get = (key: string, fallback = "") => searchParams.get(key) ?? fallback;
+  const minRevenue = get("minRevenue");
+  const maxRevenue = get("maxRevenue");
 
   const update = useCallback(
     (updates: Record<string, string>) => {
@@ -99,9 +84,9 @@ export default function Filters() {
     <div className="flex flex-col gap-5 px-4 py-4">
 
       <Section>
-        <Label>Country</Label>
+        <Label>País</Label>
         <Select
-          value={get("countryCode", "US")}
+          value={get("countryCode", DEFAULT_COUNTRY_CODE)}
           onChange={(v) => update({ countryCode: v })}
           options={COUNTRY_OPTIONS}
           variant="primary"
@@ -111,9 +96,9 @@ export default function Filters() {
       <div className="h-px bg-bg-weak-50" />
 
       <Section>
-        <Label>Category</Label>
+        <Label>Categoria</Label>
         <CategoryFilter
-          countryCode={get("countryCode", "US")}
+          countryCode={get("countryCode", DEFAULT_COUNTRY_CODE)}
           c1={get("c1")}
           c2={get("c2")}
           c3={get("c3")}
@@ -124,7 +109,7 @@ export default function Filters() {
       <div className="h-px bg-bg-weak-50" />
 
       <Section>
-        <Label>App</Label>
+        <Label>Aplicativo</Label>
         <AppFilter
           value={get("app")}
           onChange={(v) => update({ app: v })}
@@ -134,7 +119,7 @@ export default function Filters() {
       <div className="h-px bg-bg-weak-50" />
 
       <Section>
-        <Label>Platform</Label>
+        <Label>Plataforma</Label>
         <Select
           value={get("platform")}
           onChange={(v) => update({ platform: v })}
@@ -143,38 +128,42 @@ export default function Filters() {
       </Section>
 
       <Section>
-        <Label>Revenue Range ($)</Label>
+        <Label>Faixa de faturamento anual</Label>
+        <p className="text-[11px] text-text-strong-950/45">Estimativas da fonte de dados em dólares (US$).</p>
         <div className="flex items-center gap-1.5">
           <input
             ref={minRef}
             type="number"
-            placeholder="Min"
-            defaultValue={get("minRevenue")}
+            placeholder="Mín."
+            defaultValue={minRevenue}
             // eslint-disable-next-line react-hooks/refs -- intentional: ref read/written during render to expose the latest value to event handlers
             onKeyDown={handleTextInput("minRevenue", minRef)}
             // eslint-disable-next-line react-hooks/refs -- intentional: ref read/written during render to expose the latest value to event handlers
             onBlur={handleTextInput("minRevenue", minRef)}
-            className="w-full h-10 border border-stroke-soft-200 rounded-lg px-3 text-sm text-text-strong-950 placeholder-text-soft-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
+            className="w-full h-10 border border-stroke-soft-200 rounded-lg px-3 text-sm text-text-strong-950 placeholder-text-soft-400 focus:outline-none focus:ring-2 focus:ring-action-ring focus:border-transparent"
           />
           <span className="text-text-strong-950/30 text-sm shrink-0">–</span>
           <input
             ref={maxRef}
             type="number"
-            placeholder="Max"
-            defaultValue={get("maxRevenue")}
+            placeholder="Máx."
+            defaultValue={maxRevenue}
             // eslint-disable-next-line react-hooks/refs -- intentional: ref read/written during render to expose the latest value to event handlers
             onKeyDown={handleTextInput("maxRevenue", maxRef)}
             // eslint-disable-next-line react-hooks/refs -- intentional: ref read/written during render to expose the latest value to event handlers
             onBlur={handleTextInput("maxRevenue", maxRef)}
-            className="w-full h-10 border border-stroke-soft-200 rounded-lg px-3 text-sm text-text-strong-950 placeholder-text-soft-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
+            className="w-full h-10 border border-stroke-soft-200 rounded-lg px-3 text-sm text-text-strong-950 placeholder-text-soft-400 focus:outline-none focus:ring-2 focus:ring-action-ring focus:border-transparent"
           />
         </div>
+        {!minRevenue && !maxRevenue && (
+          <p className="text-[11px] text-text-strong-950/45">Qualquer faixa</p>
+        )}
       </Section>
 
       <div className="h-px bg-bg-weak-50" />
 
       <Section>
-        <Label>Sort</Label>
+        <Label>Ordenar por</Label>
         <Select
           value={get("sortBy", "annualSales")}
           onChange={(v) => update({ sortBy: v })}
@@ -188,7 +177,7 @@ export default function Filters() {
       </Section>
 
       <Section>
-        <Label>Per Page</Label>
+        <Label>Linhas por página</Label>
         <Select
           value={get("pageSize", "20")}
           onChange={(v) => update({ pageSize: v })}
@@ -198,13 +187,13 @@ export default function Filters() {
 
       <div className="flex items-center gap-2">
         <button
-          onClick={() => navigate("?countryCode=US&sortBy=annualSales&sortDir=desc&pageSize=20")}
+          onClick={() => navigate(`?countryCode=${DEFAULT_COUNTRY_CODE}&sortBy=annualSales&sortDir=desc&pageSize=20`)}
           className="flex-1 h-9 text-sm text-text-strong-950/70 border border-stroke-soft-200 rounded-lg hover:bg-bg-weak-50 hover:text-text-strong-950 transition-colors"
         >
-          Reset
+          Redefinir filtros
         </button>
         {isPending && (
-          <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin shrink-0" />
+          <div className="w-4 h-4 border-2 border-action-ring border-t-transparent rounded-full animate-spin shrink-0" />
         )}
       </div>
 

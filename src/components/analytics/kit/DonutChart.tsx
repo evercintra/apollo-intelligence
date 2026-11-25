@@ -1,10 +1,12 @@
 "use client";
 
-import type { ComponentType, CSSProperties } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { cn } from "@/utils/cn";
-import { formatCompact, formatPercent, MUTED, SURFACE } from "../theme";
+import { formatCompact, formatPercent, SURFACE } from "../theme";
+import { foldDonutItems, type DonutItem } from "./donutFold";
 import { EmptyChart } from "./EmptyChart";
+
+export type { DonutItem } from "./donutFold";
 
 /**
  * Part-to-whole at a glance: a thin donut with the total in the middle and a
@@ -24,25 +26,6 @@ import { EmptyChart } from "./EmptyChart";
  * (caption under the total), `valueFormat`, `size` (px, default 164),
  * `maxSlices`, `emptyLabel` / `emptyDescription` (the empty state's two lines).
  */
-export type DonutItem = {
-  key: string;
-  label: string;
-  value: number;
-  color: string;
-  icon?: ComponentType<{ className?: string; style?: CSSProperties }>;
-};
-
-function fold(items: DonutItem[], maxSlices: number): DonutItem[] {
-  const nonZero = items.filter((i) => i.value > 0);
-  if (nonZero.length <= maxSlices) return nonZero;
-  const keep = new Set([...nonZero].sort((a, b) => b.value - a.value).slice(0, maxSlices - 1).map((i) => i.key));
-  const rest = nonZero.filter((i) => !keep.has(i.key));
-  return [
-    ...nonZero.filter((i) => keep.has(i.key)),
-    { key: "__other", label: `Other (${rest.length})`, value: rest.reduce((s, i) => s + i.value, 0), color: MUTED },
-  ];
-}
-
 type SliceTooltipArgs = { active?: boolean; payload?: ReadonlyArray<{ payload?: DonutItem }> };
 
 export function DonutChart({
@@ -51,7 +34,7 @@ export function DonutChart({
   valueFormat = formatCompact,
   size = 164,
   maxSlices = 6,
-  emptyLabel = "Nothing in this period.",
+  emptyLabel = "Nenhum dado neste período.",
   emptyDescription,
   className,
 }: {
@@ -64,8 +47,8 @@ export function DonutChart({
   emptyDescription?: string;
   className?: string;
 }) {
-  const slices = fold(items, maxSlices);
-  const total = slices.reduce((s, i) => s + i.value, 0);
+  const slices = foldDonutItems(items, maxSlices);
+  const total = items.reduce((sum, item) => sum + item.value, 0);
   if (total === 0) return <EmptyChart height={size} title={emptyLabel} description={emptyDescription} />;
   const share = (value: number) => formatPercent(value / total);
 

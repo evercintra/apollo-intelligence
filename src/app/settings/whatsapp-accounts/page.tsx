@@ -8,7 +8,7 @@ import { runInOrganization } from "@/lib/tenancy/scope";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "WhatsApp accounts" };
+export const metadata = { title: "Contas do WhatsApp" };
 
 async function Numbers() {
   const ctx = await requirePageOrgContext();
@@ -21,7 +21,7 @@ export default function WhatsappAccountsPage() {
     <RequiresPlatform
       platform="unipile"
       fallback={
-        <SettingsPage title="WhatsApp accounts" description="The WhatsApp numbers messaging and calling run from, linked through Unipile.">
+        <SettingsPage title="Contas do WhatsApp" description="Os números de WhatsApp usados para mensagens e ligações, vinculados pela Unipile.">
           {/* The gate's prompt, under the page header the client component would have supplied. */}
           <PlatformConnectPrompt platform="unipile" settingsHref="/settings/whatsapp-connection" guideHref={docsPageUrl("whatsapp/accounts")} />
         </SettingsPage>

@@ -73,14 +73,14 @@ export function ComingSoonCard({ connection }: { connection: ComingSoonConnectio
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-label-md text-text-strong-950">{connection.name}</h3>
-              <Badge.Root size="medium" variant="lighter" color="purple">Coming soon</Badge.Root>
+              <Badge.Root size="medium" variant="lighter" color="purple">Em breve</Badge.Root>
             </div>
             <p className="mt-1 text-paragraph-sm text-text-sub-600">{connection.description}</p>
-            <p className="mt-1 text-paragraph-xs text-text-soft-400">Will power: {connection.enables.join(", ")}</p>
+            <p className="mt-1 text-paragraph-xs text-text-sub-600">Habilitará: {connection.enables.join(", ")}</p>
           </div>
         </div>
         <Button.Root variant="neutral" mode="stroke" size="small" disabled className="shrink-0">
-          Coming soon
+          Em breve
         </Button.Root>
       </FramePanel>
     </Frame>
@@ -108,9 +108,9 @@ function PlatformCard({
 
   async function disconnect() {
     const confirmed = await dialogs.confirm({
-      title: `Disconnect ${integration.name}?`,
-      description: `${integration.enables.join(" and ")} will stop working until it is connected again.`,
-      confirmLabel: "Disconnect",
+      title: `Desconectar ${integration.name}?`,
+      description: `${integration.enables.join(" e ")} deixarão de funcionar até a conexão ser restabelecida.`,
+      confirmLabel: "Desconectar",
       variant: "error",
     });
     if (!confirmed) return;
@@ -120,7 +120,7 @@ function PlatformCard({
       if (!res.ok) throw new Error();
       startTransition(() => router.refresh());
     } catch {
-      await dialogs.alert({ title: `Could not disconnect ${integration.name}`, description: "Something went wrong. Please try again.", variant: "error" });
+      await dialogs.alert({ title: `Não foi possível desconectar ${integration.name}`, description: "Algo deu errado. Tente de novo.", variant: "error" });
     } finally {
       setBusy(false);
     }
@@ -135,15 +135,15 @@ function PlatformCard({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-label-md text-text-strong-950">{integration.name}</h3>
-                <Badge.Root size="medium" variant="lighter" color={connected ? "green" : "gray"}>
-                  {connected ? "Connected" : "Not connected"}
+                <Badge.Root size="medium" variant="light" color={connected ? "green" : "gray"}>
+                  {connected ? "Conectado" : "Não conectado"}
                 </Badge.Root>
               </div>
               <p className="mt-1 text-paragraph-sm text-text-sub-600">{integration.description}</p>
-              <p className="mt-1 text-paragraph-xs text-text-soft-400">Powers: {integration.enables.join(", ")}</p>
+              <p className="mt-1 text-paragraph-xs text-text-sub-600">Habilita: {integration.enables.join(", ")}</p>
               {connected && integration.guideUrl && (
                 <DocsLink href={integration.guideUrl} appearance="inline" className="mt-1.5 text-paragraph-xs">
-                  Setup guide
+                  Guia de configuração
                 </DocsLink>
               )}
             </div>
@@ -152,11 +152,11 @@ function PlatformCard({
             {!connected && integration.guideUrl && <DocsLink href={integration.guideUrl} />}
             {connected && (
               <Button.Root variant="error" mode="ghost" size="small" disabled={busy} onClick={disconnect}>
-                Disconnect
+                Desconectar
               </Button.Root>
             )}
             <Button.Root variant={connected ? "neutral" : "primary"} mode={connected ? "stroke" : "filled"} size="small" onClick={onEdit}>
-              {connected ? "Edit" : "Connect"}
+              {connected ? "Editar" : "Conectar"}
             </Button.Root>
           </div>
         </div>
@@ -165,13 +165,13 @@ function PlatformCard({
           <dl className="grid gap-x-6 gap-y-2 border-t border-stroke-soft-200 pt-3 text-paragraph-xs sm:grid-cols-2">
             {shownValues.map((field) => (
               <div key={field.key} className="min-w-0">
-                <dt className="text-text-soft-400">{field.label}</dt>
+                <dt className="text-text-sub-600">{field.label}</dt>
                 <dd className="truncate text-text-strong-950">{status?.values[field.key]}</dd>
               </div>
             ))}
             {status?.verifiedAt && (
               <div>
-                <dt className="text-text-soft-400">Last verified</dt>
+                <dt className="text-text-sub-600">Última verificação</dt>
                 <dd className="text-text-strong-950">{formatVerified(status.verifiedAt)}</dd>
               </div>
             )}
@@ -182,16 +182,16 @@ function PlatformCard({
         {connected && integration.key === "langfuse" && <LangfusePrompts upload={status?.prompts ?? null} />}
         {webhookUrl !== undefined && (
           <section className="flex flex-col gap-1.5 border-t border-stroke-soft-200 pt-3">
-            <span className="text-label-xs text-text-strong-950">Webhook URL</span>
+            <span className="text-label-xs text-text-strong-950">URL do webhook</span>
             {webhookUrl ? (
               <>
                 <CopyValue value={webhookUrl} />
-                <p className="text-paragraph-xs text-text-soft-400">
-                  Paste it as the Subscriber URL of a {integration.name} webhook. It names your organization, so keep one per organization.
+                <p className="text-paragraph-xs text-text-sub-600">
+                  Cole como a URL de assinatura de um webhook do {integration.name}. Ela identifica sua organização, então mantenha uma por organização.
                 </p>
               </>
             ) : (
-              <p className="text-paragraph-xs text-text-soft-400">Set BETTER_AUTH_URL to this deployment&apos;s public address to get the webhook URL.</p>
+              <p className="text-paragraph-xs text-text-sub-600">Defina BETTER_AUTH_URL com o endereço público desta instalação para obter a URL do webhook.</p>
             )}
           </section>
         )}
@@ -201,31 +201,31 @@ function PlatformCard({
 }
 
 /**
- * The prompts AgentSDR uploads to a Langfuse project when it is saved:
- * how many it created, or why it could not. Saving again retries.
+ * Os prompts que a automação envia a um projeto Langfuse ao salvar:
+ * quantos foram criados ou por que não foi possível. Salvar de novo tenta outra vez.
  */
 function LangfusePrompts({ upload }: { upload: LangfusePromptUpload | null }) {
   const badge =
     upload?.status === "uploaded"
-      ? { color: "green" as const, text: "In Langfuse" }
+      ? { color: "green" as const, text: "Enviados ao Langfuse" }
       : upload?.status === "failed"
-        ? { color: "red" as const, text: "Upload failed" }
-        : { color: "gray" as const, text: "Not uploaded yet" };
-  const prompts = (count: number) => `${count} prompt${count === 1 ? "" : "s"}`;
+        ? { color: "red" as const, text: "Falha no envio" }
+        : { color: "gray" as const, text: "Ainda não enviado" };
+  const prompts = (count: number) => `${count} ${count === 1 ? "prompt" : "prompts"}`;
   return (
     <section className="flex flex-col gap-1 border-t border-stroke-soft-200 pt-3">
       <div className="flex flex-wrap items-center gap-2">
         <h4 className="text-label-sm text-text-strong-950">Prompts</h4>
-        <Badge.Root size="small" variant="lighter" color={badge.color}>
+        <Badge.Root size="small" variant="light" color={badge.color}>
           {badge.text}
         </Badge.Root>
       </div>
       <p className="text-paragraph-xs text-text-sub-600">
         {upload?.status === "uploaded"
-          ? `On ${formatVerified(upload.at)} AgentSDR uploaded ${prompts(upload.created)} to this project, labelled production${upload.existing ? `; ${prompts(upload.existing)} were already there and were left as they are` : ""}. Edit them in Langfuse: AgentSDR uses the production version.`
+          ? `Em ${formatVerified(upload.at)}, a automação enviou ${prompts(upload.created)} a este projeto, marcados como produção${upload.existing ? `; ${prompts(upload.existing)} já estavam lá e foram mantidos como estavam` : ""}. Edite no Langfuse: a automação usa a versão de produção.`
           : upload?.status === "failed"
-            ? `${upload.message ?? "Langfuse did not take the prompts."} Edit and save the connection to try again.`
-            : "AgentSDR uploads its prompts when the connection is saved. Edit and save it to upload them."}
+            ? `${upload.message ?? "O Langfuse não aceitou os prompts."} Edite e salve a conexão para tentar de novo.`
+            : "A automação envia seus prompts quando a conexão é salva. Edite e salve para enviá-los."}
       </p>
     </section>
   );
@@ -234,9 +234,9 @@ function LangfusePrompts({ upload }: { upload: LangfusePromptUpload | null }) {
 type WebhookSetup = { endpoints: { key: string; label: string; url: string }[] | null; secret: string };
 
 /**
- * Unipile's webhooks, which AgentSDR registers itself on save: whether that
- * worked, a way to run it again, and, on request, the URLs and the secret
- * for registering them by hand.
+ * Webhooks da Unipile, registrados pela automação ao salvar: se funcionou,
+ * uma forma de repetir e, sob demanda, as URLs e o segredo para registrar
+ * manualmente.
  */
 function UnipileWebhooks({ registration }: { registration: UnipileWebhookRegistration | null }) {
   const router = useRouter();
@@ -254,11 +254,11 @@ function UnipileWebhooks({ registration }: { registration: UnipileWebhookRegistr
     try {
       const res = await fetch("/api/settings/integrations/unipile/webhooks", { method: "POST" });
       const body = (await res.json().catch(() => null)) as (UnipileWebhookRegistration & { error?: string }) | null;
-      if (!res.ok || !body) throw new Error(body?.error || "Could not register the webhooks.");
+      if (!res.ok || !body) throw new Error(body?.error || "Não foi possível registrar os webhooks.");
       setCurrent(body);
       startTransition(() => router.refresh());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not register the webhooks.");
+      setError(err instanceof Error ? err.message : "Não foi possível registrar os webhooks.");
     } finally {
       setRegistering(false);
     }
@@ -275,10 +275,10 @@ function UnipileWebhooks({ registration }: { registration: UnipileWebhookRegistr
     try {
       const res = await fetch("/api/settings/integrations/unipile/webhooks", { cache: "no-store" });
       const body = (await res.json().catch(() => null)) as (WebhookSetup & { error?: string }) | null;
-      if (!res.ok || !body) throw new Error(body?.error || "Could not load the webhook details.");
+      if (!res.ok || !body) throw new Error(body?.error || "Não foi possível carregar os detalhes do webhook.");
       setSetup(body);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load the webhook details.");
+      setError(err instanceof Error ? err.message : "Não foi possível carregar os detalhes do webhook.");
     } finally {
       setLoadingSetup(false);
     }
@@ -286,12 +286,12 @@ function UnipileWebhooks({ registration }: { registration: UnipileWebhookRegistr
 
   const badge =
     current?.status === "registered"
-      ? { color: "green" as const, text: `${current.items?.length ?? 0} registered` }
+      ? { color: "green" as const, text: `${current.items?.length ?? 0} registrados` }
       : current?.status === "failed"
-        ? { color: "red" as const, text: "Registration failed" }
+        ? { color: "red" as const, text: "Falha no registro" }
         : current?.status === "skipped"
-          ? { color: "orange" as const, text: "Not registered" }
-          : { color: "gray" as const, text: "Not registered yet" };
+          ? { color: "orange" as const, text: "Não registrados" }
+          : { color: "gray" as const, text: "Ainda não registrados" };
 
   return (
     <section className="flex flex-col gap-3 border-t border-stroke-soft-200 pt-3">
@@ -299,24 +299,24 @@ function UnipileWebhooks({ registration }: { registration: UnipileWebhookRegistr
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h4 className="text-label-sm text-text-strong-950">Webhooks</h4>
-            <Badge.Root size="small" variant="lighter" color={badge.color}>
+            <Badge.Root size="small" variant="light" color={badge.color}>
               {badge.text}
             </Badge.Root>
           </div>
           <p className="mt-1 text-paragraph-xs text-text-sub-600">
             {current?.status === "registered"
-              ? `AgentSDR registered them in your Unipile workspace on ${formatVerified(current.at)}, so replies, accepted invitations and WhatsApp messages arrive here.`
+              ? `A automação os registrou no seu espaço Unipile em ${formatVerified(current.at)}, para que respostas, convites aceitos e mensagens de WhatsApp cheguem aqui.`
               : current?.message
                 ? current.message
-                : "AgentSDR registers them in your Unipile workspace, so replies, accepted invitations and WhatsApp messages arrive here."}
+                : "A automação registra os webhooks no seu espaço Unipile, para que respostas, convites aceitos e mensagens de WhatsApp cheguem aqui."}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           <Button.Root variant="neutral" mode="ghost" size="small" disabled={loadingSetup} onClick={() => void toggleSetup()}>
-            {setup ? "Hide URLs" : loadingSetup ? "Loading…" : "Show URLs and secret"}
+            {setup ? "Ocultar URLs" : loadingSetup ? "Carregando…" : "Mostrar URLs e segredo"}
           </Button.Root>
           <Button.Root variant="neutral" mode="stroke" size="small" disabled={registering} onClick={() => void register()}>
-            {registering ? "Registering…" : current?.status === "registered" ? "Register again" : "Register webhooks"}
+            {registering ? "Registrando…" : current?.status === "registered" ? "Registrar de novo" : "Registrar webhooks"}
           </Button.Root>
         </div>
       </div>
@@ -326,7 +326,7 @@ function UnipileWebhooks({ registration }: { registration: UnipileWebhookRegistr
       {setup && (
         <div className="flex flex-col gap-3 rounded-lg bg-bg-weak-50 p-3">
           <p className="text-paragraph-xs text-text-sub-600">
-            Only needed to register the webhooks by hand. Each URL is called with the header <code className="font-mono">x-unipile-secret</code> set to the secret below.
+            Necessário apenas para registrar os webhooks manualmente. Cada URL é chamada com o cabeçalho <code className="font-mono">x-unipile-secret</code> definido como o segredo abaixo.
           </p>
           {setup.endpoints ? (
             <ul className="flex flex-col gap-2">
@@ -338,10 +338,10 @@ function UnipileWebhooks({ registration }: { registration: UnipileWebhookRegistr
               ))}
             </ul>
           ) : (
-            <p className="text-paragraph-xs text-text-sub-600">Set BETTER_AUTH_URL to the app&apos;s public address to get the webhook URLs.</p>
+            <p className="text-paragraph-xs text-text-sub-600">Defina BETTER_AUTH_URL com o endereço público da aplicação para obter as URLs dos webhooks.</p>
           )}
           <div className="flex flex-col gap-1">
-            <span className="text-label-xs text-text-strong-950">Secret</span>
+            <span className="text-label-xs text-text-strong-950">Segredo</span>
             <CopyValue value={setup.secret} masked={!secretShown} onToggleMask={() => setSecretShown((shown) => !shown)} />
           </div>
         </div>
@@ -368,19 +368,19 @@ function CopyValue({ value, masked = false, onToggleMask }: { value: string; mas
         {masked ? "•".repeat(Math.min(value.length, 32)) : value}
       </code>
       {onToggleMask && (
-        <Button.Root type="button" variant="neutral" mode="ghost" size="xxsmall" onClick={onToggleMask} aria-label={masked ? "Show secret" : "Hide secret"}>
+        <Button.Root type="button" variant="neutral" mode="ghost" size="xxsmall" onClick={onToggleMask} aria-label={masked ? "Mostrar segredo" : "Ocultar segredo"}>
           <Button.Icon as={masked ? RiEyeLine : RiEyeOffLine} />
         </Button.Root>
       )}
       <Button.Root type="button" variant="neutral" mode="ghost" size="xxsmall" onClick={() => void copy()}>
         <Button.Icon as={copied ? RiCheckLine : RiFileCopyLine} />
-        {copied ? "Copied" : "Copy"}
+        {copied ? "Copiado" : "Copiar"}
       </Button.Root>
     </div>
   );
 }
 
-/** "How to connect", closed until asked for — the fields' own hints carry most people through. */
+/** "Como conectar", fechado até ser solicitado — as dicas dos campos bastam na maioria dos casos. */
 function SetupGuide({ integration }: { integration: PlatformIntegration }) {
   const [open, setOpen] = useState(false);
   const id = `setup-guide-${integration.key}`;
@@ -394,10 +394,10 @@ function SetupGuide({ integration }: { integration: PlatformIntegration }) {
         className="flex w-full items-center justify-between gap-3 rounded-lg px-3.5 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary-base"
       >
         <span className="text-label-sm text-text-strong-950">
-          How to connect
-          <span className="ml-1.5 text-paragraph-xs text-text-soft-400">{integration.setupSteps.length} steps</span>
+          Como conectar
+          <span className="ml-1.5 text-paragraph-xs text-text-sub-600">{integration.setupSteps.length} {integration.setupSteps.length === 1 ? "etapa" : "etapas"}</span>
         </span>
-        <RiArrowDownSLine aria-hidden="true" className={cn("size-5 shrink-0 text-text-soft-400 transition-transform duration-200", open && "rotate-180")} />
+        <RiArrowDownSLine aria-hidden="true" className={cn("size-5 shrink-0 text-text-sub-600 transition-transform duration-200", open && "rotate-180")} />
       </button>
       {open && (
         <ol id={id} className="space-y-1.5 px-3.5 pb-3.5">
@@ -436,7 +436,7 @@ function SetupStepText({ step }: { step: SetupStep }) {
         <code className="min-w-0 flex-1 select-all break-all font-mono text-paragraph-xs text-text-strong-950">{step.copy}</code>
         <Button.Root type="button" variant="neutral" mode="ghost" size="xxsmall" onClick={() => void copy(step.copy)}>
           <Button.Icon as={copied ? RiCheckLine : RiFileCopyLine} />
-          {copied ? "Copied" : "Copy"}
+          {copied ? "Copiado" : "Copiar"}
         </Button.Root>
       </div>
     </div>
@@ -465,7 +465,7 @@ export function PlatformLogo({ src, size = "medium" }: { src: string; size?: "sm
 function formatVerified(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+  return date.toLocaleString("pt-BR", { dateStyle: "medium", timeStyle: "short" });
 }
 
 function IntegrationDialog({
@@ -500,13 +500,13 @@ function IntegrationDialog({
       });
       const data: { error?: string } = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Could not save the integration");
+        setError(data.error ?? "Não foi possível salvar a integração");
         return;
       }
       router.refresh();
       onClose();
     } catch {
-      setError("Network error — please try again");
+      setError("Erro de rede — tente de novo");
     } finally {
       setSaving(false);
     }
@@ -521,14 +521,14 @@ function IntegrationDialog({
       setValues((current) => ({ ...current, ...filled }));
       setFilledFrom(file.name);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not read that file");
+      setError(err instanceof Error ? err.message : "Não foi possível ler esse arquivo");
     }
   }
 
   const links = [
-    integration.guideUrl && { href: integration.guideUrl, label: "Step-by-step guide" },
-    integration.videoUrl && { href: integration.videoUrl, label: "Watch how" },
-    integration.docsUrl && { href: integration.docsUrl, label: `${integration.name} docs` },
+    integration.guideUrl && { href: integration.guideUrl, label: "Guia passo a passo" },
+    integration.videoUrl && { href: integration.videoUrl, label: "Ver como" },
+    integration.docsUrl && { href: integration.docsUrl, label: `Documentação do ${integration.name}` },
   ].filter((link): link is { href: string; label: string } => Boolean(link));
 
   const missing = integration.fields.some(
@@ -542,9 +542,9 @@ function IntegrationDialog({
           <div className="flex items-start gap-3">
             <PlatformLogo src={integration.iconUrl} size="small" />
             <div className="min-w-0">
-              <Modal.Title>{connected ? `Edit ${integration.name}` : `Connect ${integration.name}`}</Modal.Title>
+              <Modal.Title>{connected ? `Editar ${integration.name}` : `Conectar ${integration.name}`}</Modal.Title>
               <Modal.Description>
-                Everything is tested against {integration.name} before it is saved.
+                Tudo é testado com {integration.name} antes de salvar.
               </Modal.Description>
               {links.length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-paragraph-xs">
@@ -580,15 +580,15 @@ function IntegrationDialog({
                   <Button.Icon as={RiFileUploadLine} />
                   {integration.keyFile.label}
                 </Button.Root>
-                <span className="text-paragraph-xs text-text-soft-400">
-                  {filledFrom ? `Filled in from ${filledFrom} — check the values, then connect.` : "Fills in the fields below. The file stays in your browser."}
+                <span className="text-paragraph-xs text-text-sub-600">
+                  {filledFrom ? `Preenchido a partir de ${filledFrom} — confira os valores e conecte.` : "Preenche os campos abaixo. O arquivo fica no seu navegador."}
                 </span>
               </div>
             )}
             {integration.fields.map((field) => {
               const id = `platform-${integration.key}-${field.key}`;
               const saved = field.secret && secretsSet.has(field.key);
-              const placeholder = saved ? "Saved — leave blank to keep" : field.placeholder;
+              const placeholder = saved ? "Salvo — deixe em branco para manter" : field.placeholder;
               const set = (value: string) => setValues((current) => ({ ...current, [field.key]: value }));
               return (
                 <Field key={field.key} label={field.label} htmlFor={id} required={field.required} optional={!field.required} description={field.help}>
@@ -624,7 +624,7 @@ function IntegrationDialog({
             })}
 
             {error && (
-              <Callout tone="error" title="Could not connect">
+              <Callout tone="error" title="Não foi possível conectar">
                 {error}
               </Callout>
             )}
@@ -632,10 +632,10 @@ function IntegrationDialog({
 
           <Modal.Footer>
             <Button.Root type="button" variant="neutral" mode="stroke" size="small" disabled={saving} onClick={onClose}>
-              Cancel
+              Cancelar
             </Button.Root>
             <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={saving || missing}>
-              {saving ? "Testing…" : connected ? "Save" : "Connect & test"}
+              {saving ? "Testando…" : connected ? "Salvar" : "Conectar e testar"}
             </Button.Root>
           </Modal.Footer>
         </form>

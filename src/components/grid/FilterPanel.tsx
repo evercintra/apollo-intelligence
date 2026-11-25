@@ -102,7 +102,7 @@ function FilterValueInput({
           commitRef.current(draftRef.current);
         }, VALUE_DEBOUNCE_MS);
       }}
-      className="w-[150px] shrink-0 rounded-lg border border-stroke-soft-200 px-2 py-1.5 text-[13px] text-text-strong-950 outline-none focus:border-blue-500 disabled:bg-bg-weak-50 disabled:text-text-disabled-300"
+      className="w-[150px] shrink-0 rounded-lg border border-stroke-soft-200 px-2 py-1.5 text-[13px] text-text-strong-950 outline-none focus:border-[var(--color-action-ring)] disabled:bg-bg-weak-50 disabled:text-text-disabled-300"
     />
   );
 }
@@ -151,7 +151,7 @@ export default function FilterPanel({
     <div className="p-3">
       {value.conditions.length === 0 && (
         <p className="mb-2 px-1 text-[13px] text-text-sub-600">
-          No filters yet — every row is shown.
+          Nenhum filtro ainda — todas as linhas são exibidas.
         </p>
       )}
 
@@ -176,12 +176,12 @@ export default function FilterPanel({
                       )
                     }
                   >
-                    <Select.Trigger aria-label="Group conjunction" className="w-auto">
+                    <Select.Trigger aria-label="Conjunção do grupo" className="w-auto">
                       <Select.Value />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="and">All of</Select.Item>
-                      <Select.Item value="or">Any of</Select.Item>
+                      <Select.Item value="and">Todas</Select.Item>
+                      <Select.Item value="or">Qualquer</Select.Item>
                     </Select.Content>
                   </Select.Root>
                   <button
@@ -211,7 +211,7 @@ export default function FilterPanel({
             <div key={i} className="flex items-center gap-2">
               <span className="w-11 shrink-0 text-[13px] text-text-sub-600">
                 {i === 0 ? (
-                  "Where"
+                  "Onde"
                 ) : (
                   <Select.Root
                     size="xsmall"
@@ -220,12 +220,12 @@ export default function FilterPanel({
                       onChange({ ...value, conjunction: next as "and" | "or" })
                     }
                   >
-                    <Select.Trigger aria-label="Filter conjunction" className="w-full">
+                    <Select.Trigger aria-label="Conjunção dos filtros" className="w-full">
                       <Select.Value />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="and">and</Select.Item>
-                      <Select.Item value="or">or</Select.Item>
+                      <Select.Item value="and">e</Select.Item>
+                      <Select.Item value="or">ou</Select.Item>
                     </Select.Content>
                   </Select.Root>
                 )}
@@ -236,7 +236,7 @@ export default function FilterPanel({
                 value={c.columnKey}
                 onValueChange={(next) => patchAt(i, { columnKey: next })}
               >
-                <Select.Trigger aria-label="Column" className="min-w-0 flex-1">
+                <Select.Trigger aria-label="Coluna" className="min-w-0 flex-1">
                   <Icon className="size-4 shrink-0 text-text-soft-400" />
                   <Select.Value />
                 </Select.Trigger>
@@ -254,7 +254,7 @@ export default function FilterPanel({
                 value={c.operator}
                 onValueChange={(next) => patchAt(i, { operator: next as FilterOperator })}
               >
-                <Select.Trigger aria-label="Operator" className="w-[150px] shrink-0">
+                <Select.Trigger aria-label="Operador" className="w-[150px] shrink-0">
                   <Select.Value />
                 </Select.Trigger>
                 <Select.Content>
@@ -275,7 +275,7 @@ export default function FilterPanel({
 
               <button
                 type="button"
-                title={c.disabled ? "Filter is muted" : "Mute this filter"}
+                title={c.disabled ? "Filtro desativado" : "Desativar este filtro"}
                 onClick={() => patchAt(i, { disabled: !c.disabled })}
                 className="shrink-0 rounded p-1 text-text-soft-400 hover:bg-bg-weak-50 hover:text-text-sub-600"
               >
@@ -302,9 +302,9 @@ export default function FilterPanel({
                         removeAt(i);
                         setMenuFor(null);
                       }}
-                      className="w-full px-3 py-1.5 text-left text-[13px] text-red-600 dark:text-red-400 hover:bg-bg-weak-50"
+                      className="w-full px-3 py-1.5 text-left text-[13px] text-[var(--color-error-dark)] hover:bg-bg-weak-50"
                     >
-                      Remove
+                      Remover
                     </button>
                   </div>
                 )}
@@ -319,10 +319,10 @@ export default function FilterPanel({
           type="button"
           onClick={addCondition}
           disabled={!columns.length}
-          className="flex items-center gap-1.5 rounded-lg border border-blue-200 dark:border-blue-500/30 px-2.5 py-1.5 text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50 disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg border border-[var(--color-action-ring)] px-2.5 py-1.5 text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50 disabled:opacity-50"
         >
           <RiAddLine className="size-4" />
-          Add filter
+          Adicionar filtro
         </button>
         <button
           type="button"
@@ -331,16 +331,16 @@ export default function FilterPanel({
           className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50 disabled:opacity-50"
         >
           <RiAddLine className="size-4" />
-          Add filter group
+          Adicionar grupo de filtros
         </button>
         <button
           type="button"
           onClick={() => onChange(EMPTY_FILTERS)}
           disabled={!value.conditions.length}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-red-600 dark:text-red-400 transition hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-40"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-[var(--color-error-dark)] transition hover:bg-[var(--color-error-lighter)] disabled:opacity-40"
         >
           <RiCloseLine className="size-4" />
-          Clear filters
+          Limpar filtros
         </button>
       </div>
     </div>

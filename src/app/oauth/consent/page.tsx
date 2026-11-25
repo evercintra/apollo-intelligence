@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getOrgContext } from "@/lib/auth/context";
 import { ConsentForm } from "./ConsentForm";
 
-export const metadata = { title: "Connect an AI assistant" };
+export const metadata = { title: "Conectar um assistente de IA" };
 export const dynamic = "force-dynamic";
 
 export default async function ConsentPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

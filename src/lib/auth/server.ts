@@ -35,7 +35,7 @@ import {
  * scope our tables. That is src/lib/auth/context.ts and every query after it.
  */
 
-const baseURL = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL;
+const baseURL = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
 
 /** Identity scopes plus what an MCP client may do (src/lib/publicApi/scopes.ts). */
 const OAUTH_SCOPES = ["openid", "profile", "email", "offline_access", ...MCP_SCOPES];

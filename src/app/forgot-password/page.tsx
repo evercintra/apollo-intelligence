@@ -22,21 +22,21 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Reset your password"
-      subtitle="We'll email you a link to choose a new one"
+      title="Redefina sua senha"
+      subtitle="Enviaremos um link por e-mail para você escolher uma nova senha"
       footer={
         <Link href="/sign-in" className={linkClass}>
-          Back to sign in
+          Voltar para o login
         </Link>
       }
     >
       {done ? (
-        <InfoCallout>If an account exists for {email}, we sent a link to reset your password.</InfoCallout>
+        <InfoCallout>Se existir uma conta para {email}, enviamos um link para redefinir sua senha.</InfoCallout>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-4">
-          <Field label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          <SubmitButton loading={loading} loadingLabel="Sending...">
-            Send reset link
+          <Field label="E-mail" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <SubmitButton loading={loading} loadingLabel="Enviando...">
+            Enviar link de redefinição
           </SubmitButton>
         </form>
       )}

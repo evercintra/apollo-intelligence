@@ -231,15 +231,88 @@
   --color-neutral-alpha-16: var(--color-slate-alpha-16);
   --color-neutral-alpha-10: var(--color-slate-alpha-10);
 
-  /* AlignUI Dynamic Primary Colors */
-  --color-primary-dark: var(--color-blue-800);
-  --color-primary-darker: var(--color-blue-700);
-  --color-primary-base: var(--color-blue-500);
-  --color-primary-light: var(--color-blue-100);
-  --color-primary-lighter: var(--color-blue-50);
-  --color-primary-alpha-24: var(--color-blue-alpha-24);
-  --color-primary-alpha-16: var(--color-blue-alpha-16);
-  --color-primary-alpha-10: var(--color-blue-alpha-10);
+  /* AlignUI Dynamic Primary Colors — Apollo complement (roxo profundo/médio) */
+  --color-primary-dark: var(--color-apollo-purple-950);
+  --color-primary-darker: var(--color-apollo-purple-950);
+  --color-primary-base: var(--color-apollo-purple-800);
+  --color-primary-light: var(--color-apollo-purple-200);
+  --color-primary-lighter: var(--color-apollo-purple-50);
+  --color-primary-alpha-24: rgb(73 52 95 / 0.24);
+  --color-primary-alpha-20: rgb(73 52 95 / 0.20);
+  --color-primary-alpha-16: rgb(73 52 95 / 0.16);
+  --color-primary-alpha-10: rgb(73 52 95 / 0.10);
+
+  --color-apollo-graphite-0: #FFFFFF;
+  --color-apollo-graphite-50: #F5F7F2;
+  --color-apollo-graphite-100: #E8ECE3;
+  --color-apollo-graphite-200: #D2D8CB;
+  --color-apollo-graphite-300: #B3BCA9;
+  --color-apollo-graphite-400: #8E9A83;
+  --color-apollo-graphite-500: #6B7761;
+  --color-apollo-graphite-600: #4F5A46;
+  --color-apollo-graphite-700: #3A4334;
+  --color-apollo-graphite-800: #20251F;
+  --color-apollo-graphite-900: #171A15;
+  --color-apollo-graphite-950: #0F120E;
+
+  --color-apollo-lime-50: #F7FEEA;
+  --color-apollo-lime-100: #EDFCCB;
+  --color-apollo-lime-200: #DDF89F;
+  --color-apollo-lime-300: #CFF67C;
+  --color-apollo-lime-400: #C5F467;
+  --color-apollo-lime-500: #A8D93A;
+  --color-apollo-lime-600: #8CB82A;
+  --color-apollo-lime-700: #6F941F;
+  --color-apollo-lime-800: #4F6A18;
+  --color-apollo-lime-900: #3B4F13;
+  --color-apollo-lime-950: #26330B;
+
+  --color-brand-surface: var(--color-apollo-graphite-800);
+  --color-brand-on-surface: var(--color-apollo-lime-400);
+  --color-accent-base: var(--color-apollo-lime-400);
+  --color-accent-strong: var(--color-apollo-lime-800);
+  --color-accent-soft: var(--color-apollo-lime-100);
+  --color-accent-contrast: var(--color-apollo-graphite-800);
+  --color-accent-ring: var(--color-apollo-lime-700);
+  --color-accent-hover: var(--color-apollo-lime-500);
+
+  /* Apollo official palette: roxo profundo, roxo médio, lilás, branco suave */
+  --color-apollo-soft-white: #F6F2FA;
+  --color-apollo-purple-50: #F6F2FA;
+  --color-apollo-purple-100: #EDE6F3;
+  --color-apollo-purple-200: #DCD2E8;
+  --color-apollo-purple-300: #B3A4C2;
+  --color-apollo-purple-400: #9582A8;
+  --color-apollo-purple-500: #7D6499;
+  --color-apollo-purple-600: #6B5288;
+  --color-apollo-purple-700: #5A4473;
+  --color-apollo-purple-800: #49345F;
+  --color-apollo-purple-900: #3A294C;
+  --color-apollo-purple-950: #2A1D3B;
+
+  /* Brand complements: purple for secondary actions, chrome and depth. */
+  --color-complement-deep: var(--color-apollo-purple-800);
+  --color-complement-medium: var(--color-apollo-purple-400);
+  --color-complement-light: var(--color-apollo-purple-200);
+  --color-complement-surface: var(--color-apollo-purple-50);
+  --color-complement-ring: var(--color-apollo-purple-700);
+
+  /* Graphite chrome: sidebar, mobile header and command palette. */
+  --color-chrome-surface: var(--color-apollo-graphite-900);
+  --color-chrome-raised: var(--color-apollo-graphite-800);
+  --color-chrome-border: var(--color-apollo-graphite-700);
+  --color-chrome-text: var(--color-apollo-soft-white);
+  --color-chrome-text-muted: var(--color-apollo-purple-300);
+  --color-chrome-icon: var(--color-apollo-purple-400);
+  --color-chrome-active: var(--color-apollo-lime-400);
+  --color-chrome-active-bg: rgb(197 244 103 / 0.10);
+  --color-chrome-hover-bg: rgb(246 242 250 / 0.06);
+
+  /* Lime actions: primary buttons, selected states and indicators. */
+  --color-action-bg: var(--color-apollo-lime-400);
+  --color-action-bg-hover: var(--color-apollo-lime-500);
+  --color-action-text: var(--color-apollo-graphite-800);
+  --color-action-ring: var(--color-apollo-lime-400);
 
   /* AlignUI Social Colors */
   --color-social-apple: oklch(0.00% 0.0000 0);
@@ -253,40 +326,41 @@
   /* AlignUI Overlay Colors */
   --color-overlay-gray: oklch(32.11% 0.0000 0 / 24%);
   --color-overlay-slate: oklch(30.90% 0.0210 265.90 / 24%);
-  --color-overlay: var(--color-overlay-slate);
+  --color-overlay-graphite: rgb(15 18 14 / 0.24);
+  --color-overlay: var(--color-overlay-graphite);
 
   /* AlignUI Semantic Colors */
   --color-static-black: var(--color-neutral-950);
   --color-static-white: var(--color-neutral-0);
   
-  --color-bg-strong-950: var(--color-neutral-950);
-  --color-bg-surface-800: var(--color-neutral-800);
+  --color-bg-strong-950: var(--color-apollo-graphite-900);
+  --color-bg-surface-800: var(--color-apollo-graphite-800);
   --color-bg-sub-300: var(--color-neutral-300);
   --color-bg-soft-200: var(--color-neutral-200);
-  --color-bg-weak-50: var(--color-neutral-50);
-  --color-bg-weak-25: var(--color-neutral-50);
+  --color-bg-weak-50: var(--color-apollo-soft-white);
+  --color-bg-weak-25: var(--color-apollo-soft-white);
   --color-bg-white-0: var(--color-neutral-0);
 
-  --color-text-strong-950: var(--color-neutral-950);
-  --color-text-sub-600: var(--color-neutral-600);
+  --color-text-strong-950: var(--color-apollo-graphite-900);
+  --color-text-sub-600: var(--color-apollo-purple-600);
   --color-text-soft-400: var(--color-neutral-400);
   --color-text-disabled-300: var(--color-neutral-300);
   --color-text-white-0: var(--color-neutral-0);
 
-  --color-stroke-strong-950: var(--color-neutral-950);
+  --color-stroke-strong-950: var(--color-apollo-graphite-900);
   --color-stroke-sub-300: var(--color-neutral-300);
-  --color-stroke-soft-200: var(--color-neutral-200);
+  --color-stroke-soft-200: #E4DEEA;
   --color-stroke-white-0: var(--color-neutral-0);
 
-  --color-faded-dark: var(--color-neutral-800);
-  --color-faded-base: var(--color-neutral-500);
-  --color-faded-light: var(--color-neutral-200);
-  --color-faded-lighter: var(--color-neutral-100);
+  --color-faded-dark: var(--color-apollo-graphite-800);
+  --color-faded-base: var(--color-apollo-graphite-500);
+  --color-faded-light: var(--color-apollo-purple-200);
+  --color-faded-lighter: var(--color-apollo-purple-50);
 
-  --color-information-dark: var(--color-blue-950);
-  --color-information-base: var(--color-blue-500);
-  --color-information-light: var(--color-blue-200);
-  --color-information-lighter: var(--color-blue-50);
+  --color-information-dark: var(--color-apollo-purple-950);
+  --color-information-base: var(--color-apollo-purple-700);
+  --color-information-light: var(--color-apollo-purple-200);
+  --color-information-lighter: var(--color-apollo-purple-50);
 
   --color-warning-dark: var(--color-orange-950);
   --color-warning-base: var(--color-orange-500);
@@ -476,7 +550,11 @@
   --shadow-regular-sm: 0 2px 4px #1b1c1d0a;
   
   --shadow-regular-md: 0 16px 32px -12px #0e121b1a;
-  
+
+  --shadow-regular-lg: 0 24px 48px -16px rgb(15 18 14 / 0.18);
+
+  --shadow-regular-xl: 0 32px 64px -20px rgb(15 18 14 / 0.24);
+
   --shadow-button-primary-focus: 0 0 0 2px var(--color-bg-white-0), 0 0 0 4px var(--color-primary-alpha-10);
   
   --shadow-button-important-focus: 0 0 0 2px var(--color-bg-white-0), 0 0 0 4px var(--color-neutral-alpha-16);
@@ -565,34 +643,34 @@
 /* Dark Mode Support - Tailwind v4.1 CSS Variables */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not(.light) {
-    --color-bg-strong-950: var(--color-neutral-0);
-    --color-bg-surface-800: var(--color-neutral-200);
-    --color-bg-sub-300: var(--color-neutral-600);
-    --color-bg-soft-200: var(--color-neutral-700);
-    --color-bg-weak-50: var(--color-neutral-800);
-    --color-bg-weak-25: var(--color-neutral-900);
-    --color-bg-white-0: var(--color-neutral-950);
+    --color-bg-strong-950: var(--color-apollo-soft-white);
+    --color-bg-surface-800: var(--color-apollo-graphite-200);
+    --color-bg-sub-300: var(--color-apollo-graphite-700);
+    --color-bg-soft-200: var(--color-apollo-graphite-800);
+    --color-bg-weak-50: var(--color-apollo-graphite-900);
+    --color-bg-weak-25: var(--color-apollo-graphite-950);
+    --color-bg-white-0: var(--color-apollo-graphite-950);
 
-    --color-text-strong-950: var(--color-neutral-0);
-    --color-text-sub-600: var(--color-neutral-400);
-    --color-text-soft-400: var(--color-neutral-500);
-    --color-text-disabled-300: var(--color-neutral-600);
-    --color-text-white-0: var(--color-neutral-950);
+    --color-text-strong-950: var(--color-apollo-soft-white);
+    --color-text-sub-600: var(--color-apollo-purple-300);
+    --color-text-soft-400: var(--color-apollo-graphite-400);
+    --color-text-disabled-300: var(--color-apollo-graphite-600);
+    --color-text-white-0: var(--color-apollo-graphite-950);
 
-    --color-stroke-strong-950: var(--color-neutral-0);
-    --color-stroke-sub-300: var(--color-neutral-600);
-    --color-stroke-soft-200: var(--color-neutral-800);
-    --color-stroke-white-0: var(--color-neutral-950);
+    --color-stroke-strong-950: var(--color-apollo-soft-white);
+    --color-stroke-sub-300: var(--color-apollo-graphite-600);
+    --color-stroke-soft-200: var(--color-apollo-graphite-800);
+    --color-stroke-white-0: var(--color-apollo-graphite-950);
 
-    --color-faded-dark: var(--color-neutral-300);
-    --color-faded-base: var(--color-neutral-500);
-    --color-faded-light: var(--color-neutral-alpha-24);
-    --color-faded-lighter: var(--color-neutral-alpha-10);
+    --color-faded-dark: var(--color-apollo-graphite-200);
+    --color-faded-base: var(--color-apollo-graphite-400);
+    --color-faded-light: rgb(246 242 250 / 0.24);
+    --color-faded-lighter: rgb(246 242 250 / 0.10);
 
-    --color-information-dark: var(--color-blue-400);
-    --color-information-base: var(--color-blue-500);
-    --color-information-light: var(--color-blue-alpha-24);
-    --color-information-lighter: var(--color-blue-alpha-16);
+    --color-information-dark: var(--color-apollo-purple-200);
+    --color-information-base: var(--color-apollo-purple-300);
+    --color-information-light: rgb(179 164 194 / 0.24);
+    --color-information-lighter: rgb(179 164 194 / 0.16);
 
     --color-warning-dark: var(--color-orange-400);
     --color-warning-base: var(--color-orange-600);
@@ -634,13 +712,31 @@
     --color-stable-light: var(--color-teal-alpha-24);
     --color-stable-lighter: var(--color-teal-alpha-16);
 
-    --color-primary-base: var(--color-blue-400);
-    --color-primary-light: var(--color-blue-alpha-16);
-    --color-primary-lighter: var(--color-blue-alpha-10);
+    --color-primary-dark: var(--color-apollo-purple-200);
+    --color-primary-darker: var(--color-apollo-purple-200);
+    --color-primary-base: var(--color-apollo-purple-300);
+    --color-primary-light: var(--color-apollo-purple-800);
+    --color-primary-lighter: var(--color-apollo-purple-950);
+    --color-primary-alpha-24: rgb(179 164 194 / 0.24);
+    --color-primary-alpha-20: rgb(179 164 194 / 0.20);
+    --color-primary-alpha-16: rgb(179 164 194 / 0.16);
+    --color-primary-alpha-10: rgb(179 164 194 / 0.10);
+
+    --color-accent-strong: var(--color-apollo-lime-300);
+    --color-accent-soft: var(--color-apollo-lime-900);
+    --color-accent-contrast: var(--color-apollo-graphite-950);
+    --color-accent-ring: var(--color-apollo-lime-400);
+
+    --color-complement-deep: var(--color-apollo-purple-300);
+    --color-complement-medium: var(--color-apollo-purple-400);
+    --color-complement-light: var(--color-apollo-purple-800);
+    --color-complement-surface: var(--color-apollo-purple-950);
+    --color-complement-ring: var(--color-apollo-purple-300);
 
     --color-overlay-gray: oklch(32.11% 0.0000 0 / 56%);
     --color-overlay-slate: oklch(30.90% 0.0210 265.90 / 56%);
-    --color-overlay: var(--color-overlay-slate);
+    --color-overlay-graphite: rgb(15 18 14 / 0.56);
+    --color-overlay: var(--color-overlay-graphite);
     
     --color-social-apple: oklch(100.00% 0.0000 0);
     --color-social-twitter: oklch(100.00% 0.0000 0);
@@ -694,34 +790,34 @@
 
 /* Class-based Dark Mode Support */
 .dark {
-  --color-bg-strong-950: var(--color-neutral-0);
-  --color-bg-surface-800: var(--color-neutral-200);
-  --color-bg-sub-300: var(--color-neutral-600);
-  --color-bg-soft-200: var(--color-neutral-700);
-  --color-bg-weak-50: var(--color-neutral-800);
-  --color-bg-weak-25: var(--color-neutral-900);
-  --color-bg-white-0: var(--color-neutral-950);
+  --color-bg-strong-950: var(--color-apollo-soft-white);
+  --color-bg-surface-800: var(--color-apollo-graphite-200);
+  --color-bg-sub-300: var(--color-apollo-graphite-700);
+  --color-bg-soft-200: var(--color-apollo-graphite-800);
+  --color-bg-weak-50: var(--color-apollo-graphite-900);
+  --color-bg-weak-25: var(--color-apollo-graphite-950);
+  --color-bg-white-0: var(--color-apollo-graphite-950);
 
-  --color-text-strong-950: var(--color-neutral-0);
-  --color-text-sub-600: var(--color-neutral-400);
-  --color-text-soft-400: var(--color-neutral-500);
-  --color-text-disabled-300: var(--color-neutral-600);
-  --color-text-white-0: var(--color-neutral-950);
+  --color-text-strong-950: var(--color-apollo-soft-white);
+  --color-text-sub-600: var(--color-apollo-purple-300);
+  --color-text-soft-400: var(--color-apollo-graphite-400);
+  --color-text-disabled-300: var(--color-apollo-graphite-600);
+  --color-text-white-0: var(--color-apollo-graphite-950);
 
-  --color-stroke-strong-950: var(--color-neutral-0);
-  --color-stroke-sub-300: var(--color-neutral-600);
-  --color-stroke-soft-200: var(--color-neutral-800);
-  --color-stroke-white-0: var(--color-neutral-950);
+  --color-stroke-strong-950: var(--color-apollo-soft-white);
+  --color-stroke-sub-300: var(--color-apollo-graphite-600);
+  --color-stroke-soft-200: var(--color-apollo-graphite-800);
+  --color-stroke-white-0: var(--color-apollo-graphite-950);
 
-  --color-faded-dark: var(--color-neutral-300);
-  --color-faded-base: var(--color-neutral-500);
-  --color-faded-light: var(--color-neutral-alpha-24);
-  --color-faded-lighter: var(--color-neutral-alpha-10);
+  --color-faded-dark: var(--color-apollo-graphite-200);
+  --color-faded-base: var(--color-apollo-graphite-400);
+  --color-faded-light: rgb(246 242 250 / 0.24);
+  --color-faded-lighter: rgb(246 242 250 / 0.10);
 
-  --color-information-dark: var(--color-blue-400);
-  --color-information-base: var(--color-blue-500);
-  --color-information-light: var(--color-blue-alpha-24);
-  --color-information-lighter: var(--color-blue-alpha-16);
+  --color-information-dark: var(--color-apollo-purple-200);
+  --color-information-base: var(--color-apollo-purple-300);
+  --color-information-light: rgb(179 164 194 / 0.24);
+  --color-information-lighter: rgb(179 164 194 / 0.16);
 
   --color-warning-dark: var(--color-orange-400);
   --color-warning-base: var(--color-orange-600);
@@ -763,13 +859,31 @@
   --color-stable-light: var(--color-teal-alpha-24);
   --color-stable-lighter: var(--color-teal-alpha-16);
 
-  --color-primary-base: var(--color-blue-400);
-  --color-primary-light: var(--color-blue-alpha-16);
-  --color-primary-lighter: var(--color-blue-alpha-10);
+  --color-primary-dark: var(--color-apollo-purple-200);
+  --color-primary-darker: var(--color-apollo-purple-200);
+  --color-primary-base: var(--color-apollo-purple-300);
+  --color-primary-light: var(--color-apollo-purple-800);
+  --color-primary-lighter: var(--color-apollo-purple-950);
+  --color-primary-alpha-24: rgb(179 164 194 / 0.24);
+  --color-primary-alpha-20: rgb(179 164 194 / 0.20);
+  --color-primary-alpha-16: rgb(179 164 194 / 0.16);
+  --color-primary-alpha-10: rgb(179 164 194 / 0.10);
+
+  --color-accent-strong: var(--color-apollo-lime-300);
+  --color-accent-soft: var(--color-apollo-lime-900);
+  --color-accent-contrast: var(--color-apollo-graphite-950);
+  --color-accent-ring: var(--color-apollo-lime-400);
+
+  --color-complement-deep: var(--color-apollo-purple-300);
+  --color-complement-medium: var(--color-apollo-purple-400);
+  --color-complement-light: var(--color-apollo-purple-800);
+  --color-complement-surface: var(--color-apollo-purple-950);
+  --color-complement-ring: var(--color-apollo-purple-300);
 
   --color-overlay-gray: oklch(32.11% 0.0000 0 / 56%);
   --color-overlay-slate: oklch(30.90% 0.0210 265.90 / 56%);
-  --color-overlay: var(--color-overlay-slate);
+  --color-overlay-graphite: rgb(15 18 14 / 0.56);
+  --color-overlay: var(--color-overlay-graphite);
   
   --color-social-apple: oklch(100.00% 0.0000 0);
   --color-social-twitter: oklch(100.00% 0.0000 0);
@@ -1067,11 +1181,11 @@ table td:nth-child(5) a[href*="linkedin.com/company/"]::after {
    re-toned for dark mode so gray series stay visible but quiet. */
 @layer base {
   :root {
-    --chart-muted: #cacfd8;
-    --chart-muted-strong: #99a0ae;
+    --chart-muted: #dcd2e8;
+    --chart-muted-strong: #9582a8;
   }
   .dark {
-    --chart-muted: #3b404b;
-    --chart-muted-strong: #717784;
+    --chart-muted: #49345f;
+    --chart-muted-strong: #9582a8;
   }
 }

@@ -27,10 +27,10 @@ import { SenderPicker } from "./SenderPicker";
 import { WhatsappSequenceEditor } from "./WhatsappSequenceEditor";
 
 const STEPS = [
-  { id: "setup", label: "Details & numbers", hint: "Name and senders", icon: RiDraftLine },
-  { id: "leads", label: "Add leads", hint: "People or spreadsheet", icon: RiTeamLine },
-  { id: "sequence", label: "Write messages", hint: "First message and follow-ups", icon: RiStackLine },
-  { id: "review", label: "Review & launch", hint: "Confirm send readiness", icon: RiCheckLine },
+  { id: "setup", label: "Detalhes e números", hint: "Nome e remetentes", icon: RiDraftLine },
+  { id: "leads", label: "Adicionar leads", hint: "Pessoas ou planilha", icon: RiTeamLine },
+  { id: "sequence", label: "Escrever mensagens", hint: "Primeira mensagem e follow-ups", icon: RiStackLine },
+  { id: "review", label: "Revisar e iniciar", hint: "Confirmar prontidão de envio", icon: RiCheckLine },
 ] as const;
 
 function StepDot({ index, active, done }: { index: number; active: boolean; done: boolean }) {
@@ -68,7 +68,7 @@ export function WhatsappCampaignWizard() {
     let cancelled = false;
     fetchWhatsappAccounts()
       .then((list) => { if (!cancelled) setAccounts(list); })
-      .catch((cause) => { if (!cancelled) setAccountsError(errorText(cause, "Could not load numbers")); });
+      .catch((cause) => { if (!cancelled) setAccountsError(errorText(cause, "Não foi possível carregar os números")); });
     return () => { cancelled = true; };
   }, []);
 
@@ -94,7 +94,7 @@ export function WhatsappCampaignWizard() {
   const writtenSteps = steps.filter((s) => s.body.trim()).length;
 
   async function saveSetup() {
-    if (!name.trim()) { setError("Enter a campaign name"); return; }
+    if (!name.trim()) { setError("Informe o nome da campanha"); return; }
     setBusy(true);
     setError(null);
     try {
@@ -108,7 +108,7 @@ export function WhatsappCampaignWizard() {
       }
       setStep(1);
     } catch (cause) {
-      setError(errorText(cause, "Could not save campaign"));
+      setError(errorText(cause, "Não foi possível salvar a campanha"));
     } finally {
       setBusy(false);
     }
@@ -125,7 +125,7 @@ export function WhatsappCampaignWizard() {
       }
       router.push(`/whatsapp/campaigns/${campaignId}`);
     } catch (cause) {
-      setError(errorText(cause, "Could not launch the campaign"));
+      setError(errorText(cause, "Não foi possível iniciar a campanha"));
       setBusy(false);
     }
   }
@@ -133,14 +133,14 @@ export function WhatsappCampaignWizard() {
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        back={{ href: "/whatsapp/campaigns", label: "Message campaigns" }}
-        title="Create a message campaign"
-        description="Choose your numbers, add leads, write the messages and preview them with real lead data. It stays paused until you launch it."
+        back={{ href: "/whatsapp/campaigns", label: "Campanhas de mensagens" }}
+        title="Criar campanha de mensagens"
+        description="Escolha seus números, adicione leads, escreva as mensagens e visualize com dados reais. A campanha fica pausada até você iniciá-la."
       />
 
       <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-5">
         <Frame>
-          <FrameHeader title="Steps" description={`Step ${step + 1} of ${STEPS.length}`} />
+          <FrameHeader title="Etapas" description={`Etapa ${step + 1} de ${STEPS.length}`} />
           <FramePanel className="p-2 sm:p-2">
             <ol className="grid grid-cols-2 gap-1 sm:grid-cols-4 lg:grid-cols-1">
               {STEPS.map((item, index) => {
@@ -155,7 +155,7 @@ export function WhatsappCampaignWizard() {
                       disabled={!reachable || active || busy}
                       onClick={() => setStep(index)}
                       aria-current={active ? "step" : undefined}
-                      className={cn("flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition duration-200 ease-out", active ? "bg-bg-weak-50" : reachable ? "hover:bg-bg-weak-50" : "cursor-default")}
+                       className={cn("flex w-full items-center gap-3 rounded-xl p-2.5 text-left outline-none transition duration-200 ease-out focus-visible:ring-2 focus-visible:ring-primary-base", active ? "bg-bg-weak-50 ring-1 ring-inset ring-primary-alpha-16" : reachable ? "hover:bg-bg-weak-50" : "cursor-default")}
                     >
                       <StepDot index={index} active={active} done={done} />
                       <span className="min-w-0">
@@ -170,12 +170,12 @@ export function WhatsappCampaignWizard() {
             </ol>
 
             <div className="mx-1 mb-1 mt-3 hidden border-t border-stroke-soft-200 px-2 pt-3 lg:block">
-              <p className="text-paragraph-xs text-text-soft-400">Summary</p>
+              <p className="text-paragraph-xs text-text-sub-600">Resumo</p>
               <dl className="mt-2 space-y-2 text-paragraph-sm">
-                <SummaryRow label="Name" value={name || "Not named yet"} truncate />
-                <SummaryRow label="Numbers" value={accountIds.length.toLocaleString()} />
+                <SummaryRow label="Nome" value={name || "Ainda sem nome"} truncate />
+                <SummaryRow label="Números" value={accountIds.length.toLocaleString()} />
                 <SummaryRow label="Leads" value={leadCount.toLocaleString()} />
-                <SummaryRow label="Messages" value={String(writtenSteps || steps.length)} />
+                <SummaryRow label="Mensagens" value={String(writtenSteps || steps.length)} />
               </dl>
             </div>
           </FramePanel>
@@ -185,51 +185,51 @@ export function WhatsappCampaignWizard() {
           <FramePanel className="min-h-[560px] p-5 sm:p-7">
             {step === 0 && (
               <div className="mx-auto max-w-2xl">
-                <StepHeading title="Campaign details" description="Choose a clear name and the WhatsApp numbers that can send." />
+                <StepHeading title="Detalhes da campanha" description="Escolha um nome claro e os números do WhatsApp que poderão enviar mensagens." />
                 <div className="mt-6 space-y-5">
                   <label className="block">
-                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Campaign name</span>
+                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Nome da campanha</span>
                     <Input.Root hasError={Boolean(error && !name.trim())}>
                       <Input.Wrapper>
-                        <Input.Input value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Founders, India outreach" autoFocus />
+                        <Input.Input value={name} onChange={(event) => setName(event.target.value)} placeholder="ex.: Divulgação para founders na Índia" autoFocus />
                       </Input.Wrapper>
                     </Input.Root>
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Description <span className="text-text-soft-400">(optional)</span></span>
-                    <Textarea.Root simple rows={3} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="What is this campaign for?" />
+                    <span className="mb-1.5 block text-label-sm text-text-strong-950">Descrição <span className="text-text-sub-600">(opcional)</span></span>
+                    <Textarea.Root simple rows={3} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Qual é o objetivo desta campanha?" />
                   </label>
                   <fieldset>
-                    <legend className="mb-2 block text-label-sm text-text-strong-950">WhatsApp numbers</legend>
+                    <legend className="mb-2 block text-label-sm text-text-strong-950">Números do WhatsApp</legend>
                     <SenderPicker accounts={accounts} selectedIds={accountIds} onChange={setAccountIds} error={accountsError} />
-                    <p className="mt-2 text-paragraph-xs text-text-sub-600">Each lead is messaged from one number and stays on it. A new number waits 24 hours before it can start chats.</p>
+                    <p className="mt-2 text-paragraph-xs text-text-sub-600">Cada lead é contatado por um número e permanece nele. Um número novo aguarda 24 horas antes de iniciar conversas.</p>
                   </fieldset>
                 </div>
-                <WizardFooter error={error} backLabel="Cancel" onBack={() => router.push("/whatsapp/campaigns")} onNext={() => void saveSetup()} busy={busy} nextLabel="Continue to leads" />
+                <WizardFooter error={error} backLabel="Cancelar" onBack={() => router.push("/whatsapp/campaigns")} onNext={() => void saveSetup()} busy={busy} nextLabel="Continuar para leads" />
               </div>
             )}
 
             {step === 1 && campaignId && (
               <div className="mx-auto max-w-3xl">
-                <StepHeading title="Add leads" description="Import a spreadsheet with phone numbers, or select people already in your database." />
+                <StepHeading title="Adicionar leads" description="Importe uma planilha com números de telefone ou selecione pessoas já cadastradas." />
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   <button type="button" onClick={() => fileRef.current?.click()} className="flex min-h-44 flex-col items-center justify-center rounded-2xl border border-dashed border-stroke-sub-300 bg-bg-weak-50 p-6 text-center outline-none transition hover:border-primary-base focus-visible:ring-2 focus-visible:ring-primary-base">
                     <span className="flex size-10 items-center justify-center rounded-xl bg-bg-white-0 ring-1 ring-inset ring-stroke-soft-200"><RiFileExcel2Line className="size-5 text-text-sub-600" /></span>
-                    <span className="mt-3 text-label-md text-text-strong-950">Import CSV or Excel</span>
-                    <span className="mt-1 text-paragraph-xs text-text-sub-600">You map the phone column before anything is imported.</span>
+                    <span className="mt-3 text-label-md text-text-strong-950">Importar CSV ou Excel</span>
+                    <span className="mt-1 text-paragraph-xs text-text-sub-600">Mapeie a coluna de telefone antes de importar.</span>
                   </button>
                   <button type="button" onClick={() => setShowPeople(true)} className="flex min-h-44 flex-col items-center justify-center rounded-2xl bg-bg-white-0 p-6 text-center shadow-regular-xs outline-none ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-bg-weak-50 focus-visible:ring-2 focus-visible:ring-primary-base">
                     <span className="flex size-10 items-center justify-center rounded-xl bg-bg-weak-50 ring-1 ring-inset ring-stroke-soft-200"><RiUserAddLine className="size-5 text-text-sub-600" /></span>
-                    <span className="mt-3 text-label-md text-text-strong-950">Add from People</span>
-                    <span className="mt-1 text-paragraph-xs text-text-sub-600">Select existing people who already have a phone number.</span>
+                    <span className="mt-3 text-label-md text-text-strong-950">Adicionar de Pessoas</span>
+                    <span className="mt-1 text-paragraph-xs text-text-sub-600">Selecione pessoas já cadastradas com número de telefone.</span>
                   </button>
                 </div>
                 <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={(event) => setPendingFile(event.target.files?.[0] ?? null)} />
                 <div role="status" className="mt-4 rounded-xl bg-bg-weak-50 p-4 ring-1 ring-inset ring-stroke-soft-200">
-                  <p className="text-label-sm text-text-strong-950">{leadCount.toLocaleString()} {leadCount === 1 ? "lead" : "leads"} added</p>
-                  <p className="mt-1 text-paragraph-xs text-text-sub-600">{importNote ?? "You can continue with no leads and add them later. The campaign stays paused."}</p>
+                  <p className="text-label-sm text-text-strong-950">{leadCount.toLocaleString()} {leadCount === 1 ? "lead adicionado" : "leads adicionados"}</p>
+                  <p className="mt-1 text-paragraph-xs text-text-sub-600">{importNote ?? "Você pode continuar sem leads e adicioná-los depois. A campanha permanece pausada."}</p>
                 </div>
-                <WizardFooter error={error} onBack={() => setStep(0)} onNext={() => setStep(2)} nextLabel="Continue to messages" />
+                <WizardFooter error={error} onBack={() => setStep(0)} onNext={() => setStep(2)} nextLabel="Continuar para mensagens" />
                 {pendingFile && (
                   <CampaignCsvMappingDialog
                     file={pendingFile}
@@ -252,7 +252,7 @@ export function WhatsappCampaignWizard() {
                     onClose={() => setShowPeople(false)}
                     onAdded={(result) => {
                       setLeadCount((current) => current + result.added);
-                      setImportNote(`${result.added} added from People${result.skippedDuplicate ? ` · ${result.skippedDuplicate} already enrolled` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} without a phone number` : ""}`);
+                      setImportNote(`${result.added} adicionados de Pessoas${result.skippedDuplicate ? ` · ${result.skippedDuplicate} já inscritos` : ""}${result.skippedMissingIdentity ? ` · ${result.skippedMissingIdentity} sem número de telefone` : ""}`);
                     }}
                   />
                 )}
@@ -261,19 +261,19 @@ export function WhatsappCampaignWizard() {
 
             {step === 2 && campaignId && (
               <div>
-                <StepHeading title="Write your messages" description="A first message and optional follow-ups. Personalise with People fields and preview against a real lead." />
+                <StepHeading title="Escreva suas mensagens" description="Uma primeira mensagem e follow-ups opcionais. Personalize com campos de Pessoas e visualize com um lead real." />
                 <div className="mt-5">
                   <WhatsappSequenceEditor
                     campaignId={campaignId}
                     initialSteps={steps}
                     leadsVersion={leadCount}
-                    saveLabel="Save and review"
+                    saveLabel="Salvar e revisar"
                     onSaved={(next) => { setSteps(next); setStep(3); }}
                   />
                 </div>
                 <div className="mt-5">
                   <Button.Root variant="neutral" mode="ghost" size="small" onClick={() => setStep(1)}>
-                    <Button.Icon as={RiArrowLeftLine} />Back to leads
+                    <Button.Icon as={RiArrowLeftLine} />Voltar aos leads
                   </Button.Root>
                 </div>
               </div>
@@ -281,29 +281,29 @@ export function WhatsappCampaignWizard() {
 
             {step === 3 && campaignId && (
               <div className="mx-auto max-w-3xl">
-                <StepHeading title="Review and launch" description="Your campaign is paused until you explicitly launch it." />
+                <StepHeading title="Revisar e iniciar" description="Sua campanha permanece pausada até você iniciá-la explicitamente." />
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  <SummaryCard label="Campaign" value={name} detail="paused until launch" />
-                  <SummaryCard label="Leads" value={leadCount.toLocaleString()} detail="enrolled" />
-                  <SummaryCard label="Numbers" value={accountIds.length.toLocaleString()} detail={`${connectedSelected} connected`} />
+                  <SummaryCard label="Campanha" value={name} detail="pausada até o início" />
+                  <SummaryCard label="Leads" value={leadCount.toLocaleString()} detail="inscritos" />
+                  <SummaryCard label="Números" value={accountIds.length.toLocaleString()} detail={`${connectedSelected} conectados`} />
                 </div>
                 <div className="mt-4 rounded-2xl bg-bg-weak-50 p-1 ring-1 ring-inset ring-stroke-soft-200">
-                  <h3 className="px-3 pb-2 pt-2 text-label-sm text-text-strong-950">Sequence</h3>
+                  <h3 className="px-3 pb-2 pt-2 text-label-sm text-text-strong-950">Sequência</h3>
                   <ul className="divide-y divide-stroke-soft-200 rounded-xl bg-bg-white-0 px-4 ring-1 ring-inset ring-stroke-soft-200">
                     {steps.map((item, index) => (
                       <li key={item.id} className="flex items-center justify-between gap-4 py-2.5 text-paragraph-sm">
                         <span className="min-w-0">
-                          <span className="block text-text-sub-600">{index === 0 ? "First message" : `Follow-up ${index} · after ${formatDelay(item.delayHours)}`}</span>
-                          <span className="block max-w-md truncate text-paragraph-xs text-text-soft-400">{item.body}</span>
+                          <span className="block text-text-sub-600">{index === 0 ? "Primeira mensagem" : `Follow-up ${index} · após ${formatDelay(item.delayHours)}`}</span>
+                          <span className="block max-w-md truncate text-paragraph-xs text-text-sub-600">{item.body}</span>
                         </span>
-                        <span className="inline-flex shrink-0 items-center gap-1 text-success-base"><RiCheckLine className="size-4" aria-hidden="true" />Ready</span>
+                        <span className="inline-flex shrink-0 items-center gap-1 text-success-base"><RiCheckLine className="size-4" aria-hidden="true" />Pronto</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <p className="mt-4 text-paragraph-xs text-text-sub-600">First messages count against each number&apos;s new-chats-per-day limit (Settings → WhatsApp → Sending rules). A reply on any channel stops the sequence and lands in CRM → Action required.</p>
-                {blocker && <p className="mt-4 rounded-xl bg-warning-lighter p-3 text-paragraph-sm text-warning-dark">{blocker} before launching. You can save it paused and finish later.</p>}
-                <WizardFooter error={error} onBack={() => setStep(2)} busy={busy} secondaryLabel="Save paused" onSecondary={() => void finish(false)} nextLabel="Launch campaign" onNext={() => void finish(true)} nextDisabled={Boolean(blocker)} nextIcon={RiRocketLine} />
+                <p className="mt-4 text-paragraph-xs text-text-sub-600">As primeiras mensagens contam para o limite de novas conversas por dia de cada número (Configurações → WhatsApp → Regras de envio). Uma resposta em qualquer canal interrompe a sequência e vai para CRM → Ação necessária.</p>
+                {blocker && <p className="mt-4 rounded-xl bg-warning-lighter p-3 text-paragraph-sm text-warning-dark">{blocker} antes de iniciar. Você pode salvar pausada e concluir depois.</p>}
+                <WizardFooter error={error} onBack={() => setStep(2)} busy={busy} secondaryLabel="Salvar pausada" onSecondary={() => void finish(false)} nextLabel="Iniciar campanha" onNext={() => void finish(true)} nextDisabled={Boolean(blocker)} nextIcon={RiRocketLine} />
               </div>
             )}
           </FramePanel>
@@ -346,7 +346,7 @@ function WizardFooter({
   onBack,
   onNext,
   busy,
-  backLabel = "Back",
+  backLabel = "Voltar",
   nextLabel,
   nextDisabled,
   secondaryLabel,
@@ -377,7 +377,7 @@ function WizardFooter({
           )}
           <Button.Root variant="primary" mode="filled" size="small" onClick={onNext} disabled={busy || nextDisabled}>
             <Button.Icon as={busy ? RiLoader4Line : NextIcon} className={cn(busy && "animate-spin")} />
-            {busy ? "Saving…" : nextLabel}
+            {busy ? "Salvando…" : nextLabel}
           </Button.Root>
         </div>
       </div>

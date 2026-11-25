@@ -34,17 +34,17 @@ export type CrmCategoryOption = {
 
 /** The (sub)category a row or header names: the subcategory, else the category, else "Unclassified". */
 export function crmCategoryLabel(summary: Pick<InboxCrmSummary, "categoryKey" | "subcategoryName"> | null | undefined): string {
-  if (!summary) return "Unclassified";
-  return summary.subcategoryName ?? (summary.categoryKey ? humanize(summary.categoryKey) : "Unclassified");
+  if (!summary) return "Sem classificação";
+  return summary.subcategoryName ?? (summary.categoryKey ? humanize(summary.categoryKey) : "Sem classificação");
 }
 
 /** "Sequence · Reply drafted · next 30 Sep, 13:39". */
 export function crmSequenceLine(context: InboxCrmSummary): string {
   const nextAt = context.nextActionAt ? new Date(context.nextActionAt) : null;
   const nextAtLabel = nextAt && !Number.isNaN(nextAt.getTime())
-    ? nextAt.toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+    ? nextAt.toLocaleString("pt-BR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
     : null;
-  return `${context.sequenceName ? `${context.sequenceName} · ` : ""}${inboxCrmStepLabel(context)}${nextAtLabel ? ` · next ${nextAtLabel}` : ""}`;
+  return `${context.sequenceName ? `${context.sequenceName} · ` : ""}${inboxCrmStepLabel(context)}${nextAtLabel ? ` · próx. ${nextAtLabel}` : ""}`;
 }
 
 /**
@@ -81,7 +81,7 @@ export function CrmCategoryControl({
       await crmFetch(`/records/${context.recordId}/classification`, { method: "PATCH", body: JSON.stringify(body) });
       onClassified();
     } catch (err) {
-      void dialogs.alert({ title: "Could not update classification", description: errorMessage(err), variant: "error" });
+      void dialogs.alert({ title: "Não foi possível atualizar a classificação", description: errorMessage(err), variant: "error" });
     } finally {
       setSaving(false);
     }
@@ -98,10 +98,10 @@ export function CrmCategoryControl({
         onChange={(choice, extra) => classify(choice, extra)}
         disabled={disabled || saving}
         compact
-        title="CRM category — change to reclassify"
+        title="Categoria do CRM — altere para reclassificar"
         className="min-w-0 max-w-[11rem]"
       />
-      {saving && <RiLoader4Line className="size-3.5 shrink-0 animate-spin text-text-soft-400" aria-label="Saving classification" />}
+      {saving && <RiLoader4Line className="size-3.5 shrink-0 animate-spin text-text-soft-400" aria-label="Salvando classificação" />}
     </span>
   );
 }
@@ -112,7 +112,7 @@ export function DoNotContactNotice({ className }: { className?: string }) {
     <div role="alert" className={cn("flex items-start gap-2 rounded-xl bg-error-lighter px-3 py-2.5 text-paragraph-xs text-error-dark ring-1 ring-inset ring-error-light", className)}>
       <RiErrorWarningLine className="mt-px size-4 shrink-0" aria-hidden="true" />
       <span>
-        <span className="text-label-xs">Do not contact.</span> This lead opted out, so sending is turned off.
+        <span className="text-label-xs">Não contatar.</span> Este lead optou por não receber contato, então os envios estão desativados.
       </span>
     </div>
   );
@@ -129,7 +129,7 @@ export function CrmDraftCard({
   active,
   disabled,
   onUse,
-  useLabel = "Review draft",
+  useLabel = "Revisar rascunho",
 }: {
   draft: InboxCrmDraft;
   active: boolean;
@@ -139,14 +139,14 @@ export function CrmDraftCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   if (active) return null;
-  const typeLabel = draft.stepType === "follow_up" ? "Follow-up" : "Reply";
+  const typeLabel = draft.stepType === "follow_up" ? "Follow-up" : "Resposta";
   const stepLabel = draft.stepName && draft.stepName !== typeLabel ? draft.stepName : null;
   const ready = draft.status === "awaiting_review";
   const long = draft.body.length > 200 || draft.body.split("\n").length > 3;
 
   return (
     <section
-      aria-label="AI-drafted reply"
+      aria-label="Resposta redigida por IA"
       className={cn(
         "rounded-xl px-3.5 py-2.5 ring-1 ring-inset",
         draft.status === "failed" ? "bg-bg-weak-50 ring-stroke-soft-200" : "bg-primary-alpha-10 ring-primary-alpha-16",
@@ -157,7 +157,7 @@ export function CrmDraftCard({
           <RiSparkling2Fill className="size-3" aria-hidden="true" />
         </span>
         <p className="min-w-0 flex-1 truncate text-label-xs text-text-strong-950" title={stepLabel ?? undefined}>
-          {ready ? `AI ${typeLabel.toLowerCase()} ready` : draft.status === "generating" ? `Drafting a ${typeLabel.toLowerCase()}…` : `${typeLabel} draft failed`}
+          {ready ? (draft.stepType === "follow_up" ? "Follow-up de IA pronto" : "Resposta de IA pronta") : draft.status === "generating" ? `Redigindo ${draft.stepType === "follow_up" ? "follow-up" : "resposta"}…` : `${typeLabel} de IA falhou`}
           {stepLabel && <span className="font-normal text-text-sub-600"> · {stepLabel}</span>}
         </p>
         {draft.status === "generating" && <RiLoader4Line className="size-4 shrink-0 animate-spin text-primary-base" aria-hidden="true" />}
@@ -178,7 +178,7 @@ export function CrmDraftCard({
               aria-expanded={expanded}
               className="mt-0.5 text-label-xs text-text-sub-600 underline-offset-2 outline-none hover:text-text-strong-950 hover:underline focus-visible:underline"
             >
-              {expanded ? "Show less" : "Show full draft"}
+              {expanded ? "Mostrar menos" : "Mostrar rascunho completo"}
             </button>
           )}
         </div>

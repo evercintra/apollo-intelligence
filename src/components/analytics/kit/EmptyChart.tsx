@@ -5,8 +5,8 @@ import { RiBarChartBoxLine } from "@remixicon/react";
  * so the layout doesn't jump. Props: `title`, `description`, `height` (px).
  */
 export function EmptyChart({
-  title = "No data for this period",
-  description = "Nothing happened in this date range. Try a wider range.",
+  title = "Nenhum dado neste período",
+  description = "Não houve movimentação neste intervalo. Tente um período maior.",
   height = 260,
 }: {
   title?: string;

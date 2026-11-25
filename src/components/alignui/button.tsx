@@ -63,8 +63,8 @@ export const buttonVariants = tv({
       mode: 'filled',
       class: {
         root: [
-          'bg-primary-base text-static-white',
-          'hover:bg-primary-darker',
+          'bg-action-bg text-action-text',
+          'hover:bg-action-bg-hover',
           'focus-visible:shadow-button-primary-focus',
         ],
       },

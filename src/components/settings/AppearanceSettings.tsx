@@ -7,8 +7,8 @@ import { ThemeSwitch } from "@/components/theme/ThemeSwitch";
 import { FieldRow } from "./SettingsKit";
 
 const SHOWING = {
-  light: { label: "Light", icon: RiSunLine },
-  dark: { label: "Dark", icon: RiMoonLine },
+  light: { label: "Claro", icon: RiSunLine },
+  dark: { label: "Escuro", icon: RiMoonLine },
 } as const;
 
 /** The Appearance section: the Light / Dark / System switch and what it is doing right now. */
@@ -18,23 +18,23 @@ export default function AppearanceSettings() {
 
   return (
     <Frame>
-      <FrameHeader title="Theme" description="How AgentSDR looks on this browser." />
+      <FrameHeader title="Aparência" description="Como o Apollo aparece neste navegador." />
       <FramePanel>
         <FieldRow
-          label="Colour theme"
-          description="System follows your computer's light or dark setting and switches when it does."
+          label="Tema"
+          description="A opção Sistema segue a configuração de tema claro ou escuro do computador e muda junto com ela."
         >
           <ThemeSwitch className="w-full" />
           {preference === "system" && (
             <p className="mt-2 flex items-center gap-1.5 text-paragraph-xs text-text-sub-600">
-              <Showing className="size-3.5 shrink-0 text-text-soft-400" aria-hidden="true" />
-              Showing {SHOWING[resolved].label.toLowerCase()}, from your system setting
+              <Showing className="size-3.5 shrink-0 text-text-sub-600" aria-hidden="true" />
+              Exibindo tema {SHOWING[resolved].label.toLowerCase()}, conforme a configuração do sistema
             </p>
           )}
         </FieldRow>
       </FramePanel>
       <FrameFooter>
-        Remembered on this browser only. Other browsers and devices keep their own choice, and nothing is saved to your workspace.
+        Lembrado apenas neste navegador. Outros navegadores e dispositivos mantêm sua própria escolha; nada é salvo no seu espaço de trabalho.
       </FrameFooter>
     </Frame>
   );

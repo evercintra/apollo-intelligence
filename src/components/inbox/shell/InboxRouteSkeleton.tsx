@@ -11,7 +11,7 @@ import { cn } from "@/utils/cn";
 export function InboxRouteSkeleton({ inset = false }: { inset?: boolean }) {
   return (
     <div className={cn("h-full", inset && "-mx-4 -my-5 h-[calc(100%+2.5rem)] sm:-mx-6 sm:-my-6 sm:h-[calc(100%+3rem)] lg:-mx-8")}>
-      <div aria-busy="true" aria-label="Loading" className="flex h-full min-h-0 flex-col px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+      <div aria-busy="true" aria-label="Carregando" className="flex h-full min-h-0 flex-col px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
         <PageHeaderSkeleton action={false} />
         <div className="mt-4 flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-stroke-soft-200 bg-bg-white-0">
           <div className="flex w-full flex-col border-stroke-soft-200 md:w-80 md:border-r xl:w-[22rem]">

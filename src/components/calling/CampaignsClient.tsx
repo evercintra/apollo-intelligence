@@ -14,8 +14,8 @@ export default function CampaignsClient() {
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        title="Call campaigns"
-        description="The AI agent calls your leads over WhatsApp, follows up, and hands interested people to you."
+        title="Campanhas de chamadas"
+        description="O agente de IA liga para seus leads pelo WhatsApp, faz follow-up e encaminha as pessoas interessadas para você."
       />
       <AiCampaignsSection />
     </div>

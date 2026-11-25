@@ -19,7 +19,7 @@ export default function Tabs({
           onClick={() => onChange(tab.id)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             active === tab.id
-              ? "bg-indigo-600 text-white"
+              ? "bg-action-bg text-action-text"
               : "text-text-strong-950/60 hover:text-text-strong-950 hover:bg-bg-weak-50"
           }`}
         >

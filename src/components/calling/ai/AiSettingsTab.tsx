@@ -18,14 +18,14 @@ import {
   type AiCampaignDetail,
   type UpdateAiCampaignRequest,
 } from "@/lib/calls/aiCampaigns/api";
-import { AI_CAMPAIGN_GOALS, AI_CAMPAIGN_GOAL_LABELS, AI_CAMPAIGN_MAX_CALLBACKS, type AiCampaignGoal } from "@/lib/calls/aiCampaigns/contract";
+import { AI_CAMPAIGN_GOALS, AI_CAMPAIGN_MAX_CALLBACKS, type AiCampaignGoal } from "@/lib/calls/aiCampaigns/contract";
 import { listCallingStations } from "@/lib/calls/client";
 import { setAiCampaignStations, updateAiCampaign } from "@/lib/calls/aiCampaigns/client";
 import type { CallingStation } from "@/lib/calls/stationContract";
 import { aiApi } from "@/lib/calls/aiCampaigns/client";
-import { accentFlag, DEFAULT_ELEVENLABS_VOICE, elevenLabsVoiceLabel, type ElevenLabsVoice } from "@/lib/calls/elevenlabs/contract";
+import { accentFlag, DEFAULT_ELEVENLABS_VOICE, type ElevenLabsVoice } from "@/lib/calls/elevenlabs/contract";
 import { cn } from "@/utils/cn";
-import { errorText, NumberPicker, useBeforeUnload } from "./aiShared";
+import { AGENT_VOICE_LABELS_PT, AI_GOAL_TEXT_PT, aiErrorPt, elevenLabsVoiceLabelPt, errorText, NumberPicker, useBeforeUnload } from "./aiShared";
 
 const DEFAULT_VOICE = "default";
 
@@ -89,7 +89,7 @@ export function AiSettingsTab({
     let cancelled = false;
     aiApi<{ voices: ElevenLabsVoice[] }>("/api/calling/agent/elevenlabs-voices")
       .then((response) => { if (!cancelled) setElevenVoices(response.voices); })
-      .catch((cause) => { if (!cancelled) setElevenError(errorText(cause, "Could not load ElevenLabs voices")); });
+      .catch((cause) => { if (!cancelled) setElevenError(aiErrorPt(errorText(cause, "Não foi possível carregar as vozes da ElevenLabs"))); });
     return () => { cancelled = true; };
   }, []);
 
@@ -97,7 +97,7 @@ export function AiSettingsTab({
     let cancelled = false;
     listCallingStations()
       .then((response) => { if (!cancelled) setStations(response.stations); })
-      .catch((cause) => { if (!cancelled) setStationsError(errorText(cause, "Could not load numbers")); });
+      .catch((cause) => { if (!cancelled) setStationsError(aiErrorPt(errorText(cause, "Não foi possível carregar os números"))); });
     return () => { cancelled = true; };
   }, []);
 
@@ -122,7 +122,7 @@ export function AiSettingsTab({
   };
 
   async function save() {
-    if (problem) { setError(problem); return; }
+    if (problem) { setError(aiErrorPt(problem)); return; }
     setSaving(true);
     setError(null);
     try {
@@ -145,7 +145,7 @@ export function AiSettingsTab({
       setJustSaved(true);
       onSaved();
     } catch (cause) {
-      setError(errorText(cause, "Could not save the settings"));
+      setError(aiErrorPt(errorText(cause, "Não foi possível salvar as configurações")));
     } finally {
       setSaving(false);
     }
@@ -158,7 +158,7 @@ export function AiSettingsTab({
       await setAiCampaignStations(campaign.id, numberIds);
       onSaved();
     } catch (cause) {
-      setNumbersError(errorText(cause, "Could not save the numbers"));
+      setNumbersError(aiErrorPt(errorText(cause, "Não foi possível salvar os números")));
     } finally {
       setSavingNumbers(false);
     }
@@ -169,9 +169,9 @@ export function AiSettingsTab({
   return (
     <div className="space-y-4">
       <Frame>
-        <FrameHeader title="What the calls are for" description="The goal decides what the agent agrees to when a lead is interested." />
+        <FrameHeader title="Objetivo das ligações" description="O objetivo define o que o agente oferece quando um lead demonstra interesse." />
         <FramePanel>
-          <div role="radiogroup" aria-label="Goal" className="grid gap-2 sm:grid-cols-3">
+          <div role="radiogroup" aria-label="Objetivo" className="grid gap-2 sm:grid-cols-3">
             {AI_CAMPAIGN_GOALS.map((goal) => {
               const active = draft.goal === goal;
               return (
@@ -186,22 +186,22 @@ export function AiSettingsTab({
                     active ? "bg-bg-weak-50 ring-primary-base" : "ring-stroke-soft-200 hover:bg-bg-weak-50",
                   )}
                 >
-                  <span className="block text-label-sm text-text-strong-950">{AI_CAMPAIGN_GOAL_LABELS[goal].label}</span>
-                  <span className="mt-1 block text-paragraph-xs text-text-sub-600">{AI_CAMPAIGN_GOAL_LABELS[goal].help}</span>
+                  <span className="block text-label-sm text-text-strong-950">{AI_GOAL_TEXT_PT[goal].label}</span>
+                  <span className="mt-1 block text-paragraph-xs text-text-sub-600">{AI_GOAL_TEXT_PT[goal].help}</span>
                 </button>
               );
             })}
           </div>
 
           <div className="mt-5">
-            <label className="mb-1.5 block text-label-sm text-text-strong-950">Knowledge</label>
+            <label className="mb-1.5 block text-label-sm text-text-strong-950">Conhecimento</label>
             <KnowledgePicker value={draft.knowledgeIds} onChange={(ids) => set("knowledgeIds", ids)} />
           </div>
 
           <div className="mt-5">
-            <label htmlFor="ai-instructions" className="mb-1.5 block text-label-sm text-text-strong-950">Campaign instructions</label>
+            <label htmlFor="ai-instructions" className="mb-1.5 block text-label-sm text-text-strong-950">Instruções da campanha</label>
             <p className="mb-2 text-paragraph-xs text-text-sub-600">
-              What every call in this campaign is about, on top of the Knowledge above: who you are calling, what you offer them, what to find out. Each call step can add its own instructions on top.
+              Sobre o que cada ligação vai falar, além do Conhecimento acima: para quem você está ligando, o que oferece e o que precisa descobrir. Cada etapa de ligação pode adicionar instruções específicas.
             </p>
             <Textarea.Root
               id="ai-instructions"
@@ -210,7 +210,7 @@ export function AiSettingsTab({
               maxLength={AI_CAMPAIGN_MAX_INSTRUCTIONS}
               value={draft.instructions}
               onChange={(event) => set("instructions", event.target.value)}
-              placeholder="You are calling founders of D2C brands who run Meta ads. We help them … Find out whether they spend more than ₹5 lakh a month on ads …"
+              placeholder="Você está ligando para fundadores de marcas D2C que anunciam no Meta. Ajudamos eles a … Descubra se gastam mais de ₹5 lakh por mês em anúncios …"
             />
             <div className="mt-1 flex justify-end text-paragraph-xs tabular-nums text-text-soft-400">{draft.instructions.length}/{AI_CAMPAIGN_MAX_INSTRUCTIONS}</div>
           </div>
@@ -218,11 +218,11 @@ export function AiSettingsTab({
       </Frame>
 
       <Frame>
-        <FrameHeader title="The agent" description="How the agent introduces itself. Every call in this campaign uses the same name and voice, so a lead hears one person." />
+        <FrameHeader title="O agente" description="Como o agente se apresenta. Todas as ligações usam o mesmo nome e a mesma voz, para que o lead fale sempre com uma pessoa." />
         <FramePanel>
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField
-              label="Agent name"
+              label="Nome do agente"
               value={draft.agentName}
               onChange={(value) => set("agentName", value)}
               placeholder={DEFAULT_AGENT_NAME}
@@ -230,54 +230,54 @@ export function AiSettingsTab({
               aria-invalid={nameTooLong || undefined}
             />
             <div>
-              <label className="mb-1.5 block text-label-sm text-text-strong-950">Voice engine</label>
+              <label className="mb-1.5 block text-label-sm text-text-strong-950">Motor de voz</label>
               <Select.Root size="small" value={draft.voiceEngine} onValueChange={(value) => set("voiceEngine", value as Draft["voiceEngine"])}>
-                <Select.Trigger aria-label="Voice engine"><Select.Value /></Select.Trigger>
+                <Select.Trigger aria-label="Motor de voz"><Select.Value /></Select.Trigger>
                 <Select.Content>
                   <Select.Item value="gemini">Gemini Live</Select.Item>
-                  <Select.Item value="elevenlabs" disabled={!elevenVoices && draft.voiceEngine !== "elevenlabs"}>ElevenLabs (fast, English)</Select.Item>
+                  <Select.Item value="elevenlabs" disabled={!elevenVoices && draft.voiceEngine !== "elevenlabs"}>ElevenLabs (rápida, em inglês)</Select.Item>
                 </Select.Content>
               </Select.Root>
               {elevenError && draft.voiceEngine === "gemini" ? (
-                <p className="mt-1 text-paragraph-xs text-text-sub-600">Connect ElevenLabs in Settings → AI provider to use it.</p>
+                <p className="mt-1 text-paragraph-xs text-text-sub-600">Conecte a ElevenLabs em Configurações → Provedor de IA para usar.</p>
               ) : null}
             </div>
             {draft.voiceEngine === "gemini" ? (
               <div>
-                <label className="mb-1.5 block text-label-sm text-text-strong-950">Voice</label>
-                <div className="flex items-center gap-2">
-                  <div className="min-w-0 flex-1">
-                    <Select.Root size="small" value={draft.agentVoice} onValueChange={(value) => set("agentVoice", value)}>
-                      <Select.Trigger aria-label="Voice"><Select.Value /></Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value={DEFAULT_VOICE}>{accentFlag(null)} Default ({DEFAULT_AGENT_VOICE})</Select.Item>
-                        {AGENT_VOICES.map((voice) => <Select.Item key={voice.id} value={voice.id}>{accentFlag(null)} {voice.label}</Select.Item>)}
-                      </Select.Content>
-                    </Select.Root>
+                  <label className="mb-1.5 block text-label-sm text-text-strong-950">Voz</label>
+                  <div className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      <Select.Root size="small" value={draft.agentVoice} onValueChange={(value) => set("agentVoice", value)}>
+                        <Select.Trigger aria-label="Voz"><Select.Value /></Select.Trigger>
+                        <Select.Content>
+                          <Select.Item value={DEFAULT_VOICE}>{accentFlag(null)} Padrão ({DEFAULT_AGENT_VOICE})</Select.Item>
+                          {AGENT_VOICES.map((voice) => <Select.Item key={voice.id} value={voice.id}>{accentFlag(null)} {AGENT_VOICE_LABELS_PT[voice.id]}</Select.Item>)}
+                        </Select.Content>
+                      </Select.Root>
                   </div>
                   <VoicePreviewButton voice={draft.agentVoice} name={draft.agentName} />
                 </div>
               </div>
             ) : (
               <div>
-                <label className="mb-1.5 block text-label-sm text-text-strong-950">ElevenLabs voice</label>
+                <label className="mb-1.5 block text-label-sm text-text-strong-950">Voz da ElevenLabs</label>
                 <Select.Root size="small" value={draft.elevenlabsVoice} onValueChange={(value) => set("elevenlabsVoice", value)} disabled={!elevenVoices}>
-                  <Select.Trigger aria-label="ElevenLabs voice"><Select.Value placeholder={elevenError ?? "Loading voices…"} /></Select.Trigger>
+                  <Select.Trigger aria-label="Voz da ElevenLabs"><Select.Value placeholder={elevenError ?? "Carregando vozes…"} /></Select.Trigger>
                   <Select.Content>
                     {!elevenVoices?.some((voice) => voice.id === DEFAULT_ELEVENLABS_VOICE) ? (
-                      <Select.Item value={DEFAULT_ELEVENLABS_VOICE}>{accentFlag("indian")} Monika Sogam (default)</Select.Item>
+                      <Select.Item value={DEFAULT_ELEVENLABS_VOICE}>{accentFlag("indian")} Monika Sogam (padrão)</Select.Item>
                     ) : null}
                     {(elevenVoices ?? []).map((voice) => (
-                      <Select.Item key={voice.id} value={voice.id}>{elevenLabsVoiceLabel(voice)}</Select.Item>
+                      <Select.Item key={voice.id} value={voice.id}>{elevenLabsVoiceLabelPt(voice)}</Select.Item>
                     ))}
                   </Select.Content>
                 </Select.Root>
                 {(() => {
                   const preview = elevenVoices?.find((voice) => voice.id === draft.elevenlabsVoice)?.previewUrl;
-                  return preview ? <audio key={preview} controls preload="none" src={preview} className="mt-2 h-9 w-full" aria-label="Voice preview" /> : null;
+                  return preview ? <audio key={preview} controls preload="none" src={preview} className="mt-2 h-9 w-full" aria-label="Prévia da voz" /> : null;
                 })()}
                 <p className="mt-1 text-paragraph-xs text-text-sub-600">
-                  ElevenLabs answers in English only. A newly picked voice takes about three minutes to get ready after you save; calls in those minutes use Monika Sogam instead.
+                  A ElevenLabs responde apenas em inglês. Uma voz recém-escolhida leva cerca de três minutos para ficar pronta após o salvamento; nesse intervalo, as ligações usam Monika Sogam.
                 </p>
               </div>
             )}
@@ -287,11 +287,11 @@ export function AiSettingsTab({
 
       {!handover && (
         <Frame>
-          <FrameHeader title="Booking" description="Where interested leads book a time with your team (a Cal.com page), and the WhatsApp that sends them there right after the call." />
+          <FrameHeader title="Agendamento" description="Onde os leads interessados marcam um horário com sua equipe (uma página do Cal.com) e a mensagem do WhatsApp que os envia logo após a ligação." />
           <FramePanel className="space-y-4">
-            <BookingLinkField label="Booking link" value={draft.bookingUrl} onChange={(value) => set("bookingUrl", value)} />
+            <BookingLinkField label="Link de agendamento" value={draft.bookingUrl} onChange={(value) => set("bookingUrl", value)} />
             <div>
-              <label htmlFor="ai-booking-message" className="mb-1.5 block text-label-sm text-text-strong-950">Booking message</label>
+              <label htmlFor="ai-booking-message" className="mb-1.5 block text-label-sm text-text-strong-950">Mensagem de agendamento</label>
               <Textarea.Root
                 id="ai-booking-message"
                 simple
@@ -301,72 +301,72 @@ export function AiSettingsTab({
                 onChange={(event) => set("bookingMessage", event.target.value)}
                 hasError={Boolean(draft.bookingUrl.trim()) && !draft.bookingMessage.includes("{{bookingLink}}")}
               />
-              <p className="mt-1 text-paragraph-xs text-text-sub-600">Must include <code className="font-mono">{"{{bookingLink}}"}</code>. You can also use {"{{firstName}}"}, {"{{company}}"} and {"{{agentName}}"}.</p>
+              <p className="mt-1 text-paragraph-xs text-text-sub-600">Deve incluir <code className="font-mono">{"{{bookingLink}}"}</code>. Você também pode usar {"{{firstName}}"}, {"{{company}}"} e {"{{agentName}}"}.</p>
             </div>
           </FramePanel>
         </Frame>
       )}
 
       <Frame>
-        <FrameHeader title="Call-backs" description="When a lead asks to be called later, the agent calls back at the time they gave." />
+        <FrameHeader title="Retornos" description="Quando um lead pede para ser chamado depois, o agente liga no horário informado." />
         <FramePanel>
-          <label className="mb-1.5 block text-label-sm text-text-strong-950" htmlFor="ai-callbacks">Most call-backs per lead</label>
+          <label className="mb-1.5 block text-label-sm text-text-strong-950" htmlFor="ai-callbacks">Máximo de retornos por lead</label>
           <Select.Root size="small" value={String(draft.maxCallbacks)} onValueChange={(value) => set("maxCallbacks", Number(value))}>
             <Select.Trigger id="ai-callbacks" className="w-40"><Select.Value /></Select.Trigger>
             <Select.Content>
               {Array.from({ length: AI_CAMPAIGN_MAX_CALLBACKS + 1 }, (_, n) => (
-                <Select.Item key={n} value={String(n)}>{n === 0 ? "None" : n}</Select.Item>
+                <Select.Item key={n} value={String(n)}>{n === 0 ? "Nenhum" : n}</Select.Item>
               ))}
             </Select.Content>
           </Select.Root>
-          <p className="mt-1.5 text-paragraph-xs text-text-sub-600">After the last one, a person takes the lead over.</p>
+          <p className="mt-1.5 text-paragraph-xs text-text-sub-600">Depois do último, uma pessoa assume o lead.</p>
         </FramePanel>
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-stroke-soft-200 px-5 py-3.5">
           {(problem || error) && dirty && (
             <p role="alert" className="mr-auto flex items-center gap-2 text-paragraph-sm text-error-base">
-              <RiErrorWarningLine className="size-4 shrink-0" />{error ?? problem}
+              <RiErrorWarningLine className="size-4 shrink-0" />{aiErrorPt(error ?? problem ?? "")}
             </p>
           )}
-          {dirty && !problem && <span className="text-paragraph-xs text-warning-dark">Unsaved changes</span>}
-          {justSaved && !dirty && <span role="status" className="text-paragraph-xs text-success-base">Saved</span>}
+          {dirty && !problem && <span className="text-paragraph-xs text-warning-dark">Alterações não salvas</span>}
+          {justSaved && !dirty && <span role="status" className="text-paragraph-xs text-success-base">Salvo</span>}
           {error && !dirty && <p role="alert" className="mr-auto text-paragraph-sm text-error-base">{error}</p>}
           <Button.Root variant="primary" mode="filled" size="small" onClick={() => void save()} disabled={saving || !dirty || Boolean(problem) || nameTooLong}>
             <Button.Icon as={saving ? RiLoader4Line : RiSaveLine} className={cn(saving && "animate-spin")} />
-            {saving ? "Saving…" : "Save settings"}
+            {saving ? "Salvando…" : "Salvar configurações"}
           </Button.Root>
         </div>
       </Frame>
 
       <Frame>
-        <FrameHeader title="Calling numbers" description="Every lead is called, and messaged, from one of these and keeps hearing from the same one." />
+        <FrameHeader title="Números para ligações" description="Cada lead recebe ligações e mensagens de um desses números e continua falando com o mesmo." />
         <FramePanel>
           <NumberPicker stations={stations} selectedIds={numberIds} onChange={(ids) => { setNumbersError(null); setNumberIds(ids); }} error={stationsError} />
           {numbersError && <p role="alert" className="mt-3 text-paragraph-sm text-error-base">{numbersError}</p>}
           <div className="mt-4 flex items-center justify-end gap-3">
-            {numbersDirty && <span className="text-paragraph-xs text-warning-dark">Unsaved changes</span>}
+            {numbersDirty && <span className="text-paragraph-xs text-warning-dark">Alterações não salvas</span>}
             <Button.Root variant="primary" mode="filled" size="small" onClick={() => void saveNumbers()} disabled={savingNumbers || !numbersDirty}>
               <Button.Icon as={savingNumbers ? RiLoader4Line : RiSaveLine} className={cn(savingNumbers && "animate-spin")} />
-              {savingNumbers ? "Saving…" : "Save numbers"}
+              {savingNumbers ? "Salvando…" : "Salvar números"}
             </Button.Root>
           </div>
         </FramePanel>
-        <FrameFooter>Daily limits, gaps and calling hours are the organization&apos;s Sending rules, which each number can override in Settings → WhatsApp → Calling numbers.</FrameFooter>
+        <FrameFooter>Limites diários, intervalos e horários vêm das Regras de envio da organização, que cada número pode sobrescrever em Configurações → WhatsApp → Números para ligações.</FrameFooter>
       </Frame>
 
       <Frame>
-        <FrameHeader title="Pause or archive" description="Pausing stops new calls and messages; leads keep their place. Archiving removes the campaign from the list." />
+        <FrameHeader title="Pausar ou arquivar" description="Pausar interrompe novas ligações e mensagens, mantendo os leads na fila. Arquivar remove a campanha da lista." />
         <FramePanel className="flex flex-wrap items-center gap-2">
           {launched && (
             <Button.Root variant="neutral" mode="stroke" size="small" onClick={onToggle} disabled={toggling}>
               <Button.Icon as={toggling ? RiLoader4Line : campaign.state === "active" ? RiPauseCircleLine : RiPlayCircleLine} className={cn(toggling && "animate-spin")} />
-              {campaign.state === "active" ? "Pause campaign" : "Resume campaign"}
+              {campaign.state === "active" ? "Pausar campanha" : "Retomar campanha"}
             </Button.Root>
           )}
           <Button.Root variant="error" mode="stroke" size="small" onClick={onArchive}>
             <Button.Icon as={RiArchiveLine} />
-            Archive campaign
+            Arquivar campanha
           </Button.Root>
-          {!launched && <p className="text-paragraph-xs text-text-sub-600">This campaign is a draft; launch it from the header once it is ready.</p>}
+          {!launched && <p className="text-paragraph-xs text-text-sub-600">Esta campanha é um rascunho; lance-a pelo cabeçalho quando estiver pronta.</p>}
         </FramePanel>
       </Frame>
     </div>

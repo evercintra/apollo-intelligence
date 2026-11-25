@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
  * comes from BETTER_AUTH_URL, else the proxy's forwarded headers.
  */
 function publicOrigin(request: NextRequest): string {
-  const configured = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL;
+  const configured = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
   if (configured) return new URL(configured).origin;
   const host = request.headers.get("x-forwarded-host");
   if (host) return `${request.headers.get("x-forwarded-proto") ?? "https"}://${host}`;
@@ -42,6 +42,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("[demo] could not sign in the demo user — was the database seeded (bun run db:seed:demo)?", error);
-    return new NextResponse("The demo is not set up yet: its database has no demo user.", { status: 503 });
+    return new NextResponse("A demonstração ainda não está configurada: o banco não tem um usuário demo.", { status: 503 });
   }
 }

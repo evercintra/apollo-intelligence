@@ -126,16 +126,16 @@ const healthy = (a: AccountRow) => connected(a) && !a.limitReached;
 
 /** "Mon–Sat, 09:00–18:00" for a configured window, "Any time" otherwise. */
 function hoursSummary(account: AccountRow): { main: string; tz: string | null } {
-  if (!hasWorkingHoursConfigured(account)) return { main: "Any time", tz: null };
+  if (!hasWorkingHoursConfigured(account)) return { main: "Qualquer horário", tz: null };
   const days = parseWorkDays(account.workDays);
   const key = [...days].sort((a, b) => a - b).join(",");
   const dayLabel =
     days.length === 7
-      ? "Every day"
+      ? "Todos os dias"
       : key === "1,2,3,4,5"
-        ? "Mon–Fri"
+        ? "Seg–Sex"
         : key === "1,2,3,4,5,6"
-          ? "Mon–Sat"
+          ? "Seg–Sáb"
           : WEEK_ORDER.filter((d) => days.includes(d)).map((d) => WEEKDAY_LABELS[d]).join(", ");
   return { main: `${dayLabel}, ${account.workStartTime}–${account.workEndTime}`, tz: account.workTimezone };
 }
@@ -145,20 +145,20 @@ function StatusBadge({ account }: { account: AccountRow }) {
     return (
       <Badge.Root size="medium" variant="lighter" color="green">
         <Badge.Dot />
-        Connected
+        Conectada
       </Badge.Root>
     );
   if (connected(account))
     return (
       <Badge.Root size="medium" variant="lighter" color="orange">
         <Badge.Dot />
-        Limit reached
+        Limite atingido
       </Badge.Root>
     );
   return (
     <Badge.Root size="medium" variant="lighter" color="red">
       <Badge.Dot />
-      Disconnected
+      Desconectada
     </Badge.Root>
   );
 }
@@ -190,7 +190,7 @@ function WorkingHoursDialog({
 
   const handleSave = async () => {
     if (noDays) {
-      setError("Select at least one working day");
+      setError("Selecione pelo menos um dia útil");
       return;
     }
 
@@ -214,7 +214,7 @@ function WorkingHoursDialog({
       });
       const data = await res.json();
       if (!data.ok) {
-        setError(data.error ?? "Save failed");
+        setError(data.error ?? "Falha ao salvar");
         return;
       }
       const a = data.account;
@@ -227,7 +227,7 @@ function WorkingHoursDialog({
       });
       onClose();
     } catch {
-      setError("Network error");
+      setError("Erro de rede");
     } finally {
       setSaving(false);
     }
@@ -237,25 +237,25 @@ function WorkingHoursDialog({
     <Modal.Root open onOpenChange={(open) => !open && onClose()}>
       <Modal.Content size="max-w-lg">
         <Modal.Header icon={RiTimeLine}>
-          <Modal.Title>Working hours</Modal.Title>
+          <Modal.Title>Horário de trabalho</Modal.Title>
           <Modal.Description>
-            For {account.name || `@${account.username}`}. Profile enrichment, connection requests and follow-ups only run inside this window.
+            Para {account.name || `@${account.username}`}. Enriquecimento de perfil, convites e acompanhamentos só ocorrem dentro deste período.
           </Modal.Description>
         </Modal.Header>
         <Modal.Body className="space-y-5">
           <label className="flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 ring-inset ring-stroke-soft-200">
             <Checkbox.Root className="mt-0.5" checked={enabled} onCheckedChange={(c) => setEnabled(c === true)} />
             <span>
-              <span className="block text-label-sm text-text-strong-950">Restrict outreach to working hours</span>
-              <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">Off: this account works whenever its campaigns are due.</span>
+              <span className="block text-label-sm text-text-strong-950">Limitar a abordagem ao horário de trabalho</span>
+              <span className="mt-0.5 block text-paragraph-xs text-text-sub-600">Desativado: esta conta atua quando suas campanhas estiverem agendadas.</span>
             </span>
           </label>
 
           {enabled && (
             <>
-              <Field label="Timezone">
+              <Field label="Fuso horário">
                 <Select.Root size="small" value={timezone} onValueChange={setTimezone}>
-                  <Select.Trigger aria-label="Timezone">
+                  <Select.Trigger aria-label="Fuso horário">
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
@@ -269,16 +269,16 @@ function WorkingHoursDialog({
               </Field>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Start" htmlFor={`li-start-${account.id}`}>
+                <Field label="Início" htmlFor={`li-start-${account.id}`}>
                   <input id={`li-start-${account.id}`} type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={cn(timeInputClass, inverted && "ring-error-base")} />
                 </Field>
-                <Field label="End" htmlFor={`li-end-${account.id}`} error={inverted ? "Ends before it starts." : undefined}>
+                <Field label="Fim" htmlFor={`li-end-${account.id}`} error={inverted ? "Termina antes de começar." : undefined}>
                   <input id={`li-end-${account.id}`} type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={cn(timeInputClass, inverted && "ring-error-base")} />
                 </Field>
               </div>
 
               <fieldset>
-                <legend className="text-label-sm text-text-strong-950">Working days</legend>
+                <legend className="text-label-sm text-text-strong-950">Dias úteis</legend>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {WEEK_ORDER.map((day) => {
                     const on = days.includes(day);
@@ -300,7 +300,7 @@ function WorkingHoursDialog({
                     );
                   })}
                 </div>
-                {noDays && <p className="mt-1.5 text-paragraph-xs text-error-base">Select at least one working day.</p>}
+                {noDays && <p className="mt-1.5 text-paragraph-xs text-error-base">Selecione pelo menos um dia útil.</p>}
               </fieldset>
             </>
           )}
@@ -309,11 +309,11 @@ function WorkingHoursDialog({
         </Modal.Body>
         <Modal.Footer>
           <Button.Root variant="neutral" mode="stroke" size="small" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button.Root>
           <Button.Root variant="primary" mode="filled" size="small" onClick={handleSave} disabled={saving || noDays}>
             {saving && <Button.Icon as={RiLoader4Line} className="animate-spin" />}
-            {saving ? "Saving…" : "Save hours"}
+            {saving ? "Salvando…" : "Salvar horários"}
           </Button.Root>
         </Modal.Footer>
       </Modal.Content>
@@ -398,7 +398,7 @@ function AccountTableRow({
 
       <Table.Cell className="px-4">
         <Meter value={sentToday} max={dailyLimit(account, limits)} color={LINKEDIN} label={`Connection requests sent today by ${displayName}`} />
-        {account.dailyInviteLimit !== null && <p className="mt-0.5 text-paragraph-xs text-text-soft-400">Own limit</p>}
+        {account.dailyInviteLimit !== null && <p className="mt-0.5 text-paragraph-xs text-text-soft-400">Limite próprio</p>}
       </Table.Cell>
 
       <Table.Cell className="px-4 text-right text-paragraph-sm tabular-nums text-text-strong-950">
@@ -408,7 +408,7 @@ function AccountTableRow({
       <Table.Cell className="px-4">
         <p className="truncate text-paragraph-sm text-text-strong-950" title={hours.tz ? `${hours.main} (${hours.tz})` : hours.main}>{hours.main}</p>
         <p className="truncate text-paragraph-xs text-text-sub-600" suppressHydrationWarning>
-          Next: {formatNextAllowedRun(account.nextAllowedRun ? new Date(account.nextAllowedRun) : null)}
+          Próxima: {formatNextAllowedRun(account.nextAllowedRun ? new Date(account.nextAllowedRun) : null)}
         </p>
       </Table.Cell>
 
@@ -416,22 +416,22 @@ function AccountTableRow({
         <div className="flex justify-end">
           <Dropdown.Root>
             <Dropdown.Trigger asChild>
-              <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={redirecting} aria-label={`More actions for ${displayName}`}>
+                <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={redirecting} aria-label={`Mais ações para ${displayName}`}>
                 <Button.Icon as={RiMoreLine} />
               </Button.Root>
             </Dropdown.Trigger>
             <Dropdown.Content align="end">
               <Dropdown.Item onSelect={() => start(account.id)}>
                 <Dropdown.ItemIcon as={RiRefreshLine} />
-                Reconnect account
+                Reconectar conta
               </Dropdown.Item>
               <Dropdown.Item onSelect={onEditHours}>
                 <Dropdown.ItemIcon as={RiTimeLine} />
-                {hasWorkingHoursConfigured(account) ? "Edit working hours" : "Set working hours"}
+                {hasWorkingHoursConfigured(account) ? "Editar horário de trabalho" : "Definir horário de trabalho"}
               </Dropdown.Item>
               <Dropdown.Item onSelect={onEditLimit}>
                 <Dropdown.ItemIcon as={RiDashboard3Line} />
-                Daily request limit
+                Limite diário de convites
               </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown.Root>
@@ -460,12 +460,12 @@ function AccountsTable({
     <Table.Root className="min-w-190 [&>table]:table-fixed">
       <Table.Header>
         <Table.Row>
-          <Table.Head scope="col" className="px-4">Account</Table.Head>
+          <Table.Head scope="col" className="px-4">Conta</Table.Head>
           <Table.Head scope="col" className="w-32 px-4">Status</Table.Head>
-          <Table.Head scope="col" className="w-36 px-4">Requests today</Table.Head>
-          <Table.Head scope="col" className="w-20 px-4 text-right" title="Leads waiting for a connection request from this account">Pending</Table.Head>
-          <Table.Head scope="col" className="w-48 px-4">Schedule</Table.Head>
-          <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Actions</span></Table.Head>
+          <Table.Head scope="col" className="w-36 px-4">Convites hoje</Table.Head>
+          <Table.Head scope="col" className="w-20 px-4 text-right" title="Leads aguardando um convite desta conta">Pendentes</Table.Head>
+          <Table.Head scope="col" className="w-48 px-4">Agenda</Table.Head>
+          <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Ações</span></Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body spacing={4}>
@@ -526,8 +526,8 @@ export function AccountsClient({
         <FramePanel>
           <EmptyState
             icon={RiLinkedinBoxFill}
-            title="No LinkedIn accounts yet"
-            description="Connect one through Unipile — it syncs back here as soon as you finish."
+            title="Nenhuma conta do LinkedIn ainda"
+            description="Conecte uma pelo Unipile — ela sincroniza aqui assim que você concluir."
             action={
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <ConnectAccountButton />
@@ -543,46 +543,46 @@ export function AccountsClient({
   return (
     <div>
       <KpiStrip columns={4}>
-        <KpiCell icon={RiUserFollowLine} label="Connected" value={String(connectedCount)} context={`of ${accounts.length} accounts`} />
+        <KpiCell icon={RiUserFollowLine} label="Conectadas" value={String(connectedCount)} context={`de ${accounts.length} contas`} />
         <KpiCell
           icon={RiErrorWarningLine}
-          label="Needs attention"
+          label="Precisa de atenção"
           value={String(accounts.length - healthyCount)}
           context={
             disconnected + limited === 0
-              ? "Every account can send"
-              : [disconnected > 0 && `${disconnected} disconnected`, limited > 0 && `${limited} at LinkedIn's limit`].filter(Boolean).join(" · ")
+              ? "Todas as contas podem enviar"
+              : [disconnected > 0 && `${disconnected} desconectadas`, limited > 0 && `${limited} no limite do LinkedIn`].filter(Boolean).join(" · ")
           }
-          hint="Disconnected accounts need reconnecting through Unipile. Accounts at LinkedIn's limit resume on their own."
+          hint="Contas desconectadas precisam ser reconectadas pelo Unipile. Contas no limite do LinkedIn retomam automaticamente."
         />
         <KpiCell
           icon={RiSendPlaneLine}
-          label="Requests today"
+          label="Convites hoje"
           value={totalSent.toLocaleString("en-US")}
-          context={totalCapacity > 0 ? `${formatPercent(Math.min(totalSent / totalCapacity, 1))} of ${totalCapacity} a day` : "No connected capacity"}
-          hint="Connection requests sent today, against the daily limits of connected accounts."
+          context={totalCapacity > 0 ? `${formatPercent(Math.min(totalSent / totalCapacity, 1))} de ${totalCapacity} por dia` : "Sem capacidade conectada"}
+          hint="Convites enviados hoje versus os limites diários das contas conectadas."
         />
-        <KpiCell icon={RiUserStarLine} label="Premium" value={String(premium)} context={`${accounts.length - premium} on a free plan`} hint={`Premium accounts can send ${inviteLimits.premium} connection requests a day; free accounts ${inviteLimits.free}. Change it in LinkedIn → Sending rules, or per account.`} />
+        <KpiCell icon={RiUserStarLine} label="Premium" value={String(premium)} context={`${accounts.length - premium} no plano gratuito`} hint={`Contas Premium enviam ${inviteLimits.premium} convites por dia; contas gratuitas, ${inviteLimits.free}. Altere em LinkedIn → Regras de envio ou por conta.`} />
       </KpiStrip>
 
       {disconnected > 0 && (
-        <Callout tone="warning" className="mt-5" title={`${disconnected} ${disconnected === 1 ? "account is" : "accounts are"} disconnected`}>
-          Campaigns skip them until they are reconnected. Reconnect re-authenticates the same account in place, so its campaigns and history stay.
+        <Callout tone="warning" className="mt-5" title={`${disconnected} ${disconnected === 1 ? "conta está" : "contas estão"} desconectadas`}>
+          As campanhas as ignoram até a reconexão. Reconectar reautentica a mesma conta, preservando campanhas e histórico.
         </Callout>
       )}
 
       <AccountsFrame
-        title="Accounts"
-        description="Daily request limits, working hours and when each account next works."
+        title="Contas"
+        description="Limites diários de convites, horários de trabalho e a próxima atuação de cada conta."
         filter={filter}
         onFilterChange={setFilter}
         counts={{ all: accounts.length, healthy: healthyCount, attention: accounts.length - healthyCount }}
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Search accounts…"
+        searchPlaceholder="Buscar contas…"
       >
         {filtered.length === 0 ? (
-          <AccountsNoMatch noun="accounts" />
+          <AccountsNoMatch noun="contas" />
         ) : (
           <AccountsTable accounts={filtered} sentTodayMap={sentTodayMap} pendingLeadsMap={pendingLeadsMap} limits={inviteLimits} onEditHours={setEditingAccount} onEditLimit={setLimitAccount} />
         )}
@@ -601,7 +601,7 @@ export function AccountsClient({
       {limitAccount && (
         <AccountLimitDialog
           key={limitAccount.id}
-          title="Daily request limit"
+          title="Limite diário de convites"
           accountLabel={limitAccount.name || `@${limitAccount.username}`}
           rule={numberRule("linkedin", limitAccount.isPremium ? "invitesPerDayPremium" : "invitesPerDayFree")}
           organizationValue={organizationLimit(limitAccount, inviteLimits)}
@@ -614,7 +614,7 @@ export function AccountsClient({
               body: JSON.stringify({ dailyInviteLimit }),
             });
             const data = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
-            if (!data?.ok) throw new Error(data?.error ?? "Save failed");
+            if (!data?.ok) throw new Error(data?.error ?? "Falha ao salvar");
             setAccounts((prev) => prev.map((a) => (a.id === limitAccount.id ? { ...a, dailyInviteLimit } : a)));
           }}
         />

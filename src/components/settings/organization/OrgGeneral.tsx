@@ -7,8 +7,7 @@ import { Frame, FrameFooter, FrameHeader, FramePanel } from "@/components/analyt
 import { useDialogs } from "@/components/DialogProvider";
 import { Callout, Field } from "@/components/settings/SettingsKit";
 import { authClient } from "@/lib/auth/client";
-import { ROLE_LABELS } from "@/lib/auth/permissions";
-import { useAsyncAction, useOrgAccess } from "./useOrgAccess";
+import { useAsyncAction, orgRoleLabel, useOrgAccess } from "./useOrgAccess";
 
 function slugify(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
@@ -32,8 +31,8 @@ export function OrgGeneral() {
     setLogo(org.logo ?? "");
   }, [org]);
 
-  if (loading) return <p className="text-paragraph-sm text-text-sub-600">Loading…</p>;
-  if (!org || !role) return <Callout tone="error">{loadError || "No active organization."}</Callout>;
+  if (loading) return <p className="text-paragraph-sm text-text-sub-600">Carregando…</p>;
+  if (!org || !role) return <Callout tone="error">{loadError || "Nenhuma organização ativa."}</Callout>;
 
   const canEdit = can({ organization: ["update"] });
   const dirty = name.trim() !== org.name || slugify(slug) !== org.slug || logo.trim() !== (org.logo ?? "");
@@ -43,10 +42,10 @@ export function OrgGeneral() {
     if (!org) return;
     setSaved(false);
     const finalSlug = slugify(slug);
-    if (!name.trim() || !finalSlug) return setError("A name and a URL name are required.");
+    if (!name.trim() || !finalSlug) return setError("O nome e o nome da URL são obrigatórios.");
     if (finalSlug !== org.slug) {
       const check = await authClient.organization.checkSlug({ slug: finalSlug });
-      if (check.error || !check.data?.status) return setError("That URL name is already taken. Try another.");
+      if (check.error || !check.data?.status) return setError("Esse nome da URL já está em uso. Tente outro.");
     }
     const ok = await run("save", () =>
       authClient.organization.update({
@@ -66,9 +65,9 @@ export function OrgGeneral() {
   async function leave() {
     if (!org) return;
     const confirmed = await dialogs.confirm({
-      title: `Leave ${org.name}?`,
-      description: "You will lose access to its leads, campaigns and conversations until someone invites you again.",
-      confirmLabel: "Leave organization",
+      title: `Sair de ${org.name}?`,
+      description: "Você perderá o acesso aos leads, campanhas e conversas até que alguém o convide novamente.",
+      confirmLabel: "Sair da organização",
       variant: "error",
     });
     if (!confirmed) return;
@@ -79,24 +78,24 @@ export function OrgGeneral() {
   return (
     <div className="flex flex-col gap-6">
       <Frame>
-        <FrameHeader title="Organization" description={`Your role: ${ROLE_LABELS[role]}`} />
+        <FrameHeader title="Organização" description={`Sua função: ${orgRoleLabel(role)}`} />
         <FramePanel>
           <form onSubmit={save} className="flex flex-col gap-4">
-            <Field label="Name" htmlFor="org-name" required>
+            <Field label="Nome" htmlFor="org-name" required>
               <Input.Root size="medium">
                 <Input.Wrapper>
                   <Input.Input id="org-name" value={name} onChange={(e) => setName(e.target.value)} disabled={!canEdit} />
                 </Input.Wrapper>
               </Input.Root>
             </Field>
-            <Field label="URL name" htmlFor="org-slug" description="Lowercase letters, numbers and dashes." required>
+            <Field label="Nome da URL" htmlFor="org-slug" description="Letras minúsculas, números e hífens." required>
               <Input.Root size="medium">
                 <Input.Wrapper>
                   <Input.Input id="org-slug" value={slug} onChange={(e) => setSlug(e.target.value)} disabled={!canEdit} />
                 </Input.Wrapper>
               </Input.Root>
             </Field>
-            <Field label="Logo URL" htmlFor="org-logo" optional>
+            <Field label="URL do logo" htmlFor="org-logo" optional>
               <Input.Root size="medium">
                 <Input.Wrapper>
                   <Input.Input id="org-logo" type="url" placeholder="https://" value={logo} onChange={(e) => setLogo(e.target.value)} disabled={!canEdit} />
@@ -104,28 +103,28 @@ export function OrgGeneral() {
               </Input.Root>
             </Field>
             {error && <Callout tone="error">{error}</Callout>}
-            {saved && <Callout tone="success">Saved.</Callout>}
+            {saved && <Callout tone="success">Salvo.</Callout>}
             {canEdit ? (
               <div>
                 <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={!dirty || busy === "save"}>
-                  {busy === "save" ? "Saving…" : "Save changes"}
+                  {busy === "save" ? "Salvando…" : "Salvar alterações"}
                 </Button.Root>
               </div>
             ) : (
-              <p className="text-paragraph-xs text-text-sub-600">Only owners and admins can change these details.</p>
+              <p className="text-paragraph-xs text-text-sub-600">Apenas proprietários e administradores podem alterar estes dados.</p>
             )}
           </form>
         </FramePanel>
-        <FrameFooter>Everyone in an organization sees the same leads, campaigns and conversations.</FrameFooter>
+        <FrameFooter>Todos na organização veem os mesmos leads, campanhas e conversas.</FrameFooter>
       </Frame>
 
       {role !== "owner" && (
         <Frame>
-          <FrameHeader title="Leave organization" description="Remove yourself from this organization." />
+          <FrameHeader title="Sair da organização" description="Remova você desta organização." />
           <FramePanel className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-paragraph-sm text-text-sub-600">You can be invited back at any time.</p>
+            <p className="text-paragraph-sm text-text-sub-600">Você pode ser convidado de volta a qualquer momento.</p>
             <Button.Root variant="error" mode="stroke" size="small" disabled={busy === "leave"} onClick={leave}>
-              {busy === "leave" ? "Leaving…" : "Leave organization"}
+              {busy === "leave" ? "Saindo…" : "Sair da organização"}
             </Button.Root>
           </FramePanel>
         </Frame>

@@ -3,7 +3,7 @@ import { WhatsappCampaignDetailClient, type CampaignTab } from "@/components/wha
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Message campaign" };
+export const metadata = { title: "Campanha de mensagens" };
 
 export default async function WhatsappCampaignPage({
   params,

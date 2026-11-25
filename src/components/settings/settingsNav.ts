@@ -35,29 +35,29 @@ export function itemPages(item: SettingsNavItem): SettingsTab[] {
  */
 export const SETTINGS_NAV: { label: string; items: SettingsNavItem[] }[] = [
   {
-    label: "Organization",
+    label: "Organização",
     items: [
-      { href: "/settings/organization", label: "General", icon: RiBuilding2Line },
-      { href: "/settings/members", label: "Members", icon: RiGroupLine },
-      { href: "/settings/teams", label: "Teams", icon: RiTeamLine },
-      { href: "/settings/api-keys", label: "API keys", icon: RiKey2Line },
-      { href: "/settings/ai-assistants", label: "AI assistants", icon: RiRobot2Line },
+      { href: "/settings/organization", label: "Geral", icon: RiBuilding2Line },
+      { href: "/settings/members", label: "Membros", icon: RiGroupLine },
+      { href: "/settings/teams", label: "Equipes", icon: RiTeamLine },
+      { href: "/settings/api-keys", label: "Chaves de API", icon: RiKey2Line },
+      { href: "/settings/ai-assistants", label: "Assistentes de IA", icon: RiRobot2Line },
     ],
   },
   // Each channel is one row here; its pages — the connected accounts, the
   // integration it runs on, its sending rules (src/lib/channels/rules.ts) —
   // are tabs across the top of the section (SettingsShell).
   {
-    label: "Channels",
+    label: "Canais",
     items: [
       {
         href: "/settings/email-accounts",
         label: "Email",
         icon: RiMailLine,
         tabs: [
-          { href: "/settings/email-accounts", label: "Mailboxes", icon: RiMailLine },
-          { href: "/settings/email-connection", label: "Connection", icon: RiPlugLine },
-          { href: "/settings/email-rules", label: "Sending rules", icon: RiEqualizerLine },
+          { href: "/settings/email-accounts", label: "Caixas de e-mail", icon: RiMailLine },
+          { href: "/settings/email-connection", label: "Conexão", icon: RiPlugLine },
+          { href: "/settings/email-rules", label: "Regras de envio", icon: RiEqualizerLine },
         ],
       },
       {
@@ -65,9 +65,9 @@ export const SETTINGS_NAV: { label: string; items: SettingsNavItem[] }[] = [
         label: "LinkedIn",
         icon: RiLinkedinBoxLine,
         tabs: [
-          { href: "/settings/linkedin-accounts", label: "Accounts", icon: RiLinkedinBoxLine },
-          { href: "/settings/linkedin-connection", label: "Connection", icon: RiPlugLine },
-          { href: "/settings/linkedin-rules", label: "Sending rules", icon: RiEqualizerLine },
+          { href: "/settings/linkedin-accounts", label: "Contas", icon: RiLinkedinBoxLine },
+          { href: "/settings/linkedin-connection", label: "Conexão", icon: RiPlugLine },
+          { href: "/settings/linkedin-rules", label: "Regras de envio", icon: RiEqualizerLine },
         ],
       },
       {
@@ -75,32 +75,32 @@ export const SETTINGS_NAV: { label: string; items: SettingsNavItem[] }[] = [
         label: "WhatsApp",
         icon: RiWhatsappLine,
         tabs: [
-          { href: "/settings/whatsapp-accounts", label: "Numbers", icon: RiWhatsappLine },
-          { href: "/settings/whatsapp-stations", label: "Calling numbers", icon: RiPhoneLine },
-          { href: "/settings/whatsapp-connection", label: "Integrations", icon: RiPlugLine },
-          { href: "/settings/whatsapp-rules", label: "Sending rules", icon: RiEqualizerLine },
+          { href: "/settings/whatsapp-accounts", label: "Números", icon: RiWhatsappLine },
+          { href: "/settings/whatsapp-stations", label: "Números de ligação", icon: RiPhoneLine },
+          { href: "/settings/whatsapp-connection", label: "Integrações", icon: RiPlugLine },
+          { href: "/settings/whatsapp-rules", label: "Regras de envio", icon: RiEqualizerLine },
         ],
       },
     ],
   },
   {
-    label: "AI",
+    label: "IA",
     items: [
-      { href: "/settings/instructions", label: "Instructions", icon: RiQuillPenLine },
-      { href: "/settings/knowledge", label: "Knowledge", icon: RiBookOpenLine },
-      { href: "/settings/ai", label: "AI provider", icon: RiCpuLine },
+      { href: "/settings/instructions", label: "Instruções", icon: RiQuillPenLine },
+      { href: "/settings/knowledge", label: "Conhecimento", icon: RiBookOpenLine },
+      { href: "/settings/ai", label: "Provedor de IA", icon: RiCpuLine },
     ],
   },
   {
-    label: "CRM & leads",
+    label: "CRM e leads",
     items: [
-      { href: "/settings/lead-categories", label: "Lead categories", icon: RiPriceTag3Line },
-      { href: "/settings/columns", label: "Lead columns", icon: RiLayoutColumnLine },
+      { href: "/settings/lead-categories", label: "Categorias de leads", icon: RiPriceTag3Line },
+      { href: "/settings/columns", label: "Colunas de leads", icon: RiLayoutColumnLine },
     ],
   },
   {
-    label: "Preferences",
-    items: [{ href: "/settings/appearance", label: "Appearance", icon: RiPaletteLine }],
+    label: "Preferências",
+    items: [{ href: "/settings/appearance", label: "Aparência", icon: RiPaletteLine }],
   },
 ];
 

@@ -170,8 +170,8 @@ function MessageCard({
                   "flex size-7 items-center justify-center rounded-md outline-none transition hover:bg-bg-weak-50 focus-visible:ring-2 focus-visible:ring-primary-base",
                   message.important ? "text-warning-base" : "text-text-soft-400 hover:text-text-sub-600",
                 )}
-                title={message.important ? "Remove from important" : "Mark as important"}
-                aria-label={message.important ? "Remove from important" : "Mark as important"}
+                title={message.important ? "Remover dos importantes" : "Marcar como importante"}
+                aria-label={message.important ? "Remover dos importantes" : "Marcar como importante"}
               >
                 {message.important ? <RiStarFill className="size-4" /> : <RiStarLine className="size-4" />}
               </button>
@@ -181,9 +181,9 @@ function MessageCard({
             to.length > 0 || cc.length > 0 || bcc.length > 0 ? (
               <div className="text-paragraph-xs text-text-soft-400">
                 {[
-                  { label: "to", list: to },
+                  { label: "para", list: to },
                   { label: "cc", list: cc },
-                  { label: "bcc", list: bcc },
+                  { label: "cco", list: bcc },
                 ]
                   .filter((part) => part.list.length > 0)
                   .map((part) => {
@@ -196,17 +196,17 @@ function MessageCard({
                   })}
               </div>
             ) : (
-              recipient && <p className="truncate text-paragraph-xs text-text-soft-400">to {recipient}</p>
+                recipient && <p className="truncate text-paragraph-xs text-text-soft-400">para {recipient}</p>
             )
           ) : (
-            <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">{preview || "(empty)"}</p>
+            <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">{preview || "(vazio)"}</p>
           )}
         </div>
       </div>
       {open && (
         <div className="px-4 pb-4 sm:pl-15 sm:pr-6">
           <p className={cn("whitespace-pre-wrap wrap-break-word text-paragraph-sm leading-6 text-text-strong-950", long && !showAll && "line-clamp-[18]")}>
-            {main || (quoted ? "" : "(empty)")}
+            {main || (quoted ? "" : "(vazio)")}
           </p>
           {long && (
             <button
@@ -215,7 +215,7 @@ function MessageCard({
               aria-expanded={showAll}
               className="mt-1.5 text-label-xs text-text-sub-600 underline-offset-2 outline-none hover:text-text-strong-950 hover:underline focus-visible:underline"
             >
-              {showAll ? "Show less" : "Show the whole message"}
+              {showAll ? "Mostrar menos" : "Mostrar a mensagem inteira"}
             </button>
           )}
           {quoted && (
@@ -224,8 +224,8 @@ function MessageCard({
                 type="button"
                 onClick={() => setShowQuoted((value) => !value)}
                 aria-expanded={showQuoted}
-                aria-label={showQuoted ? "Hide quoted text" : "Show quoted text"}
-                title={showQuoted ? "Hide quoted text" : "Show quoted text"}
+                aria-label={showQuoted ? "Ocultar texto citado" : "Mostrar texto citado"}
+                title={showQuoted ? "Ocultar texto citado" : "Mostrar texto citado"}
                 className="inline-flex h-5 items-center rounded-md bg-bg-weak-50 px-1.5 text-text-sub-600 outline-none ring-1 ring-inset ring-stroke-soft-200 transition hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base"
               >
                 <RiMoreLine className="size-4" aria-hidden="true" />
@@ -277,12 +277,12 @@ export default function EmailThread({
   }, [lastMessageId]);
 
   if (messages.length === 0) {
-    return <EmptyState icon={RiMailLine} title="No messages yet" description="Emails sent and received with this lead appear here." />;
+    return <EmptyState icon={RiMailLine} title="Nenhuma mensagem ainda" description="E-mails enviados e recebidos com este lead aparecem aqui." />;
   }
 
   const lastInboundId = [...messages].reverse().find((m) => m.direction === "inbound")?.id;
   const lastId = lastMessageId;
-  const subject = threadSubject([...messages].reverse().find((m) => m.subject)?.subject) || "(no subject)";
+  const subject = threadSubject([...messages].reverse().find((m) => m.subject)?.subject) || "(sem assunto)";
 
   // Keep the first message and the last three; fold a longer middle.
   const foldFrom = 1;
@@ -294,7 +294,7 @@ export default function EmailThread({
       <div className="mb-4 flex items-baseline justify-between gap-3">
         <h2 className="min-w-0 text-label-lg text-text-strong-950 wrap-break-word">{subject}</h2>
         <span className="shrink-0 text-paragraph-xs tabular-nums text-text-soft-400">
-          {messages.length} {messages.length === 1 ? "message" : "messages"}
+          {messages.length} {messages.length === 1 ? "mensagem" : "mensagens"}
         </span>
       </div>
       <div className="flex flex-col gap-2">
@@ -309,7 +309,7 @@ export default function EmailThread({
                 className="relative my-1 flex items-center justify-center py-1 text-label-xs text-text-sub-600 outline-none before:absolute before:inset-x-0 before:top-1/2 before:h-px before:bg-stroke-soft-200 hover:text-text-strong-950 focus-visible:underline"
               >
                 <span className="relative rounded-full bg-bg-white-0 px-3 py-0.5 ring-1 ring-inset ring-stroke-soft-200">
-                  {folded} earlier messages
+                  {folded} mensagens anteriores
                 </span>
               </button>
             );

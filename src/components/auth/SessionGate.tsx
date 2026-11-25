@@ -69,9 +69,9 @@ export function SessionGate({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg-white-0 p-6">
         <div className="max-w-sm text-center">
-          <p className="text-label-md text-text-strong-950">We couldn&apos;t keep you signed in</p>
+          <p className="text-label-md text-text-strong-950">Não foi possível manter você conectado</p>
           <p className="mt-2 text-paragraph-sm text-text-sub-600">
-            This browser doesn&apos;t seem to keep this site&apos;s sign-in cookie. Allow cookies for this site, or open it in another browser.
+            Este navegador parece não manter o cookie de login deste site. Permita cookies para este site ou abra-o em outro navegador.
           </p>
           <button
             type="button"
@@ -84,7 +84,7 @@ export function SessionGate({ children }: { children: React.ReactNode }) {
             className="mt-5 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-label-sm text-text-strong-950 ring-1 ring-inset ring-stroke-soft-200 transition hover:bg-bg-weak-50"
           >
             <RiRefreshLine className="size-4" />
-            Try again
+            Tentar novamente
           </button>
         </div>
       </div>

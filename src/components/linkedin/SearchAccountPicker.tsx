@@ -219,7 +219,7 @@ export function SearchAccountPicker({
                       <div className="flex shrink-0 flex-col">
                         <button
                           type="button"
-                          aria-label="Move up"
+                          aria-label="Mover para cima"
                           disabled={i === 0}
                           onClick={() => moveByStep(a.id, -1)}
                           className="text-text-soft-400 hover:text-text-strong-950 disabled:cursor-not-allowed disabled:opacity-30"
@@ -228,7 +228,7 @@ export function SearchAccountPicker({
                         </button>
                         <button
                           type="button"
-                          aria-label="Move down"
+                          aria-label="Mover para baixo"
                           disabled={i === orderedAccounts.length - 1}
                           onClick={() => moveByStep(a.id, 1)}
                           className="text-text-soft-400 hover:text-text-strong-950 disabled:cursor-not-allowed disabled:opacity-30"

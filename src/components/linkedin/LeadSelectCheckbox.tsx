@@ -29,7 +29,7 @@ export function LeadSelectCheckbox({
       onChange={(e) => onChange(e.target.checked)}
       onClick={onClick}
       aria-label={ariaLabel}
-      className="h-4 w-4 rounded border-stroke-sub-300 text-blue-600 dark:text-blue-400 focus:ring-blue-500 cursor-pointer"
+      className="h-4 w-4 cursor-pointer rounded border-stroke-sub-300 accent-apollo-lime-500 outline-none transition focus-visible:ring-2 focus-visible:ring-accent-ring"
     />
   );
 }

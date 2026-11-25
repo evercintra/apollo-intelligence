@@ -43,25 +43,25 @@ export const LEAD_STATUS_VARIANTS: Record<
 };
 
 export const LEAD_STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pending",
-  REQUEST_SENT: "Request Sent",
-  ACCEPT_MESSAGE_SENT: "Accepted",
-  FOLLOW_UP_1_SENT: "Follow-up 1",
-  FOLLOW_UP_2_SENT: "Follow-up 2",
-  FOLLOW_UP_3_SENT: "Follow-up 3",
-  COMPLETED: "Completed",
-  REPLIED: "Replied",
-  FAILED: "Failed",
+  PENDING: "Pendente",
+  REQUEST_SENT: "Convite enviado",
+  ACCEPT_MESSAGE_SENT: "Aceito",
+  FOLLOW_UP_1_SENT: "Acompanhamento 1",
+  FOLLOW_UP_2_SENT: "Acompanhamento 2",
+  FOLLOW_UP_3_SENT: "Acompanhamento 3",
+  COMPLETED: "Concluído",
+  REPLIED: "Respondeu",
+  FAILED: "Falhou",
 };
 
 const MESSAGE_TYPE_LABEL: Record<string, string> = {
-  INVITATION: "Invitation",
-  ACCEPTANCE: "Acceptance",
-  FOLLOW_UP_1: "Follow-up 1",
-  FOLLOW_UP_2: "Follow-up 2",
-  FOLLOW_UP_3: "Follow-up 3",
-  RECEIVED: "Received",
-  CUSTOM_SENT: "Sent",
+  INVITATION: "Convite",
+  ACCEPTANCE: "Aceite",
+  FOLLOW_UP_1: "Acompanhamento 1",
+  FOLLOW_UP_2: "Acompanhamento 2",
+  FOLLOW_UP_3: "Acompanhamento 3",
+  RECEIVED: "Recebida",
+  CUSTOM_SENT: "Enviada",
 };
 
 const SENT_TYPES = new Set(["INVITATION", "ACCEPTANCE", "FOLLOW_UP_1", "FOLLOW_UP_2", "FOLLOW_UP_3", "CUSTOM_SENT"]);
@@ -135,7 +135,7 @@ function Avatar({ src, name, size = "lg" }: { src: string | null; name: string; 
   }
   return (
     <div
-      className={`${cls} rounded-full bg-blue-100 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center font-semibold shrink-0 ring-2 ring-stroke-white-0 shadow-sm`}
+      className={`${cls} flex shrink-0 items-center justify-center rounded-full bg-complement-surface font-semibold text-complement-deep ring-2 ring-stroke-white-0 shadow-sm`}
     >
       {initials || "?"}
     </div>
@@ -144,7 +144,7 @@ function Avatar({ src, name, size = "lg" }: { src: string | null; name: string; 
 
 function fmt(iso: string | null) {
   if (!iso) return null;
-  if (iso === "sent") return "Sent";
+  if (iso === "sent") return "Enviado";
   return new Date(iso).toLocaleString(undefined, {
     month: "short",
     day: "numeric",
@@ -170,7 +170,7 @@ function MessageBubble({ type, text, createdAt }: { type: string; text: string; 
     <div className={`flex ${sent ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-[90%] rounded-xl px-3 py-2 text-sm ${
-          sent ? "bg-blue-600 text-white" : "bg-bg-weak-50 text-text-strong-950"
+          sent ? "bg-complement-deep text-apollo-soft-white" : "bg-bg-weak-50 text-text-strong-950"
         }`}
       >
         <p className="text-[10px] font-medium opacity-80 mb-0.5">
@@ -230,7 +230,7 @@ function OutreachTemplatesEditor({
       isInvitationMessageTooLong(payload.invitationMessage)
     ) {
       setSaveError(
-        `Invitation message must be ${MAX_INVITATION_MESSAGE_LENGTH} characters or fewer (currently ${invitationMessageLength(payload.invitationMessage)}).`
+        `A mensagem de convite deve ter no máximo ${MAX_INVITATION_MESSAGE_LENGTH} caracteres (atualmente ${invitationMessageLength(payload.invitationMessage)}).`
       );
       return;
     }
@@ -245,7 +245,7 @@ function OutreachTemplatesEditor({
       });
       const data = await res.json();
       if (!data.ok) {
-        setSaveError(data.error ?? "Save failed");
+        setSaveError(data.error ?? "Falha ao salvar");
         return;
       }
       let updated: LeadDetail = {
@@ -264,7 +264,7 @@ function OutreachTemplatesEditor({
       setEditingFields(new Set());
       onSaved(updated);
     } catch {
-      setSaveError("Network error");
+      setSaveError("Erro de rede");
     } finally {
       setSaving(false);
     }
@@ -289,25 +289,25 @@ function OutreachTemplatesEditor({
           <div
             key={key}
             className={`rounded-lg border p-3 ${
-              editable ? "border-blue-100 dark:border-blue-500/20 bg-blue-50/40 dark:bg-blue-500/10" : "border-stroke-soft-200 bg-bg-weak-50/80"
+               editable ? "border-complement-light bg-complement-surface" : "border-stroke-soft-200 bg-bg-weak-50/80"
             }`}
           >
             <div className="flex items-center justify-between gap-2 mb-1.5">
               <p className="text-xs font-medium text-text-sub-600">{label}</p>
               {sent ? (
-                <span className="text-[10px] text-green-600 dark:text-green-400 font-medium">
-                  Sent{sentAt !== "sent" ? ` ${fmt(sentAt)}` : ""}
+                <span className="text-[10px] font-medium text-success-base">
+                  Enviado{sentAt !== "sent" ? ` ${fmt(sentAt)}` : ""}
                 </span>
               ) : editable ? (
                 <button
                   type="button"
-                  className="text-[10px] font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                  className="rounded text-[10px] font-medium text-complement-deep underline decoration-complement-light underline-offset-2 transition hover:text-complement-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-alpha-16"
                   onClick={() => toggleFieldEditor(key)}
                 >
-                  {editing ? "Cancel edit" : "Edit template"}
+                  {editing ? "Cancelar edição" : "Editar modelo"}
                 </button>
               ) : (
-                <span className="text-[10px] text-text-soft-400">Locked</span>
+                <span className="text-[10px] text-text-soft-400">Bloqueado</span>
               )}
             </div>
             {editing ? (
@@ -317,8 +317,8 @@ function OutreachTemplatesEditor({
                   onChange={(e) => setDraft((p) => ({ ...p, [key]: e.target.value }))}
                   rows={3}
                   maxLength={key === "invitationMessage" ? MAX_INVITATION_MESSAGE_LENGTH : undefined}
-                  placeholder={`Write your ${label.toLowerCase()}…`}
-                  className="w-full resize-none rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-3 py-2 text-sm text-text-strong-950 leading-relaxed placeholder:text-text-soft-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder={`Escreva seu ${label.toLowerCase()}…`}
+                  className="w-full resize-none rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-3 py-2 text-sm leading-relaxed text-text-strong-950 outline-none transition placeholder:text-text-soft-400 focus:border-complement-ring focus:ring-2 focus:ring-primary-alpha-16"
                 />
                 {key === "invitationMessage" && (
                   <p
@@ -333,7 +333,7 @@ function OutreachTemplatesEditor({
             ) : previewValue ? (
               <p className="text-sm text-text-strong-950 whitespace-pre-wrap leading-relaxed">{previewValue}</p>
             ) : (
-              <p className="text-sm text-text-soft-400 italic">No message</p>
+              <p className="text-sm italic text-text-soft-400">Sem mensagem</p>
             )}
           </div>
         );
@@ -349,7 +349,7 @@ function OutreachTemplatesEditor({
       {hasEditable && editingFields.size > 0 && (
         <Button size="sm" className="w-full" onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save message templates
+          Salvar modelos de mensagem
         </Button>
       )}
     </div>
@@ -388,14 +388,14 @@ export function LeadDetailPanel({
       .then((data) => {
         if (cancelled) return;
         if (!data.ok) {
-          setError(data.error ?? "Failed to load lead");
+          setError(data.error ?? "Falha ao carregar o lead");
           setLead(null);
           return;
         }
         setLead(data.lead);
       })
       .catch(() => {
-        if (!cancelled) setError("Network error");
+        if (!cancelled) setError("Erro de rede");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -430,7 +430,7 @@ export function LeadDetailPanel({
     <>
       <button
         type="button"
-        aria-label="Close lead details"
+        aria-label="Fechar detalhes do lead"
         className="fixed inset-0 z-40 bg-black/25 lg:bg-transparent"
         onClick={onClose}
       />
@@ -438,10 +438,10 @@ export function LeadDetailPanel({
       <aside
         className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-stroke-soft-200 bg-bg-white-0 shadow-xl"
         role="dialog"
-        aria-label="Lead details"
+        aria-label="Detalhes do lead"
       >
-        <div className="flex items-center justify-between gap-2 border-b border-stroke-soft-200 px-4 py-3 shrink-0">
-          <h2 className="text-sm font-semibold text-text-strong-950">Lead details</h2>
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-stroke-soft-200 px-4 py-3">
+          <h2 className="text-sm font-semibold text-text-strong-950">Detalhes do lead</h2>
           <button
             type="button"
             onClick={onClose}
@@ -472,7 +472,7 @@ export function LeadDetailPanel({
                     </Badge>
                     {lead.inviteRetryCount > 0 && lead.status !== "FAILED" && (
                       <span className="text-xs text-amber-600 dark:text-amber-400">
-                        Retries: {lead.inviteRetryCount}/{MAX_LEAD_RETRIES}
+                        Tentativas: {lead.inviteRetryCount}/{MAX_LEAD_RETRIES}
                       </span>
                     )}
                   </div>
@@ -490,9 +490,9 @@ export function LeadDetailPanel({
                       href={profileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2"
+                      className="mt-2 inline-flex items-center gap-1 text-xs text-complement-deep underline decoration-complement-light underline-offset-2 transition hover:text-complement-ring"
                     >
-                      View on LinkedIn
+                      Ver no LinkedIn
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
@@ -500,10 +500,10 @@ export function LeadDetailPanel({
               </div>
 
               <section className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-text-soft-400">Overview</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-text-soft-400">Visão geral</h4>
                 <div className="space-y-2 rounded-xl border border-stroke-soft-200 bg-bg-weak-50/50 p-3">
                   <DetailRow
-                    label="Campaign"
+                    label="Campanha"
                     value={
                       lead.campaign ? (
                         <span className="inline-flex items-center gap-1">
@@ -516,7 +516,7 @@ export function LeadDetailPanel({
                     }
                   />
                   <DetailRow
-                    label="Sender"
+                    label="Remetente"
                     value={
                       lead.linkedInAccount ? (
                         <LinkedInAccountTag account={lead.linkedInAccount} size="sm" />
@@ -525,18 +525,18 @@ export function LeadDetailPanel({
                       )
                     }
                   />
-                  <DetailRow label="Added" value={fmt(lead.createdAt)} />
-                  <DetailRow label="Invite sent" value={fmt(lead.requestSentAt)} />
+                  <DetailRow label="Adicionado" value={fmt(lead.createdAt)} />
+                  <DetailRow label="Convite enviado" value={fmt(lead.requestSentAt)} />
                   <DetailRow
-                    label="Accepted"
+                    label="Aceito"
                     value={fmt(lead.acceptMessageSentAt ?? lead.connection?.connectedAt ?? null)}
                   />
-                  <DetailRow label="Follow-up 1" value={fmt(lead.followUp1SentAt)} />
-                  <DetailRow label="Follow-up 2" value={fmt(lead.followUp2SentAt)} />
-                  <DetailRow label="Follow-up 3" value={fmt(lead.followUp3SentAt)} />
+                  <DetailRow label="Acompanhamento 1" value={fmt(lead.followUp1SentAt)} />
+                  <DetailRow label="Acompanhamento 2" value={fmt(lead.followUp2SentAt)} />
+                  <DetailRow label="Acompanhamento 3" value={fmt(lead.followUp3SentAt)} />
                   {lead.providerId && (
                     <DetailRow
-                      label="Provider ID"
+                       label="ID do provedor"
                       value={<span className="font-mono text-[10px] break-all">{lead.providerId}</span>}
                     />
                   )}
@@ -546,12 +546,12 @@ export function LeadDetailPanel({
               {(lead.alsoInCampaigns.length > 0 || lead.excludedAccounts.length > 0) && (
                 <section className="space-y-2">
                   <h4 className="text-xs font-semibold uppercase tracking-wide text-text-soft-400">
-                    Cross-campaign outreach
+                    Abordagem em outras campanhas
                   </h4>
                   <div className="space-y-2 rounded-xl border border-amber-100 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-500/10 p-3">
                     {lead.alsoInCampaigns.length > 0 && (
                       <DetailRow
-                        label="Also in"
+                        label="Também em"
                         value={
                           <span className="inline-flex flex-wrap items-center gap-1">
                             {lead.alsoInCampaigns.map((c) => (
@@ -569,7 +569,7 @@ export function LeadDetailPanel({
                     )}
                     {lead.excludedAccounts.length > 0 && (
                       <DetailRow
-                        label="Do not reach via"
+                        label="Não abordar por"
                         value={<LinkedInAccountTags accounts={lead.excludedAccounts} size="sm" maxVisible={4} />}
                       />
                     )}
@@ -579,8 +579,8 @@ export function LeadDetailPanel({
 
               <section className="space-y-2">
                 <div>
-                  <h4 className="text-xs font-semibold uppercase tracking-wide text-text-soft-400">Outreach preview</h4>
-                  <p className="mt-1 text-[11px] text-text-soft-400">Rendered for {displayName}. Edit a template to view its variables.</p>
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-text-soft-400">Prévia da mensagem</h4>
+                  <p className="mt-1 text-[11px] text-text-soft-400">Renderizada para {displayName}. Edite um modelo para ver suas variáveis.</p>
                 </div>
                 <OutreachTemplatesEditor lead={lead} onSaved={handleTemplatesSaved} />
               </section>
@@ -588,11 +588,11 @@ export function LeadDetailPanel({
               <section className="space-y-3">
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-text-soft-400 flex items-center gap-1.5">
                   <MessageSquare className="h-3.5 w-3.5" />
-                  Conversation ({lead.messages.length})
+                  Conversa ({lead.messages.length})
                 </h4>
                 {lead.messages.length === 0 ? (
                   <p className="text-sm text-text-soft-400 py-4 text-center rounded-lg border border-dashed border-stroke-soft-200">
-                    No messages recorded yet
+                    Nenhuma mensagem registrada ainda
                   </p>
                 ) : (
                   <div className="space-y-2 max-h-80 overflow-y-auto pr-1">

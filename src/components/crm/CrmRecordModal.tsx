@@ -61,16 +61,16 @@ export function CrmRecordModal({ children }: { children: React.ReactNode }) {
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-bg-white-0 shadow-regular-md ring-1 ring-inset ring-stroke-soft-200">
           <div className="flex h-12 shrink-0 items-center gap-2 border-b border-stroke-soft-200 pl-4 pr-2.5 sm:pl-5">
             <RiContactsBook3Line className="size-4 shrink-0 text-text-soft-400" aria-hidden="true" />
-            <Modal.Title className="min-w-0 flex-1 truncate text-label-sm text-text-sub-600">Lead record</Modal.Title>
+            <Modal.Title className="min-w-0 flex-1 truncate text-label-sm text-text-sub-600">Registro do lead</Modal.Title>
             {nav && <QueueControls nav={nav} />}
             {/* A plain anchor: a hard navigation is the point (see above). */}
             {recordId && <Button.Root variant="neutral" mode="ghost" size="xsmall" asChild>
-              <a href={recordHref(recordId)} title="Open this record as a full page">
-                <Button.Icon as={RiExpandDiagonalLine} /><span className="hidden lg:inline">Open full page</span>
+              <a href={recordHref(recordId)} title="Abrir este registro como página completa">
+                <Button.Icon as={RiExpandDiagonalLine} /><span className="hidden lg:inline">Abrir página completa</span>
               </a>
             </Button.Root>}
             <Modal.Close asChild>
-              <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Close" title="Close (Esc)"><Button.Icon as={RiCloseLine} /></Button.Root>
+              <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Fechar" title="Fechar (Esc)"><Button.Icon as={RiCloseLine} /></Button.Root>
             </Modal.Close>
           </div>
           <div data-record-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
@@ -130,7 +130,7 @@ function useQueueNavigation(recordId: string | undefined, contentRef: React.RefO
 
   const go = useCallback((id: string | null) => {
     if (!id || !recordId) return;
-    if (hasUnsavedReply(recordId) && !window.confirm("You have an unsaved reply to this lead. Leave it and open the next one?")) return;
+    if (hasUnsavedReply(recordId) && !window.confirm("Você tem uma resposta não salva para este lead. Sair e abrir o próximo?")) return;
     router.replace(recordHref(id), { scroll: false });
   }, [recordId, router]);
 
@@ -196,20 +196,20 @@ function useQueueNavigation(recordId: string | undefined, contentRef: React.RefO
 
 function QueueControls({ nav }: { nav: QueueNav }) {
   const position = nav.handled
-    ? nav.advancing ? "Done · opening next" : nav.next ? "Done" : nav.hasMore ? "Done · loading more" : "Queue cleared"
-    : `${nav.position} of ${nav.total}${nav.hasMore ? "+" : ""}`;
+    ? nav.advancing ? "Concluído · abrindo próximo" : nav.next ? "Concluído" : nav.hasMore ? "Concluído · carregando mais" : "Fila vazia"
+    : `${nav.position} de ${nav.total}${nav.hasMore ? "+" : ""}`;
   return (
     <div className="flex shrink-0 items-center gap-1">
       {nav.upcoming.length > 0 && <UpNext items={nav.upcoming} onOpen={nav.go} />}
-      <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Previous lead" title="Previous lead (K)" disabled={!nav.prev} onClick={() => nav.go(nav.prev)}>
+      <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Lead anterior" title="Lead anterior (K)" disabled={!nav.prev} onClick={() => nav.go(nav.prev)}>
         <Button.Icon as={RiArrowLeftSLine} />
       </Button.Root>
       <span role="status" className={cn("flex items-center gap-1 whitespace-nowrap px-0.5 text-label-xs tabular-nums", nav.handled ? "text-success-base" : "text-text-sub-600")}>
         {nav.handled && <RiCheckLine className="size-3.5" aria-hidden="true" />}
         {position}
       </span>
-      {nav.advancing && <button type="button" onClick={nav.stay} className="rounded px-1 text-label-xs text-text-sub-600 underline-offset-2 hover:text-text-strong-950 hover:underline">Stay</button>}
-      <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Next lead" title="Next lead (J)" disabled={!nav.next} onClick={() => nav.go(nav.next)}>
+      {nav.advancing && <button type="button" onClick={nav.stay} className="rounded px-1 text-label-xs text-text-sub-600 underline-offset-2 hover:text-text-strong-950 hover:underline">Permanecer</button>}
+      <Button.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Próximo lead" title="Próximo lead (J)" disabled={!nav.next} onClick={() => nav.go(nav.next)}>
         <Button.Icon as={RiArrowRightSLine} />
       </Button.Root>
       <span className="mx-1 hidden h-4 w-px bg-stroke-soft-200 sm:block" aria-hidden="true" />
@@ -221,10 +221,10 @@ function QueueControls({ nav }: { nav: QueueNav }) {
 function UpNext({ items, onOpen }: { items: QueueItem[]; onOpen: (id: string) => void }) {
   return (
     <div className="mr-1 hidden items-center gap-2 md:flex">
-      <span className="text-paragraph-xs text-text-soft-400">Up next</span>
+      <span className="text-paragraph-xs text-text-sub-600">A seguir</span>
       <div className="flex -space-x-1.5">
         {items.map((item) => (
-          <button key={item.id} type="button" onClick={() => onOpen(item.id)} title={`Open ${item.name}`} aria-label={`Open ${item.name}`} className="rounded-full ring-2 ring-bg-white-0 transition hover:z-10 hover:-translate-y-0.5 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-stroke-strong-950">
+          <button key={item.id} type="button" onClick={() => onOpen(item.id)} title={`Abrir ${item.name}`} aria-label={`Abrir ${item.name}`} className="rounded-full ring-2 ring-bg-white-0 transition hover:z-10 hover:-translate-y-0.5 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-stroke-strong-950">
             <ContactAvatar src={item.avatarUrl} fallback={initials(item.name)} className="size-6 bg-bg-weak-50 text-[10px] text-text-sub-600" />
           </button>
         ))}

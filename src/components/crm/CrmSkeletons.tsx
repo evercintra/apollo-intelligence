@@ -11,7 +11,7 @@ import { PageContainer } from "@/components/page/PageHeader";
 /** Skeleton rows for a CRM table inside an existing FramePanel. */
 export function RowsSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div aria-busy="true" aria-label="Loading" className="divide-y divide-stroke-soft-200">
+    <div aria-busy="true" aria-label="Carregando" className="divide-y divide-stroke-soft-200">
       {Array.from({ length: rows }, (_, r) => (
         <div key={r} className="flex items-center gap-4 px-4 py-3.5">
           <div className="flex w-[22%] min-w-40 items-center gap-3">
@@ -40,7 +40,7 @@ export function RowsSkeleton({ rows = 8 }: { rows?: number }) {
 export function ActionsPageSkeleton() {
   return (
     <PageContainer>
-      <div aria-busy="true" aria-label="Loading" className="space-y-6">
+      <div aria-busy="true" aria-label="Carregando" className="space-y-6">
         <PageHeaderSkeleton />
         <KpiStripSkeleton cells={4} />
         <TableSkeleton rows={8} columns={5} />
@@ -69,7 +69,7 @@ function CardSkeleton() {
 /** The pipeline board: three stage columns of cards. */
 export function BoardSkeleton({ cards = 4 }: { cards?: number }) {
   return (
-    <div aria-busy="true" aria-label="Loading" className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
+    <div aria-busy="true" aria-label="Carregando" className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
       {Array.from({ length: 3 }, (_, c) => (
         <div key={c} className={c > 0 ? "hidden rounded-2xl bg-bg-weak-50 p-1 ring-1 ring-inset ring-stroke-soft-200 lg:block" : "rounded-2xl bg-bg-weak-50 p-1 ring-1 ring-inset ring-stroke-soft-200"}>
           <div className="flex items-center justify-between px-3 pb-3 pt-3">
@@ -88,7 +88,7 @@ export function BoardSkeleton({ cards = 4 }: { cards?: number }) {
 export function PipelinePageSkeleton() {
   return (
     <PageContainer>
-      <div aria-busy="true" aria-label="Loading" className="space-y-6">
+      <div aria-busy="true" aria-label="Carregando" className="space-y-6">
         <PageHeaderSkeleton />
         <KpiStripSkeleton cells={3} />
         <BoardSkeleton />
@@ -100,7 +100,7 @@ export function PipelinePageSkeleton() {
 /** Record workspace: header, stat row, reply and conversation frames. */
 export function RecordBody() {
   return (
-    <div aria-busy="true" aria-label="Loading" className="space-y-6">
+    <div aria-busy="true" aria-label="Carregando" className="space-y-6">
       <div className="space-y-2">
         <Skeleton className="h-3 w-28" />
         <div className="flex items-start justify-between gap-4">
@@ -140,7 +140,7 @@ export function RecordPageSkeleton() {
 /** Sequence editor: header, stat row, details frame, timeline + steps. */
 export function EditorBody() {
   return (
-    <div aria-busy="true" aria-label="Loading" className="space-y-6">
+    <div aria-busy="true" aria-label="Carregando" className="space-y-6">
       <PageHeaderSkeleton back />
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-stroke-soft-200 ring-1 ring-inset ring-stroke-soft-200 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (

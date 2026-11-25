@@ -88,22 +88,22 @@ function EmailRow({ row, stackCount, selected, onSelect }: { row: InboxMessageRo
       timeTitle={fullTime(sentAt)}
       headline={
         <>
-          {outbound && row.sentAt && <span className="text-text-soft-400">You: </span>}
-          {row.subject?.trim() || "(no subject)"}
+          {outbound && row.sentAt && <span className="text-text-soft-400">Você: </span>}
+          {row.subject?.trim() || "(sem assunto)"}
         </>
       }
       snippet={previewOf(row)}
-      hint={row.leadMailbox ? `Mailbox: ${row.leadMailbox}` : undefined}
+      hint={row.leadMailbox ? `Caixa: ${row.leadMailbox}` : undefined}
       meta={
         category || hasDraft || row.important || stackCount > 1 ? (
           <>
             {hasDraft && <DraftChip />}
             {category}
             <span className="flex-1" />
-            {row.important && <RiStarFill className="size-3.5 shrink-0 text-warning-base" aria-label="Important" />}
+            {row.important && <RiStarFill className="size-3.5 shrink-0 text-warning-base" aria-label="Importante" />}
             {stackCount > 1 && (
-              <span className="shrink-0 text-paragraph-xs tabular-nums text-text-soft-400" title={`${stackCount} messages from this lead in a row`}>
-                {stackCount} messages
+              <span className="shrink-0 text-paragraph-xs tabular-nums text-text-soft-400" title={`${stackCount} mensagens deste lead em sequência`}>
+                {stackCount} mensagens
               </span>
             )}
           </>

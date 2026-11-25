@@ -67,7 +67,7 @@ export default function AddColumnMenu({
               key={m.type}
               type="button"
               disabled={!m.available}
-              title={m.available ? undefined : "Coming soon — see docs/design/enrichment-plan.md"}
+              title={m.available ? undefined : "Em breve — consulte docs/design/enrichment-plan.md"}
               onClick={() => {
                 if (!m.available) return;
                 onPick(m.type);

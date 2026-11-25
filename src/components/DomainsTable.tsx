@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type { DomainsRow } from "@/lib/queries";
 import ExportModal from "./ExportModal";
 import { useNavigation } from "./NavigationProvider";
+import { translateCategory } from "@/lib/prospectingLabels";
 
 type Props = {
   data: DomainsRow[];
@@ -18,10 +19,10 @@ function fmt(val: string | null): string {
   if (!val) return "—";
   const n = parseFloat(val);
   if (isNaN(n)) return "—";
-  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n.toFixed(0)}`;
+  if (n >= 1_000_000_000) return `US$ ${(n / 1_000_000_000).toFixed(1)} bi`;
+  if (n >= 1_000_000) return `US$ ${(n / 1_000_000).toFixed(1)} mi`;
+  if (n >= 1_000) return `US$ ${(n / 1_000).toFixed(0)} mil`;
+  return `US$ ${n.toFixed(0)}`;
 }
 
 
@@ -52,18 +53,25 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
       {/* Count bar + Export */}
       <div className="flex items-center justify-between shrink-0">
         <p className="text-sm text-text-strong-950">
-          Showing{" "}
-          <span className="font-semibold text-text-strong-950">{start.toLocaleString()}–{end.toLocaleString()}</span>{" "}
-          of <span className="font-semibold text-text-strong-950">{total.toLocaleString()}</span> companies
+          {total === 0 ? (
+            "Nenhum resultado encontrado."
+          ) : (
+            <>
+              Exibindo{" "}
+              <span className="font-semibold text-text-strong-950">{start.toLocaleString("pt-BR")}–{end.toLocaleString("pt-BR")}</span>{" "}
+              de <span className="font-semibold text-text-strong-950">{total.toLocaleString("pt-BR")}</span>{" "}
+              {total === 1 ? "resultado" : "resultados"}
+            </>
+          )}
         </p>
         <button
           onClick={() => setShowExport(true)}
-          className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors shadow-sm"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-action-text bg-action-bg hover:bg-action-bg-hover rounded-lg transition-colors shadow-sm"
         >
-          <svg className="w-4 h-4 text-indigo-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-action-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          Export CSV
+          Exportar CSV
         </button>
       </div>
 
@@ -75,13 +83,13 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
       <div className="flex-1 overflow-auto rounded-xl border border-stroke-soft-200 shadow-sm min-h-0">
         <table className="min-w-full text-sm border-collapse">
           <thead className="sticky top-0 z-10">
-            <tr className="bg-slate-900 text-slate-300">
+            <tr className="bg-chrome-raised text-chrome-text">
               <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap w-8">#</th>
-              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Company</th>
-              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Domain</th>
-              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Category</th>
-              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Country</th>
-              <th className="text-right px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Annual Revenue</th>
+              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Empresa</th>
+              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Domínio</th>
+              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Categoria</th>
+              <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">País</th>
+              <th className="text-right px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Faturamento anual (US$)</th>
               <th className="text-left px-4 py-3 font-medium text-xs tracking-wide whitespace-nowrap">Status</th>
             </tr>
           </thead>
@@ -89,14 +97,14 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
             {data.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-20 text-center text-text-strong-950/50">
-                  No results — try adjusting your filters.
+                  Nenhum resultado encontrado. Ajuste os filtros para ampliar a busca.
                 </td>
               </tr>
             ) : (
               data.map((row, i) => (
                 <tr
                   key={row.domain}
-                  className="border-t border-stroke-soft-200 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/10 transition-colors"
+                  className="border-t border-stroke-soft-200 hover:bg-complement-surface dark:hover:bg-complement-deep/10 transition-colors"
                 >
                   {/* # */}
                   <td className="px-4 py-3.5 text-text-strong-950/50 text-xs tabular-nums">{start + i}</td>
@@ -115,7 +123,7 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
                         href={row.domainUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline truncate block text-xs max-w-48"
+                        className="text-complement-deep dark:text-complement-medium hover:text-complement-ring dark:hover:text-chrome-text hover:underline truncate block text-xs max-w-48"
                         title={row.domain}
                       >
                         {row.domain}
@@ -129,11 +137,11 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
                   <td className="px-4 py-3.5">
                     {row.c1 ? (
                       <span
-                        className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs px-2.5 py-1 rounded-full ring-1 ring-indigo-100 dark:ring-indigo-500/20 truncate max-w-48"
-                        title={[row.c1, row.c2, row.c3].filter(Boolean).join(" › ")}
+                        className="inline-flex items-center gap-1 bg-complement-surface dark:bg-complement-deep/10 text-complement-deep dark:text-complement-medium text-xs px-2.5 py-1 rounded-full ring-1 ring-complement-light dark:ring-complement-medium/20 truncate max-w-48"
+                        title={[row.c1, row.c2, row.c3].filter(Boolean).map((value) => translateCategory(value ?? "")).join(" › ")}
                       >
-                        {row.c1}
-                        {row.c2 && <><span className="text-indigo-300">›</span>{row.c2}</>}
+                        {translateCategory(row.c1)}
+                        {row.c2 && <><span className="text-complement-medium">›</span>{translateCategory(row.c2)}</>}
                       </span>
                     ) : <span className="text-text-strong-950/30">—</span>}
                   </td>
@@ -147,7 +155,7 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
 
                   {/* Annual Revenue */}
                   <td className="px-4 py-3.5 text-right">
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums text-sm">{fmt(row.annualSales)}</span>
+                    <span className="font-bold text-success-dark dark:text-success-base tabular-nums text-sm">{fmt(row.annualSales)}</span>
                   </td>
 
                   {/* Status */}
@@ -155,10 +163,10 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
                     {row.status ? (
                       <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                         row.status === "Active"
-                          ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/30"
+                          ? "bg-success-lighter dark:bg-success-base/10 text-success-dark dark:text-success-base ring-1 ring-success-light dark:ring-success-base/30"
                           : "bg-bg-weak-50 text-text-strong-950/60 ring-1 ring-stroke-soft-200"
                       }`}>
-                        {row.status}
+                        {row.status === "Active" ? "Ativo" : row.status}
                       </span>
                     ) : <span className="text-text-strong-950/30">—</span>}
                   </td>
@@ -178,7 +186,7 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-text-strong-950/70 border border-stroke-soft-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-bg-weak-50 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            Prev
+            Página anterior
           </button>
 
           <div className="flex items-center gap-1">
@@ -202,7 +210,7 @@ export default function DomainsTable({ data, total, page, pageSize, totalPages }
             disabled={page >= totalPages}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-text-strong-950/70 border border-stroke-soft-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-bg-weak-50 transition-colors"
           >
-            Next
+            Próxima página
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </button>
         </div>
@@ -217,7 +225,7 @@ function PageBtn({ p, current, onClick }: { p: number; current: number; onClick:
       onClick={() => onClick(p)}
       className={`w-8 h-8 text-sm rounded-lg transition-colors ${
         p === current
-          ? "bg-indigo-600 text-white font-semibold shadow-sm"
+          ? "bg-action-bg text-action-text font-semibold shadow-sm"
           : "text-text-strong-950/70 hover:bg-bg-weak-50 border border-stroke-soft-200"
       }`}
     >

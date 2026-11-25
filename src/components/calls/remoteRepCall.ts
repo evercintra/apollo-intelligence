@@ -3,9 +3,9 @@
 /**
  * The rep's side of a call they talk on through a cloud calling station
  * (contract.ts, "a rep talking through a calling station"): their microphone
- * up to AgentSDR's audio relay, the lead's voice down from it, mute and
+ * up to Apollo Intelligence's audio relay, the lead's voice down from it, mute and
  * hang-up. No WebRTC to the station: a GoLogin station's browser rewrites and
- * strips it, and both sides reach AgentSDR anyway.
+ * strips it, and both sides reach Apollo Intelligence anyway.
  *
  * One call at a time, held at module level rather than in a component, so it
  * survives the drawer that started it closing and client-side navigation;

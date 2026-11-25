@@ -30,7 +30,7 @@ export function DatabasePageHeader({ kind, title, description, count, actions }:
         <p className="mt-1 max-w-2xl text-paragraph-sm text-text-sub-600">{description}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex h-9 items-center rounded-lg bg-bg-white-0 px-3 text-label-sm text-text-sub-600 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200"><strong className="mr-1 text-text-strong-950">{count.toLocaleString()}</strong> {kind}</span>
+        <span className="inline-flex h-9 items-center rounded-lg bg-bg-white-0 px-3 text-label-sm text-text-sub-600 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200"><strong className="mr-1 text-text-strong-950">{count.toLocaleString()}</strong> {kind === "people" ? "pessoas" : "empresas"}</span>
         {actions}
       </div>
     </div>
@@ -50,11 +50,11 @@ export function EmptyState({ title, detail }: { title: string; detail?: string }
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  return <div role="alert" className="rounded-xl bg-error-lighter px-4 py-3 text-paragraph-sm text-error-dark ring-1 ring-inset ring-error-light"><p>{message}</p>{onRetry && <button type="button" className="mt-2 text-label-sm underline underline-offset-2" onClick={onRetry}>Try again</button>}</div>;
+  return <div role="alert" className="rounded-xl bg-error-lighter px-4 py-3 text-paragraph-sm text-error-dark ring-1 ring-inset ring-error-light"><p>{message}</p>{onRetry && <button type="button" className="mt-2 text-label-sm underline underline-offset-2" onClick={onRetry}>Tentar novamente</button>}</div>;
 }
 
 export function LoadingRows({ count = 4 }: { count?: number }) {
-  return <div className="space-y-2 p-4" role="status" aria-label="Loading">{Array.from({ length: count }, (_, index) => <div key={index} className="h-12 animate-pulse rounded-lg bg-bg-weak-50" />)}<span className="sr-only">Loading content</span></div>;
+  return <div className="space-y-2 p-4" role="status" aria-label="Carregando">{Array.from({ length: count }, (_, index) => <div key={index} className="h-12 animate-pulse rounded-lg bg-bg-weak-50" />)}<span className="sr-only">Carregando conteúdo</span></div>;
 }
 
 export function Badge({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "success" | "info" | "danger" | "warning" }) {
@@ -69,7 +69,7 @@ export function Select({ label, value, onChange, children, className, ariaLabel 
 /** An option of `Select` above. */
 export const SelectOption = AlignSelect.Item;
 
-export function BackLink({ href, children = "Back" }: { href: string; children?: React.ReactNode }) {
+export function BackLink({ href, children = "Voltar" }: { href: string; children?: React.ReactNode }) {
   return <Link href={href} className="mb-4 inline-flex items-center gap-1.5 text-label-sm text-text-sub-600 transition hover:text-text-strong-950"><RiArrowLeftLine className="size-4" aria-hidden="true" />{children}</Link>;
 }
 

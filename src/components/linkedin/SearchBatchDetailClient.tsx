@@ -51,12 +51,12 @@ export type SearchAccount = SearchPickerAccount & { profilePictureUrl: string | 
 type BadgeColor = "gray" | "blue" | "orange" | "red" | "green" | "yellow" | "purple" | "sky" | "pink" | "teal";
 
 const STATUS_META: Record<SearchQueryStatus, { label: string; color: BadgeColor }> = {
-  QUEUED: { label: "Queued", color: "gray" },
-  RUNNING: { label: "Running", color: "blue" },
-  PAUSED_LIMIT: { label: "Paused — quota", color: "orange" },
-  COMPLETED: { label: "Completed", color: "green" },
-  FAILED: { label: "Failed", color: "red" },
-  CANCELLED: { label: "Cancelled", color: "gray" },
+  QUEUED: { label: "Na fila", color: "gray" },
+  RUNNING: { label: "Em execução", color: "blue" },
+  PAUSED_LIMIT: { label: "Pausada — cota", color: "orange" },
+  COMPLETED: { label: "Concluída", color: "green" },
+  FAILED: { label: "Falhou", color: "red" },
+  CANCELLED: { label: "Cancelada", color: "gray" },
 };
 
 /** The search's overall state, as on the list page. */
@@ -70,22 +70,22 @@ function rollupStatus(counts: Partial<Record<SearchQueryStatus, number>>): { lab
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+  return new Date(iso).toLocaleString("pt-BR", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
 
 function networkLabel(d?: string | null) {
   if (!d) return "—";
   const n = d.replace("DISTANCE_", "");
-  if (n === "1") return "1st";
-  if (n === "2") return "2nd";
-  if (n === "3") return "3rd";
+  if (n === "1") return "1º";
+  if (n === "2") return "2º";
+  if (n === "3") return "3º";
   return n;
 }
 
 /** networkLabel for the table; the export keeps LinkedIn's raw value. */
 function networkDisplay(d?: string | null) {
   const label = networkLabel(d);
-  return label === "OUT_OF_NETWORK" ? "Out of network" : label;
+  return label === "OUT_OF_NETWORK" ? "Fora da rede" : label;
 }
 
 function initials(name: string | null): string {
@@ -143,8 +143,8 @@ function CopyUrlButton({ url }: { url: string }) {
     <button
       type="button"
       onClick={copy}
-      title={copied ? "Copied" : "Copy URL"}
-      aria-label={copied ? "Copied" : "Copy URL"}
+      title={copied ? "Copiado" : "Copiar URL"}
+      aria-label={copied ? "Copiado" : "Copiar URL"}
       className="shrink-0 rounded p-0.5 text-text-soft-400 outline-none transition-colors hover:bg-bg-weak-50 hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base"
     >
       {copied ? <RiCheckLine className="size-3.5 text-success-base" /> : <RiFileCopyLine className="size-3.5" />}
@@ -176,14 +176,14 @@ function FilterMenu({ label, value, children }: { label: string; value: string; 
 /** "3 selected" + the bulk actions, across the top of a table panel. */
 function SelectionBar({ count, note, onClear, children }: { count: number; note?: string; onClear: () => void; children: React.ReactNode }) {
   return (
-    <div role="region" aria-label="Selected rows" className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-bg-weak-50 px-3 py-2 ring-1 ring-inset ring-stroke-soft-200">
+    <div role="region" aria-label="Linhas selecionadas" className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-bg-weak-50 px-3 py-2 ring-1 ring-inset ring-stroke-soft-200">
       <span className="mr-1 text-label-sm tabular-nums text-text-strong-950">
-        {count.toLocaleString("en-US")} selected
+        {count.toLocaleString("pt-BR")} selecionado{count === 1 ? "" : "s"}
         {note && <span className="ml-1 text-paragraph-xs text-text-sub-600">{note}</span>}
       </span>
       {children}
       <AlignButton.Root variant="neutral" mode="ghost" size="xxsmall" onClick={onClear} className="ml-auto">
-        Clear
+        Limpar
       </AlignButton.Root>
     </div>
   );
@@ -204,16 +204,16 @@ const num = "text-paragraph-sm tabular-nums text-text-strong-950";
 const LEADS_PAGE_SIZE = 50;
 
 const URL_SORTS = [
-  { id: "added", label: "Date added" },
-  { id: "leads-desc", label: "Most leads" },
-  { id: "leads-asc", label: "Fewest leads" },
-  { id: "company", label: "Company A–Z" },
+  { id: "added", label: "Data de adição" },
+  { id: "leads-desc", label: "Mais leads" },
+  { id: "leads-asc", label: "Menos leads" },
+  { id: "company", label: "Empresa A–Z" },
 ] as const;
 
 type UrlSort = (typeof URL_SORTS)[number]["id"];
 
 const TABS = [
-  { id: "urls", label: "Search URLs" },
+  { id: "urls", label: "URLs de busca" },
   { id: "leads", label: "Leads" },
 ] as const;
 
@@ -328,11 +328,11 @@ export function SearchBatchDetailClient({
       });
       const data = await res.json();
       if (!data.ok) {
-        setRunNotice(typeof data.error === "string" ? data.error : "Failed to start run");
+        setRunNotice(typeof data.error === "string" ? data.error : "Não foi possível iniciar a execução");
         return;
       }
       if (data.started === false) {
-        setRunNotice("Another search is already running — press Run again once it finishes.");
+        setRunNotice("Outra busca já está em execução — pressione Executar novamente quando ela terminar.");
       }
       setSelectedQueryIds(new Set());
       await refresh();
@@ -355,7 +355,7 @@ export function SearchBatchDetailClient({
       .filter(Boolean)
       .map((url) => ({ url, companyName: addCompany.trim() || undefined }));
     if (urls.length === 0) {
-      setAddError("Add at least one URL");
+      setAddError("Adicione pelo menos uma URL");
       return;
     }
     setAdding(true);
@@ -368,7 +368,7 @@ export function SearchBatchDetailClient({
       });
       const data = await res.json();
       if (!data.ok) {
-        setAddError(typeof data.error === "string" ? data.error : "Failed to add URLs");
+        setAddError(typeof data.error === "string" ? data.error : "Não foi possível adicionar as URLs");
         return;
       }
       setAddOpen(false);
@@ -376,7 +376,7 @@ export function SearchBatchDetailClient({
       setAddCompany("");
       await refresh();
     } catch {
-      setAddError("Network error");
+      setAddError("Erro de rede");
     } finally {
       setAdding(false);
     }
@@ -385,9 +385,9 @@ export function SearchBatchDetailClient({
   /* -------------------------------------------------------------- Delete */
   const handleDeleteBatch = async () => {
     const ok = await dialogs.confirm({
-      title: "Delete this search?",
-      description: "Its URLs and any leads it found will be permanently deleted. This cannot be undone.",
-      confirmLabel: "Delete search",
+      title: "Excluir esta busca?",
+      description: "As URLs e os leads encontrados serão excluídos permanentemente. Esta ação não pode ser desfeita.",
+      confirmLabel: "Excluir busca",
       variant: "error",
     });
     if (!ok) return;
@@ -397,8 +397,8 @@ export function SearchBatchDetailClient({
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
         await dialogs.alert({
-          title: "Could not delete search",
-          description: typeof data.error === "string" ? data.error : "Something went wrong. Please try again.",
+          title: "Não foi possível excluir a busca",
+          description: typeof data.error === "string" ? data.error : "Algo deu errado. Tente novamente.",
           variant: "error",
         });
         return;
@@ -566,10 +566,10 @@ export function SearchBatchDetailClient({
     const ids = [...selectedVisibleQueryIds];
     if (ids.length === 0) return;
     const ok = await dialogs.confirm({
-      title: `Delete ${ids.length} search URL${ids.length === 1 ? "" : "s"}?`,
+      title: `Excluir ${ids.length} ${ids.length === 1 ? "URL de busca" : "URLs de busca"}?`,
       description:
-        "The leads found by these URLs are deleted too. A URL that is still running is cancelled instead of deleted. This cannot be undone.",
-      confirmLabel: "Delete",
+        "Os leads encontrados por estas URLs também serão excluídos. Uma URL ainda em execução será cancelada em vez de excluída. Esta ação não pode ser desfeita.",
+      confirmLabel: "Excluir",
       variant: "error",
     });
     if (!ok) return;
@@ -584,15 +584,15 @@ export function SearchBatchDetailClient({
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
         await dialogs.alert({
-          title: "Could not delete search URLs",
-          description: typeof data.error === "string" ? data.error : "Something went wrong. Please try again.",
+          title: "Não foi possível excluir as URLs de busca",
+          description: typeof data.error === "string" ? data.error : "Algo deu errado. Tente novamente.",
           variant: "error",
         });
         return;
       }
       setSelectedQueryIds(new Set());
       if (typeof data.cancelled === "number" && data.cancelled > 0) {
-        setQueryDeleteNotice(`${data.cancelled} URL${data.cancelled === 1 ? " was" : "s were"} cancelled because ${data.cancelled === 1 ? "it was" : "they were"} still running.`);
+        setQueryDeleteNotice(`${data.cancelled} ${data.cancelled === 1 ? "URL foi cancelada porque ainda estava" : "URLs foram canceladas porque ainda estavam"} em execução.`);
       }
       await refresh();
     } finally {
@@ -612,10 +612,10 @@ export function SearchBatchDetailClient({
     const ids = [...selectedVisibleQueryIds];
     if (ids.length === 0) return;
     const ok = await dialogs.confirm({
-      title: `Re-run ${ids.length} search URL${ids.length === 1 ? "" : "s"}?`,
+      title: `Executar novamente ${ids.length} ${ids.length === 1 ? "URL de busca" : "URLs de busca"}?`,
       description:
-        "The leads already found by these URLs are deleted first, then they are searched again from scratch. A URL that is still running is left alone.",
-      confirmLabel: "Delete leads and re-run",
+        "Os leads já encontrados por estas URLs são excluídos primeiro e as buscas são refeitas do zero. Uma URL ainda em execução permanece como está.",
+      confirmLabel: "Excluir leads e executar novamente",
       variant: "error",
     });
     if (!ok) return;
@@ -631,8 +631,8 @@ export function SearchBatchDetailClient({
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
         await dialogs.alert({
-          title: "Could not re-run these URLs",
-          description: typeof data.error === "string" ? data.error : "Something went wrong. Please try again.",
+          title: "Não foi possível executar estas URLs novamente",
+          description: typeof data.error === "string" ? data.error : "Algo deu errado. Tente novamente.",
           variant: "error",
         });
         return;
@@ -641,14 +641,14 @@ export function SearchBatchDetailClient({
       const notes: string[] = [];
       if (data.reset > 0) {
         notes.push(
-          `${data.reset} URL${data.reset === 1 ? "" : "s"} queued again (${data.leadsDeleted.toLocaleString()} lead${data.leadsDeleted === 1 ? "" : "s"} cleared).`
+          `${data.reset} ${data.reset === 1 ? "URL voltou" : "URLs voltaram"} para a fila (${data.leadsDeleted.toLocaleString("pt-BR")} ${data.leadsDeleted === 1 ? "lead removido" : "leads removidos"}).`
         );
       }
       if (data.skipped > 0) {
-        notes.push(`${data.skipped} left alone because ${data.skipped === 1 ? "it is" : "they are"} still running.`);
+        notes.push(`${data.skipped} ${data.skipped === 1 ? "foi mantida porque ainda está" : "foram mantidas porque ainda estão"} em execução.`);
       }
       if (data.started === false && data.reason === "already_running") {
-        notes.push("Another search is running — press Run once it finishes.");
+        notes.push("Outra busca está em execução — pressione Executar quando ela terminar.");
       }
       setQueryDeleteNotice(notes.join(" ") || null);
       await refresh();
@@ -752,9 +752,9 @@ export function SearchBatchDetailClient({
     const linkedinUrls = [...selectedVisibleLeadUrls];
     if (linkedinUrls.length === 0) return;
     const ok = await dialogs.confirm({
-      title: `Delete ${linkedinUrls.length} lead${linkedinUrls.length === 1 ? "" : "s"}?`,
-      description: "These leads are removed from this search. Running the search again can find them again.",
-      confirmLabel: "Delete",
+      title: `Excluir ${linkedinUrls.length} ${linkedinUrls.length === 1 ? "lead" : "leads"}?`,
+      description: "Estes leads serão removidos desta busca. Ao executá-la novamente, eles podem ser encontrados de novo.",
+      confirmLabel: "Excluir",
       variant: "error",
     });
     if (!ok) return;
@@ -768,8 +768,8 @@ export function SearchBatchDetailClient({
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) {
         await dialogs.alert({
-          title: "Could not delete leads",
-          description: typeof data.error === "string" ? data.error : "Something went wrong. Please try again.",
+          title: "Não foi possível excluir os leads",
+          description: typeof data.error === "string" ? data.error : "Algo deu errado. Tente novamente.",
           variant: "error",
         });
         return;
@@ -800,7 +800,7 @@ export function SearchBatchDetailClient({
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        back={{ href: "/linkedin/search", label: "Searches" }}
+        back={{ href: "/linkedin/search", label: "Buscas" }}
         title={detail.batch.name}
         badge={
           status && (
@@ -812,7 +812,7 @@ export function SearchBatchDetailClient({
         }
         description={
           <span suppressHydrationWarning>
-            {detail.batch.kind === "SINGLE" ? "Single search URL" : "CSV of search URLs"} · Created {formatDate(detail.batch.createdAt)}
+            {detail.batch.kind === "SINGLE" ? "URL de busca única" : "Planilha de URLs de busca"} · Criada em {formatDate(detail.batch.createdAt)}
           </span>
         }
         actions={
@@ -823,14 +823,14 @@ export function SearchBatchDetailClient({
               size="small"
               onClick={openRunDialog}
               disabled={running || runDisabled}
-              title={selectedVisibleQueryIds.size > 0 ? "Run the selected URLs" : "Run every queued URL in this search"}
+              title={selectedVisibleQueryIds.size > 0 ? "Executar as URLs selecionadas" : "Executar todas as URLs na fila desta busca"}
             >
               <AlignButton.Icon as={running ? RiLoader4Line : RiPlayLine} className={cn(running && "animate-spin")} />
-              {selectedVisibleQueryIds.size > 0 ? `Run selected (${runnableSelectedCount})` : "Run"}
+              {selectedVisibleQueryIds.size > 0 ? `Executar selecionadas (${runnableSelectedCount})` : "Executar"}
             </AlignButton.Root>
             <AlignButton.Root variant="neutral" mode="stroke" size="small" onClick={() => setAddOpen(true)}>
               <AlignButton.Icon as={RiAddLine} />
-              Add URLs
+              Adicionar URLs
             </AlignButton.Root>
             <AlignButton.Root
               variant="neutral"
@@ -838,21 +838,21 @@ export function SearchBatchDetailClient({
               size="small"
               onClick={handleExport}
               disabled={exporting || detail.leads.length === 0}
-              title="Download every lead in this search"
+              title="Baixar todos os leads desta busca"
             >
               <AlignButton.Icon as={exporting ? RiLoader4Line : RiDownloadLine} className={cn(exporting && "animate-spin")} />
-              Export leads
+              Exportar leads
             </AlignButton.Root>
             <Dropdown.Root>
               <Dropdown.Trigger asChild>
-                <AlignButton.Root variant="neutral" mode="stroke" size="small" disabled={deleting} aria-label="More actions for this search">
+                <AlignButton.Root variant="neutral" mode="stroke" size="small" disabled={deleting} aria-label="Mais ações para esta busca">
                   <AlignButton.Icon as={deleting ? RiLoader4Line : RiMoreLine} className={cn(deleting && "animate-spin")} />
                 </AlignButton.Root>
               </Dropdown.Trigger>
               <Dropdown.Content align="end">
                 <Dropdown.Item destructive onSelect={handleDeleteBatch} disabled={deleting}>
                   <Dropdown.ItemIcon as={RiDeleteBinLine} />
-                  Delete search
+                  Excluir busca
                 </Dropdown.Item>
               </Dropdown.Content>
             </Dropdown.Root>
@@ -862,7 +862,7 @@ export function SearchBatchDetailClient({
 
       {(waitingOnAnotherJob || runNotice) && (
         <div className="mt-3 space-y-1">
-          {waitingOnAnotherJob && <Notice>Another search is running — this one starts when you press Run after it finishes.</Notice>}
+          {waitingOnAnotherJob && <Notice>Outra busca está em execução — esta começará quando você pressionar Executar após o término.</Notice>}
           {runNotice && <Notice>{runNotice}</Notice>}
         </div>
       )}
@@ -870,21 +870,21 @@ export function SearchBatchDetailClient({
       <StatRow
         className="mt-6"
         items={[
-          { label: "Search URLs", value: detail.queries.length.toLocaleString("en-US"), icon: RiLinkM },
+          { label: "URLs de busca", value: detail.queries.length.toLocaleString("pt-BR"), icon: RiLinkM },
           {
-            label: "Searched",
-            value: detail.queries.length === 0 ? "—" : `${doneCount.toLocaleString("en-US")} of ${detail.queries.length.toLocaleString("en-US")}`,
+            label: "Pesquisadas",
+            value: detail.queries.length === 0 ? "—" : `${doneCount.toLocaleString("pt-BR")} de ${detail.queries.length.toLocaleString("pt-BR")}`,
             icon: RiCheckboxCircleLine,
-            hint: (counts.FAILED ?? 0) > 0 ? `${counts.FAILED} failed` : undefined,
+            hint: (counts.FAILED ?? 0) > 0 ? `${counts.FAILED} com falha` : undefined,
           },
-          { label: "Leads found", value: detail.leads.length.toLocaleString("en-US"), icon: RiUserSearchLine, hint: `${leadsFound.toLocaleString("en-US")} results before de-duplication` },
-          { label: "Accounts used", value: usedAccounts.length.toLocaleString("en-US"), icon: RiGroupLine },
+          { label: "Leads encontrados", value: detail.leads.length.toLocaleString("pt-BR"), icon: RiUserSearchLine, hint: `${leadsFound.toLocaleString("pt-BR")} resultados antes da deduplicação` },
+          { label: "Contas usadas", value: usedAccounts.length.toLocaleString("pt-BR"), icon: RiGroupLine },
         ]}
       />
 
       <PageTabs
         className="mt-6"
-        label="Search sections"
+        label="Seções da busca"
         tabs={TABS.map((t) => ({ value: t.id, label: t.label, icon: t.id === "urls" ? RiLinkM : RiUserLine, count: t.id === "urls" ? detail.queries.length : detail.leads.length }))}
         value={tab}
         onChange={setTab}
@@ -893,33 +893,33 @@ export function SearchBatchDetailClient({
       {tab === "urls" && (
         <Frame className="mt-5">
           <FrameHeader
-            title="Search URLs"
+            title="URLs de busca"
             description={
               urlFiltersActive
-                ? `${visibleQueries.length.toLocaleString("en-US")} of ${detail.queries.length.toLocaleString("en-US")} URLs match`
-                : "Each URL is searched by one account; tick rows to run, re-run, export or delete them."
+                ? `${visibleQueries.length.toLocaleString("pt-BR")} de ${detail.queries.length.toLocaleString("pt-BR")} URLs correspondem aos filtros`
+                : "Cada URL é pesquisada por uma conta; marque as linhas para executar, executar novamente, exportar ou excluir."
             }
             actions={detail.queries.length > 0 && (
               <>
                 <Input.Root size="xsmall" className="w-full sm:w-64">
                   <Input.Wrapper>
                     <Input.Icon as={RiSearchLine} />
-                    <Input.Input type="search" aria-label="Search company or URL" placeholder="Search company or URL…" value={urlSearch} onChange={(e) => setUrlSearch(e.target.value)} />
+                    <Input.Input type="search" aria-label="Buscar empresa ou URL" placeholder="Buscar empresa ou URL…" value={urlSearch} onChange={(e) => setUrlSearch(e.target.value)} />
                   </Input.Wrapper>
                 </Input.Root>
                 <FilterMenu
-                  label="Account"
-                  value={urlAccountId === "all" ? "All" : `@${usedAccounts.find((a) => a.id === urlAccountId)?.username ?? "unknown"}`}
+                  label="Conta"
+                  value={urlAccountId === "all" ? "Todas" : `@${usedAccounts.find((a) => a.id === urlAccountId)?.username ?? "desconhecida"}`}
                 >
-                  <Dropdown.Item onSelect={() => setUrlAccountId("all")}>All accounts</Dropdown.Item>
+                  <Dropdown.Item onSelect={() => setUrlAccountId("all")}>Todas as contas</Dropdown.Item>
                   {usedAccounts.map((a) => (
                     <Dropdown.Item key={a.id} onSelect={() => setUrlAccountId(a.id)}>
                       <LinkedInAccountTag account={{ username: a.username, name: a.name, profilePictureUrl: accountById.get(a.id)?.profilePictureUrl ?? null }} />
                     </Dropdown.Item>
                   ))}
                 </FilterMenu>
-                <FilterMenu label="Status" value={urlStatus === "all" ? "All" : STATUS_META[urlStatus].label}>
-                  <Dropdown.Item onSelect={() => setUrlStatus("all")}>All statuses</Dropdown.Item>
+                <FilterMenu label="Status" value={urlStatus === "all" ? "Todos" : STATUS_META[urlStatus].label}>
+                  <Dropdown.Item onSelect={() => setUrlStatus("all")}>Todos os statuses</Dropdown.Item>
                   {usedStatuses.map((st) => (
                     <Dropdown.Item key={st} onSelect={() => setUrlStatus(st)}>
                       {STATUS_META[st].label}
@@ -927,7 +927,7 @@ export function SearchBatchDetailClient({
                     </Dropdown.Item>
                   ))}
                 </FilterMenu>
-                <FilterMenu label="Sort" value={URL_SORTS.find((o) => o.id === urlSort)?.label ?? "Date added"}>
+                <FilterMenu label="Ordenar" value={URL_SORTS.find((o) => o.id === urlSort)?.label ?? "Data de adição"}>
                   {URL_SORTS.map((o) => (
                     <Dropdown.Item key={o.id} onSelect={() => setUrlSort(o.id)}>
                       {o.label}
@@ -945,7 +945,7 @@ export function SearchBatchDetailClient({
                       setUrlStatus("all");
                     }}
                   >
-                    Clear filters
+                    Limpar filtros
                   </AlignButton.Root>
                 )}
               </>
@@ -961,15 +961,15 @@ export function SearchBatchDetailClient({
               <SelectionBar count={selectedVisibleQueryIds.size} onClear={clearQuerySelection}>
                 <AlignButton.Root variant="neutral" mode="stroke" size="xxsmall" onClick={handleExportSelectedQueries} disabled={bulkExportingQueries}>
                   <AlignButton.Icon as={bulkExportingQueries ? RiLoader4Line : RiDownloadLine} className={cn(bulkExportingQueries && "animate-spin")} />
-                  Export
+                  Exportar
                 </AlignButton.Root>
-                <AlignButton.Root variant="neutral" mode="stroke" size="xxsmall" onClick={handleRerunSelectedQueries} disabled={rerunningQueries} title="Delete these URLs' leads and search them again">
+                <AlignButton.Root variant="neutral" mode="stroke" size="xxsmall" onClick={handleRerunSelectedQueries} disabled={rerunningQueries} title="Excluir os leads destas URLs e pesquisar novamente">
                   <AlignButton.Icon as={rerunningQueries ? RiLoader4Line : RiRefreshLine} className={cn(rerunningQueries && "animate-spin")} />
-                  Re-run
+                  Executar novamente
                 </AlignButton.Root>
                 <AlignButton.Root variant="error" mode="stroke" size="xxsmall" onClick={handleDeleteSelectedQueries} disabled={bulkDeletingQueries}>
                   <AlignButton.Icon as={bulkDeletingQueries ? RiLoader4Line : RiDeleteBinLine} className={cn(bulkDeletingQueries && "animate-spin")} />
-                  Delete
+                  Excluir
                 </AlignButton.Root>
               </SelectionBar>
             )}
@@ -977,20 +977,20 @@ export function SearchBatchDetailClient({
               detail.queries.length === 0 ? (
                 <EmptyState
                   icon={RiLinkM}
-                  title="No search URLs yet"
-                  description="Add LinkedIn search URLs to this search, then run it."
+                  title="Nenhuma URL de busca ainda"
+                  description="Adicione URLs de busca do LinkedIn a esta busca e execute-a."
                   action={
                     <AlignButton.Root variant="primary" mode="filled" size="small" onClick={() => setAddOpen(true)}>
                       <AlignButton.Icon as={RiAddLine} />
-                      Add URLs
-                    </AlignButton.Root>
+              Adicionar URLs
+            </AlignButton.Root>
                   }
                 />
               ) : (
                 <EmptyState
                   icon={RiSearchLine}
-                  title="No URLs match these filters"
-                  description="Try another account, status or search."
+                  title="Nenhuma URL corresponde a estes filtros"
+                  description="Tente outra conta, status ou busca."
                   action={
                     <AlignButton.Root
                       variant="neutral"
@@ -1002,7 +1002,7 @@ export function SearchBatchDetailClient({
                         setUrlStatus("all");
                       }}
                     >
-                      Clear filters
+                      Limpar filtros
                     </AlignButton.Root>
                   }
                 />
@@ -1018,14 +1018,14 @@ export function SearchBatchDetailClient({
                         checked={allVisibleQueriesSelected}
                         onChange={toggleAllVisibleQueries}
                         className={checkbox}
-                        aria-label="Select all visible search URLs"
+                        aria-label="Selecionar todas as URLs de busca visíveis"
                       />
                     </Table.Head>
-                    <Table.Head scope="col" className="px-4">Company and URL</Table.Head>
+                    <Table.Head scope="col" className="px-4">Empresa e URL</Table.Head>
                     <Table.Head scope="col" className="w-60 px-4">Status</Table.Head>
-                    <Table.Head scope="col" className="w-48 px-4">Account</Table.Head>
+                    <Table.Head scope="col" className="w-48 px-4">Conta</Table.Head>
                     <Table.Head scope="col" className="w-28 px-4 text-right">Leads</Table.Head>
-                    <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Cancel</span></Table.Head>
+                    <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Cancelar</span></Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body spacing={4}>
@@ -1036,11 +1036,11 @@ export function SearchBatchDetailClient({
                     return (
                       <Table.Row key={q.id} className={cn(selected && "[&>td]:bg-bg-weak-50")}>
                         <Table.Cell className="h-14 px-4">
-                          <input type="checkbox" checked={selected} onChange={() => toggleQuerySelection(q.id)} className={checkbox} aria-label={`Select ${q.companyName ?? q.url}`} />
+                          <input type="checkbox" checked={selected} onChange={() => toggleQuerySelection(q.id)} className={checkbox} aria-label={`Selecionar ${q.companyName ?? q.url}`} />
                         </Table.Cell>
                         <Table.Cell className="max-w-0 px-4">
                           <p className="truncate text-label-sm text-text-strong-950" title={q.companyName ?? undefined}>
-                            {q.companyName ?? <span className="text-text-soft-400">No company</span>}
+                            {q.companyName ?? <span className="text-text-soft-400">Sem empresa</span>}
                           </p>
                           <div className="mt-0.5 flex min-w-0 items-center gap-1">
                             <a href={q.url} target="_blank" rel="noreferrer" title={q.url} className="min-w-0 truncate font-mono text-paragraph-xs text-text-sub-600 hover:text-primary-base hover:underline">
@@ -1075,8 +1075,8 @@ export function SearchBatchDetailClient({
                           )}
                         </Table.Cell>
                         <Table.Cell className={cn("px-4 text-right", num)}>
-                          {q.leadsFetched.toLocaleString("en-US")}
-                          {q.totalCount ? <span className="text-text-soft-400"> / {q.totalCount.toLocaleString("en-US")}</span> : null}
+                          {q.leadsFetched.toLocaleString("pt-BR")}
+                          {q.totalCount ? <span className="text-text-soft-400"> / {q.totalCount.toLocaleString("pt-BR")}</span> : null}
                         </Table.Cell>
                         <Table.Cell className="px-4">
                           {cancellable && (
@@ -1087,8 +1087,8 @@ export function SearchBatchDetailClient({
                                 size="xxsmall"
                                 onClick={() => handleCancelQuery(q.id)}
                                 disabled={cancellingId === q.id}
-                                title="Cancel this URL"
-                                aria-label={`Cancel ${q.companyName ?? "this URL"}`}
+                                title="Cancelar esta URL"
+                                aria-label={`Cancelar ${q.companyName ?? "esta URL"}`}
                               >
                                 <AlignButton.Icon as={cancellingId === q.id ? RiLoader4Line : RiCloseLine} className={cn(cancellingId === q.id && "animate-spin")} />
                               </AlignButton.Root>
@@ -1111,8 +1111,8 @@ export function SearchBatchDetailClient({
             title="Leads"
             description={
               leadSearch.trim()
-                ? `${visibleLeads.length.toLocaleString("en-US")} of ${detail.leads.length.toLocaleString("en-US")} leads match`
-                : "Everyone these URLs found, de-duplicated. Tick rows to export or delete them."
+                ? `${visibleLeads.length.toLocaleString("pt-BR")} de ${detail.leads.length.toLocaleString("pt-BR")} leads correspondem à busca`
+                : "Todos os leads encontrados por estas URLs, sem duplicatas. Marque as linhas para exportar ou excluir."
             }
             actions={
               detail.leads.length > 0 && (
@@ -1121,8 +1121,8 @@ export function SearchBatchDetailClient({
                     <Input.Icon as={RiSearchLine} />
                     <Input.Input
                       type="search"
-                      aria-label="Search leads"
-                      placeholder="Search name, headline, company…"
+                      aria-label="Buscar leads"
+                      placeholder="Buscar nome, headline, empresa…"
                       value={leadSearch}
                       onChange={(e) => {
                         setLeadSearch(e.target.value);
@@ -1136,28 +1136,28 @@ export function SearchBatchDetailClient({
           />
           <FramePanel className="p-2 sm:p-2">
             {selectedVisibleLeadUrls.size > 0 && (
-              <SelectionBar count={selectedVisibleLeadUrls.size} note={pages > 1 ? "across every page of this filter" : undefined} onClear={clearLeadSelection}>
+              <SelectionBar count={selectedVisibleLeadUrls.size} note={pages > 1 ? "em todas as páginas deste filtro" : undefined} onClear={clearLeadSelection}>
                 <AlignButton.Root variant="neutral" mode="stroke" size="xxsmall" onClick={handleExportSelectedLeads} disabled={bulkExportingLeads}>
                   <AlignButton.Icon as={bulkExportingLeads ? RiLoader4Line : RiDownloadLine} className={cn(bulkExportingLeads && "animate-spin")} />
-                  Export
+                  Exportar
                 </AlignButton.Root>
                 <AlignButton.Root variant="error" mode="stroke" size="xxsmall" onClick={handleDeleteSelectedLeads} disabled={bulkDeletingLeads}>
                   <AlignButton.Icon as={bulkDeletingLeads ? RiLoader4Line : RiDeleteBinLine} className={cn(bulkDeletingLeads && "animate-spin")} />
-                  Delete
+                  Excluir
                 </AlignButton.Root>
               </SelectionBar>
             )}
             {visibleLeads.length === 0 ? (
               detail.leads.length === 0 ? (
-                <EmptyState icon={RiUserSearchLine} title="No leads yet" description="Run this search to pull leads from its URLs." />
+                <EmptyState icon={RiUserSearchLine} title="Nenhum lead ainda" description="Execute esta busca para extrair leads das suas URLs." />
               ) : (
                 <EmptyState
                   icon={RiSearchLine}
-                  title="No leads match this search"
-                  description="Try a name, headline, company or location."
+                  title="Nenhum lead corresponde à busca"
+                  description="Tente um nome, headline, empresa ou localização."
                   action={
                     <AlignButton.Root variant="neutral" mode="stroke" size="small" onClick={() => { setLeadSearch(""); setPage(1); }}>
-                      Clear search
+                      Limpar busca
                     </AlignButton.Root>
                   }
                 />
@@ -1173,24 +1173,24 @@ export function SearchBatchDetailClient({
                         checked={allVisibleLeadsSelected}
                         onChange={toggleAllVisibleLeads}
                         className={checkbox}
-                        aria-label="Select all leads matching the search"
+                        aria-label="Selecionar todos os leads que correspondem à busca"
                       />
                     </Table.Head>
                     <Table.Head scope="col" className="w-[34%] px-4">Lead</Table.Head>
-                    <Table.Head scope="col" className="px-4">Company</Table.Head>
-                    <Table.Head scope="col" className="px-4">Location</Table.Head>
-                    <Table.Head scope="col" className="w-24 px-4">Network</Table.Head>
-                    <Table.Head scope="col" className="w-28 px-4 text-right">Followers</Table.Head>
+                    <Table.Head scope="col" className="px-4">Empresa</Table.Head>
+                    <Table.Head scope="col" className="px-4">Localização</Table.Head>
+                    <Table.Head scope="col" className="w-24 px-4">Rede</Table.Head>
+                    <Table.Head scope="col" className="w-28 px-4 text-right">Seguidores</Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body spacing={4}>
                   {pageLeads.map((lead) => {
                     const selected = selectedVisibleLeadUrls.has(lead.linkedinUrl);
-                    const name = lead.name ?? "Unnamed lead";
+                    const name = lead.name ?? "Lead sem nome";
                     return (
                       <Table.Row key={lead.id} className={cn(selected && "[&>td]:bg-bg-weak-50")}>
                         <Table.Cell className="h-14 px-4">
-                          <input type="checkbox" checked={selected} onChange={() => toggleLeadSelection(lead.linkedinUrl)} className={checkbox} aria-label={`Select ${name}`} />
+                          <input type="checkbox" checked={selected} onChange={() => toggleLeadSelection(lead.linkedinUrl)} className={checkbox} aria-label={`Selecionar ${name}`} />
                         </Table.Cell>
                         <Table.Cell className="px-4">
                           <div className="flex min-w-0 items-center gap-3">
@@ -1203,7 +1203,7 @@ export function SearchBatchDetailClient({
                               ) : (
                                 <p className="truncate text-label-sm text-text-strong-950" title={name}>{name}</p>
                               )}
-                              <p className="truncate text-paragraph-xs text-text-sub-600" title={lead.headline ?? undefined}>{lead.headline ?? "No headline"}</p>
+                              <p className="truncate text-paragraph-xs text-text-sub-600" title={lead.headline ?? undefined}>{lead.headline ?? "Sem headline"}</p>
                             </div>
                           </div>
                         </Table.Cell>
@@ -1214,7 +1214,7 @@ export function SearchBatchDetailClient({
                           {lead.location ?? <span className="text-text-soft-400">—</span>}
                         </Table.Cell>
                         <Table.Cell className="px-4 text-paragraph-sm text-text-sub-600">{networkDisplay(lead.networkDistance)}</Table.Cell>
-                        <Table.Cell className={cn("px-4 text-right", num)}>{lead.followersCount != null ? lead.followersCount.toLocaleString("en-US") : <span className="text-text-soft-400">—</span>}</Table.Cell>
+                        <Table.Cell className={cn("px-4 text-right", num)}>{lead.followersCount != null ? lead.followersCount.toLocaleString("pt-BR") : <span className="text-text-soft-400">—</span>}</Table.Cell>
                       </Table.Row>
                     );
                   })}
@@ -1223,19 +1223,19 @@ export function SearchBatchDetailClient({
             )}
           </FramePanel>
           {visibleLeads.length > 0 && (
-            <nav aria-label="Pagination" className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 pb-1 pt-2.5">
+            <nav aria-label="Paginação" className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 pb-1 pt-2.5">
               <p className="text-paragraph-sm tabular-nums text-text-sub-600">
-                {pageStart.toLocaleString("en-US")}–{pageEnd.toLocaleString("en-US")} of {visibleLeads.length.toLocaleString("en-US")}
+                {pageStart.toLocaleString("pt-BR")}–{pageEnd.toLocaleString("pt-BR")} de {visibleLeads.length.toLocaleString("pt-BR")}
               </p>
               {pages > 1 && (
                 <div className="flex items-center gap-1">
-                  <AlignButton.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Previous page" onClick={() => setPage(() => Math.max(1, safePage - 1))} disabled={safePage <= 1}>
+                  <AlignButton.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Página anterior" onClick={() => setPage(() => Math.max(1, safePage - 1))} disabled={safePage <= 1}>
                     <AlignButton.Icon as={RiArrowLeftSLine} />
                   </AlignButton.Root>
                   <span className="px-2 text-paragraph-sm tabular-nums text-text-sub-600">
-                    Page {safePage} of {pages}
+                    Página {safePage} de {pages}
                   </span>
-                  <AlignButton.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Next page" onClick={() => setPage(() => Math.min(pages, safePage + 1))} disabled={safePage >= pages}>
+                  <AlignButton.Root variant="neutral" mode="ghost" size="xsmall" aria-label="Próxima página" onClick={() => setPage(() => Math.min(pages, safePage + 1))} disabled={safePage >= pages}>
                     <AlignButton.Icon as={RiArrowRightSLine} />
                   </AlignButton.Root>
                 </div>
@@ -1249,13 +1249,13 @@ export function SearchBatchDetailClient({
       <Modal.Root open={runOpen} onOpenChange={setRunOpen}>
         <Modal.Content size="max-w-md">
           <Modal.Header icon={RiPlayLine}>
-            <Modal.Title>Run with which accounts?</Modal.Title>
+            <Modal.Title>Executar com quais contas?</Modal.Title>
             <Modal.Description>
               {selectedVisibleQueryIds.size > 0
-                ? `Running the ${runnableSelectedCount} selected URL${runnableSelectedCount === 1 ? "" : "s"} that are still queued. `
-                : "Running every queued URL in this search. "}
-              Only the accounts checked here are used, in the order you arrange them — the first one is used until it
-              hits its daily limit, then the next, and they all search in parallel.
+                ? `Executando as ${runnableSelectedCount} ${runnableSelectedCount === 1 ? "URL selecionada que ainda está" : "URLs selecionadas que ainda estão"} na fila. `
+                : "Executando todas as URLs na fila desta busca. "}
+              Apenas as contas marcadas aqui serão usadas, na ordem em que você as organizar — a primeira é usada até
+              atingir o limite diário, depois a próxima, e todas buscam em paralelo.
             </Modal.Description>
           </Modal.Header>
           <Modal.Body>
@@ -1272,11 +1272,11 @@ export function SearchBatchDetailClient({
           </Modal.Body>
           <Modal.Footer>
             <AlignButton.Root variant="neutral" mode="stroke" size="small" onClick={() => setRunOpen(false)}>
-              Cancel
+              Cancelar
             </AlignButton.Root>
             <AlignButton.Root variant="primary" mode="filled" size="small" onClick={() => handleRun([...selectedVisibleQueryIds])} disabled={runAccountIds.size === 0}>
               <AlignButton.Icon as={RiPlayLine} />
-              Run with {runAccountIds.size} account{runAccountIds.size === 1 ? "" : "s"}
+              Executar com {runAccountIds.size} {runAccountIds.size === 1 ? "conta" : "contas"}
             </AlignButton.Root>
           </Modal.Footer>
         </Modal.Content>
@@ -1286,12 +1286,12 @@ export function SearchBatchDetailClient({
       <Modal.Root open={addOpen} onOpenChange={(o) => { setAddOpen(o); if (!o) { setAddError(null); } }}>
         <Modal.Content size="max-w-lg">
           <Modal.Header icon={RiLinkM}>
-            <Modal.Title>Add search URLs</Modal.Title>
-            <Modal.Description>They join this search queued, ready for the next run.</Modal.Description>
+            <Modal.Title>Adicionar URLs de busca</Modal.Title>
+            <Modal.Description>Elas entram nesta busca na fila, prontas para a próxima execução.</Modal.Description>
           </Modal.Header>
           <Modal.Body className="space-y-4">
             <div>
-              <label htmlFor="add-urls" className="mb-1.5 block text-label-sm text-text-strong-950">Search URLs, one per line</label>
+              <label htmlFor="add-urls" className="mb-1.5 block text-label-sm text-text-strong-950">URLs de busca, uma por linha</label>
               <Textarea.Root
                 id="add-urls"
                 simple
@@ -1303,7 +1303,7 @@ export function SearchBatchDetailClient({
               />
             </div>
             <div>
-              <label htmlFor="add-company" className="mb-1.5 block text-label-sm text-text-strong-950">Company name (optional, applies to every URL above)</label>
+              <label htmlFor="add-company" className="mb-1.5 block text-label-sm text-text-strong-950">Nome da empresa (opcional, aplica-se a todas as URLs acima)</label>
               <Input.Root size="small">
                 <Input.Wrapper>
                   <Input.Input id="add-company" value={addCompany} onChange={(e) => setAddCompany(e.target.value)} />
@@ -1319,11 +1319,11 @@ export function SearchBatchDetailClient({
           </Modal.Body>
           <Modal.Footer>
             <AlignButton.Root variant="neutral" mode="stroke" size="small" onClick={() => setAddOpen(false)}>
-              Cancel
+              Cancelar
             </AlignButton.Root>
             <AlignButton.Root variant="primary" mode="filled" size="small" onClick={handleAddUrls} disabled={adding}>
               <AlignButton.Icon as={adding ? RiLoader4Line : RiAddLine} className={cn(adding && "animate-spin")} />
-              Add URLs
+              Adicionar URLs
             </AlignButton.Root>
           </Modal.Footer>
         </Modal.Content>

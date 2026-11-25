@@ -48,10 +48,10 @@ export default function QuickCreateModal({
     <Modal.Root open onOpenChange={(open) => !open && onClose()}>
       <Modal.Content>
         <Modal.Header icon={isTask ? RiTaskLine : RiStickyNoteLine}>
-          <Modal.Title>{isTask ? "New task" : "New note"}</Modal.Title>
+          <Modal.Title>{isTask ? "Nova tarefa" : "Nova nota"}</Modal.Title>
           <Modal.Description>
-            {leadName ? `For ${leadName}. ` : ""}
-            {isTask ? "It shows up under Tasks." : "It shows up under Notes."}
+            {leadName ? `Para ${leadName}. ` : ""}
+            {isTask ? "Ela aparece em Tarefas." : "Ela aparece em Notas."}
           </Modal.Description>
         </Modal.Header>
         <form
@@ -67,20 +67,20 @@ export default function QuickCreateModal({
                 <Input.Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={isTask ? "Task name" : "Note title"}
-                  aria-label={isTask ? "Task name" : "Note title"}
+                  placeholder={isTask ? "Nome da tarefa" : "Título da nota"}
+                  aria-label={isTask ? "Nome da tarefa" : "Título da nota"}
                   autoFocus
                 />
               </Input.Wrapper>
             </Input.Root>
-            <Textarea.Root simple rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description…" aria-label="Description" />
+            <Textarea.Root simple rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição…" aria-label="Descrição" />
           </Modal.Body>
           <Modal.Footer>
             <Button.Root type="button" variant="neutral" mode="stroke" size="small" onClick={onClose}>
-              Cancel
+              Cancelar
             </Button.Root>
             <Button.Root type="submit" variant="primary" mode="filled" size="small" disabled={saving || !name.trim()}>
-              {saving ? "Saving…" : isTask ? "Create task" : "Create note"}
+              {saving ? "Salvando…" : isTask ? "Criar tarefa" : "Criar nota"}
             </Button.Root>
           </Modal.Footer>
         </form>

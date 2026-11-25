@@ -34,7 +34,18 @@ export default async function CampaignDetailPage({
           <div>
             <h1 className="text-base font-bold text-text-strong-950">{campaign.name}</h1>
             <p className="text-xs text-text-strong-950/50">
-              {campaign.inputMode} campaign · {campaign.status}
+              campanha {campaign.inputMode === "filters" ? "por filtros" : "manual"} ·{" "}
+              {campaign.status === "ready"
+                ? "pronto"
+                : campaign.status === "done"
+                ? "concluído"
+                : campaign.status === "failed"
+                ? "falhou"
+                : campaign.status === "running"
+                ? "em execução"
+                : campaign.status === "stopped"
+                ? "interrompido"
+                : campaign.status}
             </p>
           </div>
         </div>

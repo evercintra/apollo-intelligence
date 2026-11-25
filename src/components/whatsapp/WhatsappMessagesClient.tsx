@@ -64,11 +64,11 @@ import {
 import type { WhatsappAccountSummary, WhatsappChatSummary, WhatsappMessage } from "@/lib/whatsapp/contract";
 
 function chatTitle(chat: WhatsappChatSummary): string {
-  return chat.person?.fullName || chat.name || chat.phone || "Unknown number";
+  return chat.person?.fullName || chat.name || chat.phone || "Número desconhecido";
 }
 
 function accountLabel(account: WhatsappAccountSummary): string {
-  return account.name || account.phone || "WhatsApp number";
+  return account.name || account.phone || "Número do WhatsApp";
 }
 
 /** `initialChatId` opens that chat on arrival (Messages?chat=…, e.g. from a campaign lead). */
@@ -238,7 +238,7 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
             ? {
                 recordId,
                 categoryKey: record.categoryKey,
-                categoryLabel: record.subcategory ?? (record.categoryKey ? CATEGORY_LABELS[record.categoryKey as CrmCategory] ?? record.categoryKey : "Unclassified"),
+                  categoryLabel: record.subcategory ?? (record.categoryKey ? CATEGORY_LABELS[record.categoryKey as CrmCategory] ?? record.categoryKey : "Sem categoria"),
                 stage: workflowLabel(record.workflowState),
                 sequence: record.sequence,
                 nextActionAt: record.nextActionAt,
@@ -250,9 +250,9 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
         }
         crmLoading={Boolean(recordId) && recordLoading}
         facts={[
-          ...(selectedAccount ? [{ label: "Number", value: accountLabel(selectedAccount), title: selectedAccount.phone ?? undefined }] : []),
-          ...(selected.lastMessageAt ? [{ label: "Last message", value: rowTime(new Date(selected.lastMessageAt)), title: fullTime(new Date(selected.lastMessageAt)) }] : []),
-          ...(!person ? [{ label: "In AgentSDR", value: "Not yet — add the number to People" }] : []),
+          ...(selectedAccount ? [{ label: "Número", value: accountLabel(selectedAccount), title: selectedAccount.phone ?? undefined }] : []),
+          ...(selected.lastMessageAt ? [{ label: "Última mensagem", value: rowTime(new Date(selected.lastMessageAt)), title: fullTime(new Date(selected.lastMessageAt)) }] : []),
+          ...(!person ? [{ label: "No Apollo Intelligence", value: "Ainda não — adicione o número em Pessoas" }] : []),
         ]}
       />
     </DetailsPanel>
@@ -263,13 +263,13 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
       threadOpen={selectedId !== null}
       header={
         <PageHeader
-          title="Messages"
-          description="WhatsApp chats on your linked numbers, including what you send from the phone."
+          title="Mensagens"
+          description="Conversas do WhatsApp nos seus números vinculados, inclusive as enviadas pelo celular."
           actions={
             <Button.Root variant="neutral" mode="stroke" size="small" asChild>
               <Link href="/settings/whatsapp-accounts">
                 <Button.Icon as={RiSmartphoneLine} />
-                Numbers
+                  Números
               </Link>
             </Button.Root>
           }
@@ -277,22 +277,22 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
       }
     >
       <ListPane
-        label="WhatsApp chats"
+        label="Conversas do WhatsApp"
         hidden={selectedId !== null}
         busy={loadingList && chats.length > 0}
         scrollRef={listRef}
         toolbar={
           <div className="flex items-center gap-2">
-            <ListSearch value={searchInput} onChange={setSearchInput} placeholder="Search name or number" label="Search chats" />
+            <ListSearch value={searchInput} onChange={setSearchInput} placeholder="Buscar nome ou número" label="Buscar conversas" />
             {accounts.length > 1 && (
               <FilterPopover count={accountFilter ? 1 : 0} onClear={() => setAccountFilter("")}>
-                <FilterField label="WhatsApp number">
+                <FilterField label="Número do WhatsApp">
                   <Select.Root size="small" value={accountFilter} onValueChange={setAccountFilter}>
-                    <Select.Trigger aria-label="WhatsApp number">
-                      <Select.Value placeholder="All numbers" />
+                    <Select.Trigger aria-label="Número do WhatsApp">
+                      <Select.Value placeholder="Todos os números" />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="">All numbers</Select.Item>
+                      <Select.Item value="">Todos os números</Select.Item>
                       {accountOptions.map((option) => (
                         <Select.Item key={option.value} value={option.value}>
                           {option.label}
@@ -308,12 +308,12 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
         }
         tabs={
           <TriageTabs
-            label="Filter chats"
+            label="Filtrar conversas"
             value={unreadOnly ? "unread" : "all"}
             onChange={(value) => setUnreadOnly(value === "unread")}
             tabs={[
-              { key: "all", label: "All" },
-              { key: "unread", label: "Unread", count: unreadLoaded || null, countTitle: `${unreadLoaded}${nextCursor ? "+" : ""} unread chats` },
+              { key: "all", label: "Todas" },
+              { key: "unread", label: "Não lidas", count: unreadLoaded || null, countTitle: `${unreadLoaded}${nextCursor ? "+" : ""} conversas não lidas` },
             ]}
           />
         }
@@ -331,11 +331,11 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
             <EmptyState
               compact
               icon={unreadOnly && !search ? RiCheckDoubleLine : RiSearchLine}
-              title={unreadOnly && !search ? "You're all caught up" : "No chats match"}
-              description={unreadOnly && !search ? "Nothing unread right now." : "Try another name or number."}
+              title={unreadOnly && !search ? "Tudo em dia" : "Nenhuma conversa encontrada"}
+              description={unreadOnly && !search ? "Nada não lido no momento." : "Tente outro nome ou número."}
               action={
                 <Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={clearFilters}>
-                  Show all chats
+                  Mostrar todas as conversas
                 </Button.Root>
               }
             />
@@ -343,16 +343,16 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
             <EmptyState
               compact
               icon={RiChat3Line}
-              title="No chats yet"
+              title="Nenhuma conversa ainda"
               description={
                 accounts.length === 0
-                  ? "Link a WhatsApp number to start."
-                  : "Chats appear as leads reply, or import recent ones from your linked numbers."
+                  ? "Vincule um número do WhatsApp para começar."
+                  : "As conversas aparecem quando os leads respondem, ou você pode importar as recentes dos seus números vinculados."
               }
               action={
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <Button.Root variant="neutral" mode="stroke" size="xsmall" asChild>
-                    <Link href="/settings/whatsapp-accounts">{accounts.length === 0 ? "Link a number" : "WhatsApp numbers"}</Link>
+                    <Link href="/settings/whatsapp-accounts">{accounts.length === 0 ? "Vincular número" : "Números do WhatsApp"}</Link>
                   </Button.Root>
                   {accounts.length === 0 && <DocsLink page="whatsapp/accounts#link-a-number" size="xsmall" />}
                 </div>
@@ -382,17 +382,17 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
                   snippet={
                     chat.lastMessagePreview ? (
                       <>
-                        {chat.lastDirection === "outbound" && <span className="text-text-soft-400">You: </span>}
+                        {chat.lastDirection === "outbound" && <span className="text-text-sub-600">Você: </span>}
                         {chat.lastMessagePreview}
                       </>
                     ) : (
-                      <span className="italic text-text-soft-400">No messages yet</span>
+                      <span className="italic text-text-sub-600">Nenhuma mensagem ainda</span>
                     )
                   }
                   meta={
                     !chat.person || account ? (
                       <>
-                        {!chat.person && <RowBadge dot={false}>Not in AgentSDR</RowBadge>}
+                        {!chat.person && <RowBadge dot={false}>Não está no Apollo Intelligence</RowBadge>}
                         {account && <RowMeta icon={RiSmartphoneLine}>{accountLabel(account)}</RowMeta>}
                       </>
                     ) : undefined
@@ -406,7 +406,7 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
           <div className="flex justify-center py-3">
             <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={() => void loadMore()} disabled={loadingMore}>
               {loadingMore && <Button.Icon as={RiLoader4Line} className="animate-spin" />}
-              Load more
+              Carregar mais
             </Button.Root>
           </div>
         )}
@@ -414,27 +414,27 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
 
       <ReadingPane shown={selectedId !== null} aside={detailsPanel}>
         {!selected ? (
-          <ReadingEmpty icon={RiChat3Line} description="Pick a chat from the list to read it and reply." />
+          <ReadingEmpty icon={RiChat3Line} description="Escolha uma conversa na lista para ler e responder." />
         ) : (
           <>
             <ThreadHeader
               onBack={closeChat}
-              backLabel="Back to chats"
+              backLabel="Voltar às conversas"
               avatar={<InboxAvatar name={name} src={person?.profilePictureUrl} />}
               title={name}
               badges={
                 person ? (
                   recordId ? (
                     record ? (
-                      <CategoryBadge categoryKey={record.categoryKey} label={record.subcategory ?? (record.categoryKey ? CATEGORY_LABELS[record.categoryKey as CrmCategory] ?? record.categoryKey : "Unclassified")} />
+                      <CategoryBadge categoryKey={record.categoryKey} label={record.subcategory ?? (record.categoryKey ? CATEGORY_LABELS[record.categoryKey as CrmCategory] ?? record.categoryKey : "Sem categoria")} />
                     ) : (
                       <Skeleton className="h-6 w-20 rounded-md" />
                     )
                   ) : (
-                    <RowBadge dot={false}>Not in CRM</RowBadge>
+                    <RowBadge dot={false}>Não está no CRM</RowBadge>
                   )
                 ) : (
-                  <RowBadge dot={false}>Not in AgentSDR</RowBadge>
+                  <RowBadge dot={false}>Não está no Apollo Intelligence</RowBadge>
                 )
               }
               channel="whatsapp"
@@ -442,15 +442,15 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
               actions={
                 <>
                   {recordId && (
-                    <Button.Root variant="neutral" mode="stroke" size="xsmall" asChild className="@max-3xl:w-8 @max-3xl:px-0" title="Open CRM record">
-                      <Link href={`/crm/records/${recordId}`} aria-label="Open CRM record">
+                    <Button.Root variant="neutral" mode="stroke" size="xsmall" asChild className="@max-3xl:w-8 @max-3xl:px-0" title="Abrir registro do CRM">
+                      <Link href={`/crm/records/${recordId}`} aria-label="Abrir registro do CRM">
                         <Button.Icon as={RiUserSearchLine} />
-                        <span className="hidden @3xl:inline">Record</span>
+                        <span className="hidden @3xl:inline">Registro</span>
                       </Link>
                     </Button.Root>
                   )}
                   {person && <CallButton personId={person.id} crmRecordId={recordId} phone={selected.phone} numberMenu={false} />}
-                  <HeaderAction icon={RiLayoutRightLine} label={details.open ? "Hide details" : "Show details"} onClick={details.toggle} pressed={details.open} iconOnly />
+                  <HeaderAction icon={RiLayoutRightLine} label={details.open ? "Ocultar detalhes" : "Mostrar detalhes"} onClick={details.toggle} pressed={details.open} iconOnly />
                 </>
               }
             />
@@ -468,7 +468,7 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
                 threadKey={selected.id}
                 leadName={name}
                 className="px-4 py-5 sm:px-6"
-                emptyText="No messages yet. Messages sent and received appear here."
+                emptyText="Nenhuma mensagem ainda. As mensagens enviadas e recebidas aparecem aqui."
               />
             )}
 
@@ -481,14 +481,14 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
                   onChange={setDraft}
                   onSend={send}
                   disabled={!thread}
-                  placeholder={`Message ${name.split(" ")[0] || "them"}…`}
+                  placeholder={`Mensagem para ${name.split(" ")[0] || "o lead"}…`}
                   meta={
                     <span
                       title={selectedAccount?.unipileAccountId.startsWith("station:")
-                        ? "Sent from the calling number's WhatsApp Web by the call worker, between its calls. New chats wait 24 h after a number is linked, and messages are spaced 10 s apart."
-                        : "Sent through Unipile. New chats wait 24 h after a number is linked, and messages are spaced 10 s apart."}
+                        ? "Enviado pelo WhatsApp Web do número de ligação, pelo trabalhador de chamadas, entre uma ligação e outra. Novas conversas aguardam 24 h após a vinculação do número, com intervalo de 10 s entre mensagens."
+                        : "Enviado pela Unipile. Novas conversas aguardam 24 h após a vinculação do número, com intervalo de 10 s entre mensagens."}
                     >
-                      <ChannelTag channel="whatsapp" label={selectedAccount ? `from ${accountLabel(selectedAccount)}` : "WhatsApp"} />
+                      <ChannelTag channel="whatsapp" label={selectedAccount ? `de ${accountLabel(selectedAccount)}` : "WhatsApp"} />
                     </span>
                   }
                 />
@@ -505,7 +505,7 @@ export function WhatsappMessagesClient({ initialChatId = null }: { initialChatId
 function CategoryBadge({ categoryKey, label }: { categoryKey: string | null; label: string }) {
   return (
     <span
-      title={`CRM category: ${label}`}
+      title={`Categoria do CRM: ${label}`}
       className={cn(
         "inline-flex h-6 min-w-0 max-w-[11rem] items-center rounded-md px-2 text-label-xs ring-1 ring-inset",
         categoryToneClass[categoryKey ?? ""] ?? "bg-bg-weak-50 text-text-sub-600 ring-stroke-soft-200",

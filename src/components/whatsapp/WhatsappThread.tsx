@@ -21,8 +21,8 @@ function dayLabel(iso: string): string {
   const now = new Date();
   const yesterday = new Date();
   yesterday.setDate(now.getDate() - 1);
-  if (dayKey(iso) === dayKey(now.toISOString())) return "Today";
-  if (dayKey(iso) === dayKey(yesterday.toISOString())) return "Yesterday";
+  if (dayKey(iso) === dayKey(now.toISOString())) return "Hoje";
+  if (dayKey(iso) === dayKey(yesterday.toISOString())) return "Ontem";
   return new Intl.DateTimeFormat(undefined, {
     weekday: "short",
     day: "numeric",
@@ -33,21 +33,21 @@ function dayLabel(iso: string): string {
 
 const ORIGIN_LABEL = {
   lead: "",
-  agentsdr: "Sent from AgentSDR",
-  phone: "Sent from phone",
+  agentsdr: "Enviado pelo Apollo Intelligence",
+  phone: "Enviado pelo celular",
 } as const;
 
 function Ticks({ message }: { message: WhatsappMessage }) {
   if (message.direction !== "outbound") return null;
-  if (message.readAt) return <RiCheckDoubleLine className="size-3.5 text-primary-base" aria-label="Read" />;
-  if (message.deliveredAt) return <RiCheckDoubleLine className="size-3.5" aria-label="Delivered" />;
-  return <RiCheckLine className="size-3.5" aria-label="Sent" />;
+  if (message.readAt) return <RiCheckDoubleLine className="size-3.5 text-primary-base" aria-label="Lida" />;
+  if (message.deliveredAt) return <RiCheckDoubleLine className="size-3.5 text-text-sub-600" aria-label="Entregue" />;
+  return <RiCheckLine className="size-3.5 text-text-sub-600" aria-label="Enviada" />;
 }
 
 /**
  * Oldest-first messages with day separators. A run of messages from one side
  * opens with a caption — who wrote it and, for outbound, whether it was sent
- * from AgentSDR or from the phone. Each bubble carries its time and ticks.
+ * from Apollo Intelligence or from the phone. Each bubble carries its time and ticks.
  * Scrolls to the bottom when the thread changes, and follows new messages
  * while the reader is near the bottom.
  */
@@ -55,7 +55,7 @@ export function WhatsappMessageList({
   messages,
   threadKey,
   className,
-  emptyText = "No messages yet",
+  emptyText = "Nenhuma mensagem ainda",
   leadName,
 }: {
   messages: WhatsappMessage[];
@@ -98,7 +98,7 @@ export function WhatsappMessageList({
           const groupStart = !sameRun(previous);
           const groupEnd = !sameRun(next);
           const label = outbound ? ORIGIN_LABEL[message.origin] : "";
-          const who = outbound ? "You" : firstName;
+          const who = outbound ? "Você" : firstName;
           return (
             <div key={message.id}>
               {newDay && (
@@ -127,7 +127,7 @@ export function WhatsappMessageList({
                   {message.attachments.map((attachment, attachmentIndex) => (
                     <p key={attachment.id ?? attachmentIndex} className="mb-1 flex items-center gap-1 text-paragraph-xs text-text-sub-600">
                       <RiAttachment2 className="size-3.5 shrink-0" aria-hidden="true" />
-                      <span className="truncate">{attachment.name || attachment.type || "Attachment"}</span>
+                      <span className="truncate">{attachment.name || attachment.type || "Anexo"}</span>
                     </p>
                   ))}
                   {message.body && <p className="whitespace-pre-wrap break-words">{message.body}</p>}
@@ -155,7 +155,7 @@ export function WhatsappComposer({
   onChange,
   onSend,
   disabled,
-  placeholder = "Write a WhatsApp message…",
+  placeholder = "Escreva uma mensagem no WhatsApp…",
   rows = 2,
   meta,
   className,
@@ -189,7 +189,7 @@ export function WhatsappComposer({
     try {
       await onSend(text);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not send the message.");
+      setError(cause instanceof Error ? cause.message : "Não foi possível enviar a mensagem.");
     } finally {
       setSending(false);
     }
@@ -209,7 +209,7 @@ export function WhatsappComposer({
         sending={sending}
         disabled={disabled}
         placeholder={placeholder}
-        ariaLabel="WhatsApp message"
+        ariaLabel="Mensagem do WhatsApp"
         minRows={Math.max(1, rows - 1)}
         meta={meta ?? <ChannelTag channel="whatsapp" />}
       />

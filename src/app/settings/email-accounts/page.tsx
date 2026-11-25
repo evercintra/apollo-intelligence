@@ -8,7 +8,7 @@ import { listMailboxes } from "@/lib/outreach/mailboxes";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Email accounts" };
+export const metadata = { title: "Contas de e-mail" };
 
 async function Mailboxes() {
   const ctx = await requirePageOrgContext();
@@ -19,8 +19,8 @@ async function Mailboxes() {
 export default function EmailAccountsPage() {
   return (
     <SettingsPage
-      title="Email accounts"
-      description="The mailboxes outreach campaigns send from."
+      title="Contas de e-mail"
+      description="As caixas de entrada usadas pelas campanhas de divulgação."
       actions={
         <RequiresPlatform platform="google" fallback={null}>
           <AddMailboxButton />

@@ -1,6 +1,6 @@
 import { ConnectionSettingsPage } from "@/components/settings/ChannelSettingsPages";
 
-export const metadata = { title: "Email connection" };
+export const metadata = { title: "Conexão de e-mail" };
 export const dynamic = "force-dynamic";
 
 export default function Page() {
@@ -10,13 +10,13 @@ export default function Page() {
       comingSoon={[
         {
           name: "Microsoft Outlook",
-          description: "Send and read email from Microsoft 365 and Outlook mailboxes, connected through Microsoft Azure.",
+          description: "Envie e leia e-mails de caixas do Microsoft 365 e do Outlook, conectadas pelo Microsoft Azure.",
           iconUrl: "/Integrations - Icon/microsoft.svg",
-          enables: ["Outlook mailboxes", "email campaigns", "inbox sync"],
+          enables: ["caixas do Outlook", "campanhas de e-mail", "sincronização da caixa de entrada"],
         },
       ]}
-      title="Email connection"
-      description="The Google Workspace service account that sends and reads Gmail for every mailbox in Email → Accounts. Microsoft Outlook is coming soon."
+      title="Conexão de e-mail"
+      description="A conta de serviço do Google Workspace que envia e lê o Gmail de cada caixa em E-mail → Contas. Microsoft Outlook em breve."
     />
   );
 }

@@ -117,7 +117,7 @@ export function CompanyNameField({
           }}
           className="w-[var(--radix-popover-trigger-width)] rounded-xl bg-bg-white-0 p-1 shadow-regular-md ring-1 ring-inset ring-stroke-soft-200"
         >
-          <ul id={listId} role="listbox" aria-label="Matching companies">
+          <ul id={listId} role="listbox" aria-label="Empresas correspondentes">
             {suggestions.map((company, index) => (
               <li
                 key={company.id}
@@ -144,7 +144,7 @@ export function CompanyNameField({
                 </span>
                 {company.people > 0 && (
                   <span className="shrink-0 text-paragraph-xs text-text-soft-400">
-                    {company.people} {company.people === 1 ? "person" : "people"}
+                    {company.people} {company.people === 1 ? "pessoa" : "pessoas"}
                   </span>
                 )}
               </li>

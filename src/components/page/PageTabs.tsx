@@ -5,8 +5,8 @@ import { cn } from "@/utils/cn";
 
 /**
  * Underline tabs, as on Analytics: an optional icon, the label, an optional
- * count pill, and a primary bar under the active tab. `trailing` sits at the
- * right end of the row (an "Updated" note, a search box).
+ * count pill, and a lime accent bar under the active tab. `trailing` sits at
+ * the right end of the row (an "Updated" note, a search box).
  */
 export type PageTab<T extends string> = {
   value: T;
@@ -49,11 +49,11 @@ export function PageTabs<T extends string>({
               {Icon && <Icon className={cn("size-[18px] shrink-0", active ? "text-text-strong-950" : "text-text-soft-400")} />}
               {tab.label}
               {tab.count !== undefined && (
-                <span className={cn("rounded-md px-1.5 py-0.5 text-label-xs tabular-nums", active ? "bg-bg-strong-950 text-text-white-0" : "bg-bg-weak-50 text-text-sub-600")}>
-                  {tab.count.toLocaleString("en-US")}
+                <span className={cn("rounded-md px-1.5 py-0.5 text-label-xs tabular-nums", active ? "bg-accent-base text-accent-contrast" : "bg-bg-weak-50 text-text-sub-600")}>
+                  {tab.count.toLocaleString("pt-BR")}
                 </span>
               )}
-              <span className={cn("absolute inset-x-0 bottom-0 h-0.5 rounded-full", active ? "bg-primary-base" : "bg-transparent")} />
+              <span className={cn("absolute inset-x-0 bottom-0 h-0.5 rounded-full", active ? "bg-accent-base" : "bg-transparent")} />
             </button>
           );
         })}

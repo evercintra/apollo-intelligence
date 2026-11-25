@@ -1,12 +1,12 @@
 import { OrgMembers } from "@/components/settings/organization/OrgMembers";
 import { SettingsPage } from "@/components/settings/SettingsPage";
 
-export const metadata = { title: "Members" };
+export const metadata = { title: "Membros" };
 export const dynamic = "force-dynamic";
 
 export default function Page() {
   return (
-    <SettingsPage title="Members" description="Invite people and manage what each can do." width="narrow">
+    <SettingsPage title="Membros" description="Convide pessoas e gerencie o que cada uma pode fazer." width="narrow">
       <OrgMembers />
     </SettingsPage>
   );

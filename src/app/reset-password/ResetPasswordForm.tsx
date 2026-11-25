@@ -16,42 +16,42 @@ export function ResetPasswordForm({ token, invalid }: { token: string | null; in
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError("");
-    if (password.length < 8) return setError("Password must be at least 8 characters.");
-    if (password !== confirm) return setError("The passwords don't match.");
+    if (password.length < 8) return setError("A senha deve ter pelo menos 8 caracteres.");
+    if (password !== confirm) return setError("As senhas não coincidem.");
     if (!token) return;
     setLoading(true);
     const { error: err } = await authClient.resetPassword({ newPassword: password, token });
     setLoading(false);
-    if (err) setError(err.code === "INVALID_TOKEN" ? "This reset link is invalid or has expired." : err.message || "Something went wrong. Please try again.");
+    if (err) setError(err.code === "INVALID_TOKEN" ? "Este link de redefinição é inválido ou expirou." : err.message || "Algo deu errado. Tente novamente.");
     else setDone(true);
   }
 
   if (invalid) {
     return (
-      <AuthShell title="Link expired" subtitle="This password reset link is invalid or has expired.">
+      <AuthShell title="Link expirado" subtitle="Este link de redefinição de senha é inválido ou expirou.">
         <Link href="/forgot-password" className={linkClass}>
-          Request a new link
+          Solicitar um novo link
         </Link>
       </AuthShell>
     );
   }
 
   return (
-    <AuthShell title="Choose a new password">
+    <AuthShell title="Escolha uma nova senha">
       {done ? (
         <div className="flex flex-col gap-3">
-          <InfoCallout>Your password has been updated.</InfoCallout>
+          <InfoCallout>Sua senha foi atualizada.</InfoCallout>
           <Link href="/sign-in" className={linkClass}>
-            Continue to sign in
+            Continuar para o login
           </Link>
         </div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-4">
-          <Field label="New password" type="password" autoComplete="new-password" minLength={8} required hint="At least 8 characters." value={password} onChange={(e) => setPassword(e.target.value)} />
-          <Field label="Confirm password" type="password" autoComplete="new-password" minLength={8} required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <Field label="Nova senha" type="password" autoComplete="new-password" minLength={8} required hint="Pelo menos 8 caracteres." value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Field label="Confirmar senha" type="password" autoComplete="new-password" minLength={8} required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
           {error && <ErrorCallout>{error}</ErrorCallout>}
-          <SubmitButton loading={loading} loadingLabel="Saving...">
-            Update password
+          <SubmitButton loading={loading} loadingLabel="Salvando...">
+            Atualizar senha
           </SubmitButton>
         </form>
       )}

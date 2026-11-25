@@ -60,17 +60,17 @@ function signature(blocks: AiInstructionBlock[]): string {
 
 function validate(blocks: AiInstructionBlock[]): string | null {
   if (blocks.length > MAX_AI_INSTRUCTION_BLOCKS) {
-    return `At most ${MAX_AI_INSTRUCTION_BLOCKS} instructions (${blocks.length} now).`;
+    return `No máximo ${MAX_AI_INSTRUCTION_BLOCKS} instruções (${blocks.length} agora).`;
   }
   const longTitle = blocks.find((b) => b.title.length > MAX_AI_INSTRUCTION_TITLE_LENGTH);
-  if (longTitle) return `“${longTitle.title.slice(0, 30)}…” has a title over ${MAX_AI_INSTRUCTION_TITLE_LENGTH} characters.`;
+  if (longTitle) return `“${longTitle.title.slice(0, 30)}…” tem um título com mais de ${MAX_AI_INSTRUCTION_TITLE_LENGTH} caracteres.`;
   const longContent = blocks.find((b) => b.content.length > MAX_AI_INSTRUCTION_CONTENT_LENGTH);
   if (longContent) {
-    return `“${longContent.title.trim() || "Untitled instruction"}” is over ${MAX_AI_INSTRUCTION_CONTENT_LENGTH} characters.`;
+    return `“${longContent.title.trim() || "Instrução sem título"}” tem mais de ${MAX_AI_INSTRUCTION_CONTENT_LENGTH} caracteres.`;
   }
   const total = renderAiInstructions(blocks)?.length ?? 0;
   if (total > MAX_AI_INSTRUCTIONS_TOTAL_LENGTH) {
-    return `Together the instructions are ${total} characters; the limit is ${MAX_AI_INSTRUCTIONS_TOTAL_LENGTH}.`;
+    return `Juntas, as instruções têm ${total} caracteres; o limite é ${MAX_AI_INSTRUCTIONS_TOTAL_LENGTH}.`;
   }
   return null;
 }
@@ -116,8 +116,8 @@ function InstructionRow({
           size="xsmall"
           aria-expanded={expanded}
           aria-controls={panelId}
-          aria-label={expanded ? "Collapse instruction" : "Expand instruction"}
-          title={expanded ? "Collapse" : "Expand"}
+          aria-label={expanded ? "Recolher instrução" : "Expandir instrução"}
+          title={expanded ? "Recolher" : "Expandir"}
           onClick={onToggle}
         >
           <Button.Icon as={RiArrowDownSLine} className={cn("transition-transform duration-200", expanded && "rotate-180")} />
@@ -127,18 +127,18 @@ function InstructionRow({
           type="text"
           value={block.title}
           maxLength={MAX_AI_INSTRUCTION_TITLE_LENGTH}
-          placeholder="Untitled instruction"
-          aria-label="Instruction title"
+          placeholder="Instrução sem título"
+          aria-label="Título da instrução"
           onChange={(event) => onChange({ title: event.target.value })}
-          className="h-8 min-w-0 flex-1 rounded-lg bg-transparent px-2 text-label-sm text-text-strong-950 outline-none ring-1 ring-inset ring-transparent transition placeholder:text-text-soft-400 hover:ring-stroke-soft-200 focus:bg-bg-white-0 focus:shadow-button-important-focus focus:ring-stroke-strong-950"
+          className="h-8 min-w-0 flex-1 rounded-lg bg-transparent px-2 text-label-sm text-text-strong-950 outline-none ring-1 ring-inset ring-transparent transition placeholder:text-text-sub-600 hover:ring-stroke-soft-200 focus:bg-bg-white-0 focus:shadow-button-important-focus focus:ring-stroke-strong-950"
         />
         {!expanded && (
-          <span className={cn("hidden shrink-0 text-paragraph-xs tabular-nums sm:inline", over ? "text-error-base" : "text-text-soft-400")}>
-            {block.content.trim() ? `${block.content.length.toLocaleString("en-US")} chars` : "Empty"}
+          <span className={cn("hidden shrink-0 text-paragraph-xs tabular-nums sm:inline", over ? "text-error-base" : "text-text-sub-600")}>
+            {block.content.trim() ? `${block.content.length.toLocaleString("pt-BR")} caracteres` : "Vazia"}
           </span>
         )}
-        <IconButton label="Duplicate instruction" icon={RiFileCopyLine} onClick={onDuplicate} />
-        <IconButton label="Delete instruction" icon={RiDeleteBinLine} onClick={onDelete} className="hover:text-error-base" />
+        <IconButton label="Duplicar instrução" icon={RiFileCopyLine} onClick={onDuplicate} />
+        <IconButton label="Excluir instrução" icon={RiDeleteBinLine} onClick={onDelete} className="hover:text-error-base" />
       </div>
       {expanded && (
         <div id={panelId} className="px-3 pb-3 sm:pl-12 sm:pr-4">
@@ -148,12 +148,12 @@ function InstructionRow({
             value={block.content}
             placeholder={placeholder}
             hasError={over}
-            aria-label={`${block.title.trim() || "Untitled instruction"} — instruction text`}
+            aria-label={`${block.title.trim() || "Instrução sem título"} — texto da instrução`}
             onChange={(event) => onChange({ content: event.target.value })}
             className="resize-y"
           />
           <div className={cn("mt-1 text-right text-paragraph-xs tabular-nums", over ? "text-error-base" : "text-text-sub-600")}>
-            {block.content.length.toLocaleString("en-US")} / {MAX_AI_INSTRUCTION_CONTENT_LENGTH.toLocaleString("en-US")}
+            {block.content.length.toLocaleString("pt-BR")} / {MAX_AI_INSTRUCTION_CONTENT_LENGTH.toLocaleString("pt-BR")}
           </div>
         </div>
       )}
@@ -225,16 +225,16 @@ export function InstructionSection({
   const duplicate = (index: number) => {
     const source = blocks[index];
     const id = newId();
-    const copy = { id, title: `${source.title.trim()} (copy)`.trim(), content: source.content };
+    const copy = { id, title: `${source.title.trim()} (cópia)`.trim(), content: source.content };
     edit([...blocks.slice(0, index + 1), copy, ...blocks.slice(index + 1)]);
     setOpen(id, true);
   };
   const remove = async (block: AiInstructionBlock) => {
     if (block.content.trim()) {
       const confirmed = await dialogs.confirm({
-        title: "Delete instruction?",
-        description: `“${block.title.trim() || "Untitled instruction"}” will be removed from this list. Save to apply it.`,
-        confirmLabel: "Delete instruction",
+        title: "Excluir instrução?",
+        description: `“${block.title.trim() || "Instrução sem título"}” será removida desta lista. Salve para aplicar.`,
+        confirmLabel: "Excluir instrução",
         variant: "error",
       });
       if (!confirmed) return;
@@ -249,7 +249,7 @@ export function InstructionSection({
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
-      setError("Could not copy to the clipboard.");
+      setError("Não foi possível copiar para a área de transferência.");
     }
   };
   const exportJson = () => {
@@ -293,9 +293,9 @@ export function InstructionSection({
   const resetToDefaults = async () => {
     if (!defaults) return;
     const confirmed = await dialogs.confirm({
-      title: "Reset to the default instructions?",
-      description: "Your edits are replaced by the built-in instructions. Save is not needed.",
-      confirmLabel: "Reset",
+      title: "Restaurar as instruções padrão?",
+      description: "Suas edições serão substituídas pelas instruções internas. Não é preciso salvar.",
+      confirmLabel: "Restaurar",
       variant: "error",
     });
     if (!confirmed) return;
@@ -328,18 +328,18 @@ export function InstructionSection({
         description={helper}
         actions={
           <div className="flex items-center gap-0.5">
-            {copied && <span role="status" className="mr-1 text-paragraph-xs text-success-base">Copied</span>}
-            <IconButton label={copied ? "Copied" : "Copy all"} icon={RiFileList2Line} disabled={empty} onClick={() => void copyAll()} />
-            <IconButton label="Export JSON" icon={RiBracesLine} disabled={empty} onClick={exportJson} />
+            {copied && <span role="status" className="mr-1 text-paragraph-xs text-success-base">Copiado</span>}
+            <IconButton label={copied ? "Copiado" : "Copiar todas"} icon={RiFileList2Line} disabled={empty} onClick={() => void copyAll()} />
+            <IconButton label="Exportar JSON" icon={RiBracesLine} disabled={empty} onClick={exportJson} />
             <IconButton
-              label={allExpanded ? "Collapse all" : "Expand all"}
+              label={allExpanded ? "Recolher todas" : "Expandir todas"}
               icon={allExpanded ? RiArrowUpDoubleLine : RiArrowDownDoubleLine}
               disabled={empty}
               onClick={() => setExpanded(allExpanded ? new Set() : new Set(blocks.map((b) => b.id)))}
             />
             <Button.Root type="button" variant="neutral" mode="stroke" size="xsmall" className="ml-1.5" disabled={blocks.length >= MAX_AI_INSTRUCTION_BLOCKS} onClick={add}>
               <Button.Icon as={RiAddLine} />
-              Add instruction
+              Adicionar instrução
             </Button.Root>
           </div>
         }
@@ -347,19 +347,19 @@ export function InstructionSection({
       <FramePanel className="overflow-hidden p-0 sm:p-0">
         {defaults && !customized && !dirty && (
           <p className="border-b border-stroke-soft-200 bg-bg-weak-50 px-3 py-2 text-paragraph-xs text-text-sub-600 sm:px-4">
-            These are the built-in instructions. Edit them and save to make them yours; Reset to defaults brings them back.
+            Estas são as instruções internas. Edite e salve para personalizá-las; Restaurar traz de volta o padrão.
           </p>
         )}
         {empty ? (
           <EmptyState
             compact
             icon={RiQuillPenLine}
-            title="No instructions yet"
+            title="Ainda não há instruções"
             description={emptyText}
             action={
               <Button.Root type="button" variant="neutral" mode="stroke" size="small" onClick={add}>
                 <Button.Icon as={RiAddLine} />
-                Add instruction
+                Adicionar instrução
               </Button.Root>
             }
           />
@@ -388,26 +388,26 @@ export function InstructionSection({
           ) : error ? (
             <span role="alert" className="text-error-base">{error}</span>
           ) : success && !dirty ? (
-            <span role="status" className="text-success-base">Saved</span>
+            <span role="status" className="text-success-base">Salvo</span>
           ) : dirty ? (
-            <span className="text-warning-dark">Unsaved changes</span>
+            <span className="text-warning-dark">Alterações não salvas</span>
           ) : (
             <span className="tabular-nums text-text-sub-600">
-              {blocks.length} of {MAX_AI_INSTRUCTION_BLOCKS} instructions · {total.toLocaleString("en-US")} of {MAX_AI_INSTRUCTIONS_TOTAL_LENGTH.toLocaleString("en-US")} characters
+              {blocks.length} de {MAX_AI_INSTRUCTION_BLOCKS} instruções · {total.toLocaleString("pt-BR")} de {MAX_AI_INSTRUCTIONS_TOTAL_LENGTH.toLocaleString("pt-BR")} caracteres
             </span>
           )}
         </div>
         <div className="flex items-center gap-2">
           {defaults && (
             <Button.Root type="button" variant="neutral" mode="ghost" size="small" disabled={saving || (!customized && !dirty)} onClick={() => void resetToDefaults()}>
-              Reset to defaults
+              Restaurar padrão
             </Button.Root>
           )}
           <Button.Root type="button" variant="neutral" mode="stroke" size="small" disabled={!dirty || saving} onClick={discard}>
-            Discard
+            Descartar
           </Button.Root>
           <Button.Root type="button" variant="primary" mode="filled" size="small" disabled={!dirty || saving || !!problem || !pipelineId} onClick={() => void save()}>
-            {saving ? "Saving…" : "Save"}
+            {saving ? "Salvando…" : "Salvar"}
           </Button.Root>
         </div>
       </footer>
@@ -417,25 +417,25 @@ export function InstructionSection({
 
 export const INSTRUCTION_SECTIONS = {
   draftInstructions: {
-    title: "Reply drafting",
-    helper: "Added to every draft the AI writes — email, LinkedIn and WhatsApp.",
-    placeholder: "Sign off as Priya from Youse. Keep emails under 120 words. Never offer discounts; suggest a 20-minute call instead.",
-    emptyText: "No instructions yet — add one to shape every draft.",
+    title: "Criação de respostas",
+    helper: "Adicionado a todos os rascunhos que a IA cria — e-mail, LinkedIn e WhatsApp.",
+    placeholder: "Assine como Priya da Youse. Mantenha os e-mails abaixo de 120 palavras. Nunca ofereça descontos; sugira uma ligação de 20 minutos.",
+    emptyText: "Ainda não há instruções — adicione uma para orientar todos os rascunhos.",
     exportName: "reply-drafting-instructions.json",
   },
   classificationInstructions: {
-    title: "Reply classification",
-    helper: "Added to every classification of a reply or call.",
-    placeholder: "A referral to a colleague counts as Interested, not Other. Replies from agencies are Not interested.",
-    emptyText: "No instructions yet — add one to shape every classification.",
+    title: "Classificação de respostas",
+    helper: "Adicionado a toda classificação de uma resposta ou ligação.",
+    placeholder: "Uma indicação a um colega conta como Interessado, não Outro. Respostas de agências são Não interessado.",
+    emptyText: "Ainda não há instruções — adicione uma para orientar toda classificação.",
     exportName: "reply-classification-instructions.json",
   },
   callingInstructions: {
-    title: "Calling",
+    title: "Ligações",
     helper:
-      "How the AI agent runs every WhatsApp call: the opening, the shape of the call, how it talks. Use {{agentName}} and {{firstName}}. Who it is, being honest that it is an AI, each campaign's goal and how a call ends stay fixed. Try changes with a rehearsal call on a campaign's sequence.",
-    placeholder: "Never mention competitors by name. If they say they already use an agency, ask what the agency does for their landing pages.",
-    emptyText: "No calling instructions — saving an empty list brings back the defaults.",
+      "Como o agente de IA conduz cada ligação no WhatsApp: a abertura, o formato da chamada e o jeito de falar. Use {{agentName}} e {{firstName}}. Quem ele é, ser honesto de que é uma IA, o objetivo de cada campanha e o encerramento permanecem fixos. Teste alterações com uma ligação de ensaio na sequência de uma campanha.",
+    placeholder: "Nunca cite concorrentes pelo nome. Se disserem que já usam uma agência, pergunte o que a agência faz pelas páginas de destino deles.",
+    emptyText: "Sem instruções de ligação — salvar uma lista vazia restaura os padrões.",
     exportName: "calling-instructions.json",
   },
 } as const satisfies Record<InstructionField, { title: string; helper: string; placeholder: string; emptyText: string; exportName: string }>;

@@ -22,7 +22,7 @@ export function SignUpForm({ googleEnabled, from, inviteOnly = false }: { google
     e.preventDefault();
     setError("");
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError("A senha deve ter pelo menos 8 caracteres.");
       return;
     }
     setLoading(true);
@@ -31,8 +31,8 @@ export function SignUpForm({ googleEnabled, from, inviteOnly = false }: { google
     if (err) {
       setError(
         err.code === "USER_ALREADY_EXISTS" || err.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
-          ? "An account with this email already exists. Try signing in."
-          : err.message || "Something went wrong. Please try again.",
+          ? "Já existe uma conta com este e-mail. Tente entrar."
+          : err.message || "Algo deu errado. Tente novamente.",
       );
       return;
     }
@@ -44,35 +44,35 @@ export function SignUpForm({ googleEnabled, from, inviteOnly = false }: { google
     setError("");
     const { error: err } = await authClient.sendVerificationEmail({ email, callbackURL: target });
     setResending(false);
-    if (err) setError(err.message || "Could not send the email. Please try again.");
+    if (err) setError(err.message || "Não foi possível enviar o e-mail. Tente novamente.");
     else setResent(true);
   }
 
   const q = from ? `?from=${encodeURIComponent(from)}` : "";
   const footer = (
     <>
-      Already have an account?{" "}
+      Já tem uma conta?{" "}
       <Link href={`/sign-in${q}`} className={linkClass}>
-        Sign in
+        Entrar
       </Link>
     </>
   );
 
   if (sent) {
     return (
-      <AuthShell title="Check your email to confirm your address" subtitle={`We sent a confirmation link to ${email}. Open it to finish creating your account.`} footer={footer}>
+      <AuthShell title="Confira seu e-mail para confirmar o endereço" subtitle={`Enviamos um link de confirmação para ${email}. Abra-o para concluir a criação da sua conta.`} footer={footer}>
         <div className="flex flex-col gap-3">
           {inviteOnly && (
             <InfoCallout>
-              This instance is invite-only: if {email} hasn&apos;t been invited, no account was created and no email will arrive.
+              Esta instância é somente por convite: se {email} não tiver sido convidado, nenhuma conta será criada e nenhum e-mail será enviado.
             </InfoCallout>
           )}
           {error && <ErrorCallout>{error}</ErrorCallout>}
           {resent ? (
-            <InfoCallout>Sent again. It can take a minute to arrive.</InfoCallout>
+            <InfoCallout>Enviado novamente. Pode levar alguns minutos para chegar.</InfoCallout>
           ) : (
             <SecondaryButton onClick={resend} loading={resending}>
-              Resend verification email
+              Reenviar e-mail de verificação
             </SecondaryButton>
           )}
         </div>
@@ -81,35 +81,35 @@ export function SignUpForm({ googleEnabled, from, inviteOnly = false }: { google
   }
 
   return (
-    <AuthShell title="Create your AgentSDR account" footer={footer}>
+    <AuthShell title="Crie sua conta Apollo Intelligence" footer={footer}>
       {inviteOnly && (
         <div className="mb-5">
-          <InfoCallout>This AgentSDR instance is invite-only. Sign up with the email address your invitation was sent to.</InfoCallout>
+          <InfoCallout>Esta instância da Apollo Intelligence é somente por convite. Cadastre-se com o e-mail para o qual recebeu o convite.</InfoCallout>
         </div>
       )}
       <form onSubmit={submit} className="flex flex-col gap-5">
-        <Field label="Name" type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} />
-        <Field label="Work email" type="email" autoComplete="email" placeholder="name@company.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Field label="Nome" type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} />
+        <Field label="E-mail corporativo" type="email" autoComplete="email" placeholder="name@company.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
         <Field
-          label="Password"
+          label="Senha"
           type="password"
           autoComplete="new-password"
           minLength={8}
           required
-          hint="At least 8 characters."
+          hint="Pelo menos 8 caracteres."
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         {error && <ErrorCallout>{error}</ErrorCallout>}
         <div className="pt-1">
-          <SubmitButton loading={loading} loadingLabel="Creating account...">
-            Create account
+          <SubmitButton loading={loading} loadingLabel="Criando conta...">
+            Criar conta
           </SubmitButton>
         </div>
       </form>
       {googleEnabled && (
         <>
-          <OrDivider label="Or continue with" />
+          <OrDivider label="Ou continue com" />
           <GoogleButton callbackURL={target} onError={setError} label="Google" />
         </>
       )}

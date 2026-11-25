@@ -36,13 +36,13 @@ import * as Select from "@/components/alignui/select";
 type OpenRouterChoice = AiModelChoice & { upstreamProvider: string; upstreamProviderName: string };
 
 const OUTPUT_TYPES: Array<{ value: StaticColumnType; label: string }> = [
-  { value: "text", label: "Text" },
-  { value: "number", label: "Number" },
-  { value: "boolean", label: "Checkbox" },
-  { value: "date", label: "Date" },
+  { value: "text", label: "Texto" },
+  { value: "number", label: "Número" },
+  { value: "boolean", label: "Caixa de seleção" },
+  { value: "date", label: "Data" },
   { value: "url", label: "URL" },
-  { value: "email", label: "Email" },
-  { value: "image", label: "Image" },
+  { value: "email", label: "E-mail" },
+  { value: "image", label: "Imagem" },
   { value: "json", label: "JSON" },
 ];
 
@@ -286,7 +286,7 @@ export default function AiDialog({
     if (!open) return;
     void fetch("/api/ai/openrouter/models").then(async (response) => {
       const body = await response.json() as { error?: string; models?: Array<{ id: string; name: string; description?: string; provider: string; providerName: string; outputModalities?: string[] }>; settings?: { connectionId?: string | null; defaultModel?: { provider: string; modelId: string } | null } };
-      if (!response.ok) return setError(body.error ?? "Could not load configured OpenRouter models");
+      if (!response.ok) return setError(body.error ?? "Não foi possível carregar os modelos configurados do OpenRouter");
       const provider = getAiProvider("openrouter");
       if (!provider) return;
       const next = (body.models ?? []).map((model) => {
@@ -302,7 +302,7 @@ export default function AiDialog({
             key: model.id,
             modelId: model.id,
             name: model.name,
-            description: model.description ?? "OpenRouter model",
+            description: model.description ?? "Modelo do OpenRouter",
             useCases,
             creditsPerRun: 0,
           },
@@ -382,18 +382,18 @@ export default function AiDialog({
   }
 
   async function save(runFirstTen: boolean) {
-    if (!model || !selectedChoice) return setError("Select a model enabled in AI Settings.");
-    if (!connectionId) return setError(`Connect a ${provider?.name ?? "provider"} account first.`);
-    if (!prompt.trim()) return setError("Write a prompt.");
+    if (!model || !selectedChoice) return setError("Selecione um modelo habilitado nas Configurações de IA.");
+    if (!connectionId) return setError(`Conecte primeiro uma conta ${provider?.name ?? "do provedor"}.`);
+    if (!prompt.trim()) return setError("Escreva um prompt.");
     if (outputFormat === "fields" && !model.producesImages) {
       const names = outputs.map((field) => field.name.trim().toLowerCase());
-      if (names.some((name) => !name)) return setError("Every output needs a name.");
-      if (new Set(names).size !== names.length) return setError("Output names must be different from each other.");
+      if (names.some((name) => !name)) return setError("Cada saída precisa de um nome.");
+      if (new Set(names).size !== names.length) return setError("Os nomes das saídas devem ser diferentes entre si.");
     }
     // The grid can hand over its coverage row, which is not a real row.
     const runRowIds = firstRowIds.filter((id) => id !== "__coverage").slice(0, 10);
     if (runFirstTen && runRowIds.length === 0) {
-      return setError("There are no rows on this page to run. Use Save, then run once rows are loaded.");
+      return setError("Não há linhas nesta página para executar. Salve e execute quando as linhas estiverem carregadas.");
     }
 
     let jsonSchema: Record<string, unknown> | undefined;
@@ -401,7 +401,7 @@ export default function AiDialog({
       try {
         jsonSchema = JSON.parse(schemaText);
       } catch {
-        return setError("The JSON Schema is not valid JSON.");
+        return setError("O JSON Schema não é um JSON válido.");
       }
     }
 
@@ -431,7 +431,7 @@ export default function AiDialog({
         }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) return setError(data.error ?? "Could not save this AI column");
+      if (!response.ok) return setError(data.error ?? "Não foi possível salvar esta coluna de IA");
       if (!column && Array.isArray(data.columns) && data.columns[0]) setCreated(data.columns[0] as GridColumn);
 
       let activeJobs: number | undefined;
@@ -445,7 +445,7 @@ export default function AiDialog({
         if (!run.ok) {
           // The column exists now: refresh the grid and keep the dialog open on it.
           await onSaved();
-          return setError(runData.error ?? "Saved, but the run could not start");
+          return setError(runData.error ?? "Salvo, mas não foi possível iniciar a execução");
         }
         activeJobs = runData.activeJobs;
       }
@@ -453,7 +453,7 @@ export default function AiDialog({
       await onSaved(activeJobs);
       onClose();
     } catch {
-      setError("Could not save this AI column");
+      setError("Não foi possível salvar esta coluna de IA");
     } finally {
       setBusy(false);
     }
@@ -469,14 +469,14 @@ export default function AiDialog({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-slate-900/35 backdrop-blur-[1px]" onClick={busy ? undefined : onClose} />
+      <div className="absolute inset-0 bg-[var(--color-overlay)] backdrop-blur-[1px]" onClick={busy ? undefined : onClose} />
 
       <div className="relative z-10 flex h-full w-full max-w-[560px] flex-col bg-bg-white-0 shadow-2xl">
         {/* header */}
         <div className="flex shrink-0 items-center justify-between border-b border-stroke-soft-200 px-5 py-3.5">
           <div className="flex items-center gap-2">
-            <RiMagicLine className="size-5 text-violet-500" />
-            <h2 className="text-[15px] font-semibold text-text-strong-950">Use AI</h2>
+            <RiMagicLine className="size-5 text-[var(--color-complement-deep)]" />
+            <h2 className="text-[15px] font-semibold text-text-strong-950">Usar IA</h2>
           </div>
           <button type="button" onClick={onClose} disabled={busy} className="rounded-md p-1 text-text-soft-400 hover:bg-bg-weak-50 disabled:opacity-50">
             <RiCloseLine className="size-4" />
@@ -486,7 +486,7 @@ export default function AiDialog({
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5">
           {/* ---- use case ---- */}
           <div>
-            <label className="text-[13px] font-semibold text-text-strong-950">Use case</label>
+            <label className="text-[13px] font-semibold text-text-strong-950">Caso de uso</label>
             <div className="mt-2 space-y-1.5">
               {AI_USE_CASES.map((item) => (
                 <button
@@ -505,7 +505,7 @@ export default function AiDialog({
                   }}
                   className={`flex w-full items-start gap-2.5 rounded-lg border px-3 py-2.5 text-left transition ${
                     useCase === item.key
-                      ? "border-blue-400 bg-blue-50/60 dark:bg-blue-500/10"
+                      ? "border-[var(--color-complement-medium)] bg-[var(--color-complement-surface)]"
                       : "border-stroke-soft-200 hover:bg-bg-weak-50"
                   }`}
                 >
@@ -513,7 +513,7 @@ export default function AiDialog({
                     <span className="block text-[13px] font-medium text-text-strong-950">{item.name}</span>
                     <span className="mt-0.5 block text-[12px] leading-4 text-text-sub-600">{item.description}</span>
                   </span>
-                  {useCase === item.key && <RiCheckLine className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />}
+                  {useCase === item.key && <RiCheckLine className="mt-0.5 size-4 shrink-0 text-[var(--color-complement-deep)]" />}
                 </button>
               ))}
             </div>
@@ -521,7 +521,7 @@ export default function AiDialog({
 
           {/* ---- model ---- */}
           <div>
-            <label className="text-[13px] font-semibold text-text-strong-950">Model</label>
+            <label className="text-[13px] font-semibold text-text-strong-950">Modelo</label>
             <button
               type="button"
               onClick={() => setModelOpen((v) => !v)}
@@ -534,7 +534,7 @@ export default function AiDialog({
                   <span className="shrink-0 rounded-full border border-stroke-soft-200 px-2 py-0.5 text-[11px] text-text-sub-600">{model.creditsPerRun}</span>
                 </>
               ) : (
-                <span className="flex-1 text-text-soft-400">{modelsLoading ? "Loading models…" : "Select a model"}</span>
+                <span className="flex-1 text-text-soft-400">{modelsLoading ? "Carregando modelos…" : "Selecione um modelo"}</span>
               )}
               <RiArrowDownSLine className="size-4 shrink-0 text-text-soft-400" />
             </button>
@@ -547,7 +547,7 @@ export default function AiDialog({
                     autoFocus
                     value={modelSearch}
                     onChange={(e) => setModelSearch(e.target.value)}
-                    placeholder="Search models..."
+                    placeholder="Pesquisar modelos..."
                     className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-text-soft-400"
                   />
                 </label>
@@ -574,7 +574,7 @@ export default function AiDialog({
                     </button>
                   ))}
                   {!filteredChoices.length && (
-                    <p className="px-3 py-6 text-center text-[13px] text-text-sub-600">No models match that search.</p>
+                    <p className="px-3 py-6 text-center text-[13px] text-text-sub-600">Nenhum modelo corresponde à busca.</p>
                   )}
                 </div>
               </div>
@@ -582,16 +582,16 @@ export default function AiDialog({
           </div>
 
           {provider && !connectionId && (
-            <div className="rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-4 text-[13px] text-amber-900 dark:text-amber-400">
-              OpenRouter is not configured. Connect it and choose allowed BYOK models in <Link className="font-semibold underline" href="/settings/ai">AI Settings</Link>.{" "}
+            <div className="rounded-xl border border-[var(--color-warning-light)] bg-[var(--color-warning-lighter)] p-4 text-[13px] text-[var(--color-warning-dark)]">
+              O OpenRouter não está configurado. Conecte-o e escolha os modelos BYOK permitidos em <Link className="font-semibold underline" href="/settings/ai">Configurações de IA</Link>.{" "}
               <DocsLink page="integrations/openrouter#set-it-up" appearance="inline" className="ml-1 text-current underline" />
             </div>
           )}
 
           {/* ---- prompt ---- */}
-          <Section title="Configuration">
+          <Section title="Configuração">
             <div>
-              <label className="text-[13px] font-medium text-text-strong-950">Prompt</label>
+              <label className="text-[13px] font-medium text-text-strong-950">Instrução</label>
               <div className="relative mt-1.5">
                 <textarea
                   ref={promptRef}
@@ -617,8 +617,8 @@ export default function AiDialog({
                       setPicker(null);
                     }
                   }}
-                  placeholder="For the person with linkedin url {{linkedin_url}}, find their current job title."
-                  className="w-full resize-y rounded-lg border border-stroke-soft-200 px-3 py-2.5 text-[13px] leading-5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20"
+                  placeholder="Para a pessoa com URL do LinkedIn {{linkedin_url}}, encontre o cargo atual."
+                  className="w-full resize-y rounded-lg border border-stroke-soft-200 px-3 py-2.5 text-[13px] leading-5 outline-none focus:border-[var(--color-action-ring)] focus:ring-2 focus:ring-[var(--color-accent-soft)]"
                 />
                 {picker && pickerAt && pickerColumns.length > 0 && createPortal(
                   <div
@@ -646,10 +646,10 @@ export default function AiDialog({
                 )}
               </div>
               {unknownTokens.length > 0 && (
-                <p className="mt-1.5 text-[12px] text-amber-700 dark:text-amber-400">
+                <p className="mt-1.5 text-[12px] text-[var(--color-warning-dark)]">
                   {unknownTokens.map((key) => `{{${key}}}`).join(", ")}{" "}
-                  {unknownTokens.length === 1 ? "is not a column" : "are not columns"} in this table, so{" "}
-                  {unknownTokens.length === 1 ? "it would be" : "they would be"} sent blank. Replace with a column below.
+                  {unknownTokens.length === 1 ? "não é uma coluna" : "não são colunas"} nesta tabela, portanto{" "}
+                  {unknownTokens.length === 1 ? "seria enviado" : "seriam enviados"} em branco. Substitua por uma coluna abaixo.
                 </p>
               )}
               {usedColumns.length > 0 && (
@@ -663,17 +663,17 @@ export default function AiDialog({
                 </p>
               )}
               <p className="mt-1.5 text-[12px] text-text-soft-400">
-                Type <kbd className="rounded bg-bg-weak-50 px-1 font-mono">/</kbd> or{" "}
-                <kbd className="rounded bg-bg-weak-50 px-1 font-mono">{"{{"}</kbd> to insert a column.
+                Digite <kbd className="rounded bg-bg-weak-50 px-1 font-mono">/</kbd> ou{" "}
+                <kbd className="rounded bg-bg-weak-50 px-1 font-mono">{"{{"}</kbd> para inserir uma coluna.
               </p>
             </div>
           </Section>
 
           {/* ---- outputs ---- */}
-          <Section title="Define outputs">
+          <Section title="Definir saídas">
             {model?.producesImages ? (
               <p className="text-[13px] text-text-sub-600">
-                Image models return a single image, which lands in one image column.
+                Modelos de imagem retornam uma única imagem, que é gravada em uma coluna de imagem.
               </p>
             ) : (
               <>
@@ -681,7 +681,7 @@ export default function AiDialog({
                   {(["fields", "json_schema"] as const).map((value) => (
                     <label key={value} className="flex items-center gap-2 text-[13px] text-text-strong-950">
                       <input type="radio" checked={outputFormat === value} onChange={() => setOutputFormat(value)} className="size-4" />
-                      {value === "fields" ? "Fields" : "JSON Schema"}
+                      {value === "fields" ? "Campos" : "JSON Schema"}
                     </label>
                   ))}
                 </div>
@@ -693,11 +693,11 @@ export default function AiDialog({
                         <input
                           value={field.name}
                           onChange={(e) => setOutput(index, { name: e.target.value })}
-                          placeholder="response"
-                          className="min-w-0 flex-1 rounded-lg border border-stroke-soft-200 px-3 py-2 text-[13px] outline-none focus:border-blue-400"
+                          placeholder="resposta"
+                          className="min-w-0 flex-1 rounded-lg border border-stroke-soft-200 px-3 py-2 text-[13px] outline-none focus:border-[var(--color-action-ring)]"
                         />
                         <Select.Root size="small" value={field.type} onValueChange={(next) => setOutput(index, { type: next as StaticColumnType })}>
-                          <Select.Trigger aria-label="Output type" className="w-[140px] shrink-0">
+                          <Select.Trigger aria-label="Tipo de saída" className="w-[140px] shrink-0">
                             <Select.Value />
                           </Select.Trigger>
                           <Select.Content>
@@ -710,8 +710,8 @@ export default function AiDialog({
                           type="button"
                           disabled={outputs.length === 1}
                           onClick={() => setOutputs((c) => c.filter((_, i) => i !== index))}
-                          aria-label={`Remove ${field.name}`}
-                          className="shrink-0 rounded-md p-1.5 text-text-soft-400 transition hover:bg-bg-weak-50 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-30"
+                          aria-label={`Remover ${field.name}`}
+                          className="shrink-0 rounded-md p-1.5 text-text-soft-400 transition hover:bg-[var(--color-error-lighter)] hover:text-[var(--color-error-dark)] disabled:opacity-30"
                         >
                           <RiDeleteBinLine className="size-4" />
                         </button>
@@ -727,7 +727,7 @@ export default function AiDialog({
                       }
                       className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-stroke-sub-300 py-2 text-[13px] font-medium text-text-sub-600 transition hover:bg-bg-weak-50"
                     >
-                      <RiAddLine className="size-4" />Add output
+                      <RiAddLine className="size-4" />Adicionar saída
                     </button>
                   </div>
                 ) : (
@@ -736,7 +736,7 @@ export default function AiDialog({
                     rows={8}
                     onChange={(e) => setSchemaText(e.target.value)}
                     placeholder='{ "type": "object", "properties": { "name": { "type": "string" } } }'
-                    className="w-full resize-y rounded-lg border border-stroke-soft-200 px-3 py-2.5 font-mono text-[12px] outline-none focus:border-blue-400"
+                    className="w-full resize-y rounded-lg border border-stroke-soft-200 px-3 py-2.5 font-mono text-[12px] outline-none focus:border-[var(--color-action-ring)]"
                   />
                 )}
               </>
@@ -744,19 +744,19 @@ export default function AiDialog({
           </Section>
 
           {/* ---- examples ---- */}
-          <Section title="Examples">
+          <Section title="Exemplos">
             <p className="text-[13px] text-text-sub-600">
-              Give examples of how the AI should respond — <span className="text-text-soft-400">optional</span>
+              Forneça exemplos de como a IA deve responder — <span className="text-text-soft-400">opcional</span>
             </p>
             {examples.map((example, index) => (
               <div key={index} className="rounded-lg border border-stroke-soft-200 p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-medium text-text-strong-950">Custom example</span>
+                  <span className="text-[13px] font-medium text-text-strong-950">Exemplo personalizado</span>
                   <button
                     type="button"
                     onClick={() => setExamples((c) => c.filter((_, i) => i !== index))}
-                    aria-label="Remove example"
-                    className="rounded-md p-1 text-text-soft-400 transition hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
+                    aria-label="Remover exemplo"
+                    className="rounded-md p-1 text-text-soft-400 transition hover:bg-[var(--color-error-lighter)] hover:text-[var(--color-error-dark)]"
                   >
                     <RiDeleteBinLine className="size-4" />
                   </button>
@@ -773,18 +773,18 @@ export default function AiDialog({
                           ),
                         )
                       }
-                      className="mt-1 w-full rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-[13px] outline-none focus:border-blue-400"
+                      className="mt-1 w-full rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-[13px] outline-none focus:border-[var(--color-action-ring)]"
                     />
                   </div>
                 ))}
-                <label className="mt-2 block text-[12px] text-text-sub-600">Expected response:</label>
+                <label className="mt-2 block text-[12px] text-text-sub-600">Resposta esperada:</label>
                 <textarea
                   value={example.response}
                   rows={2}
                   onChange={(e) =>
                     setExamples((all) => all.map((item, i) => (i === index ? { ...item, response: e.target.value } : item)))
                   }
-                  className="mt-1 w-full resize-y rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-[13px] outline-none focus:border-blue-400"
+                  className="mt-1 w-full resize-y rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-[13px] outline-none focus:border-[var(--color-action-ring)]"
                 />
               </div>
             ))}
@@ -793,22 +793,22 @@ export default function AiDialog({
               onClick={() => setExamples((c) => [...c, { inputs: {}, response: "" }])}
               className="flex items-center gap-1.5 rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50"
             >
-              <RiAddLine className="size-4" />Add examples
+              <RiAddLine className="size-4" />Adicionar exemplos
             </button>
           </Section>
 
           {/* ---- run settings ---- */}
-          <Section title="Run settings">
+          <Section title="Configurações de execução">
             <label className="flex items-center justify-between">
-              <span className="text-[13px] font-medium text-text-strong-950">Auto-run</span>
+              <span className="text-[13px] font-medium text-text-strong-950">Execução automática</span>
               <input type="checkbox" checked={autoRun} onChange={(e) => setAutoRun(e.target.checked)} className="size-4" />
             </label>
 
             <label className="flex items-start gap-2">
               <input type="checkbox" checked={conditionEnabled} onChange={(e) => setConditionEnabled(e.target.checked)} className="mt-0.5 size-4" />
               <span>
-                <span className="block text-[13px] text-text-strong-950">Add run condition</span>
-                <span className="block text-[12px] text-text-sub-600">Only run if this formula resolves to true.</span>
+                <span className="block text-[13px] text-text-strong-950">Adicionar condição de execução</span>
+                <span className="block text-[12px] text-text-sub-600">Executar somente se esta fórmula resultar em verdadeiro.</span>
               </span>
             </label>
             {conditionEnabled && (
@@ -816,20 +816,20 @@ export default function AiDialog({
                 value={runCondition}
                 onChange={(e) => setRunCondition(e.target.value)}
                 placeholder="{{email}} != &quot;&quot;"
-                className="w-full rounded-lg border border-stroke-soft-200 px-3 py-2 font-mono text-[12px] outline-none focus:border-blue-400"
+                className="w-full rounded-lg border border-stroke-soft-200 px-3 py-2 font-mono text-[12px] outline-none focus:border-[var(--color-action-ring)]"
               />
             )}
 
             <div>
-              <span className="text-[13px] font-medium text-text-strong-950">Delay run</span>
+              <span className="text-[13px] font-medium text-text-strong-950">Atrasar execução</span>
               <div className="mt-1.5 space-y-1.5">
                 <label className="flex items-center gap-2 text-[13px] text-text-strong-950">
                   <input type="radio" checked={!delayEnabled} onChange={() => setDelayEnabled(false)} className="size-4" />
-                  Run immediately
+                  Executar imediatamente
                 </label>
                 <label className="flex items-center gap-2 text-[13px] text-text-strong-950">
                   <input type="radio" checked={delayEnabled} onChange={() => setDelayEnabled(true)} className="size-4" />
-                  Run after delay
+                  Executar após atraso
                 </label>
                 {delayEnabled && (
                   <input
@@ -838,7 +838,7 @@ export default function AiDialog({
                     max={600}
                     value={delaySeconds}
                     onChange={(e) => setDelaySeconds(Number(e.target.value))}
-                    className="w-[140px] rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-[13px] outline-none focus:border-blue-400"
+                    className="w-[140px] rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-[13px] outline-none focus:border-[var(--color-action-ring)]"
                   />
                 )}
               </div>
@@ -847,10 +847,10 @@ export default function AiDialog({
         </div>
 
         {/* footer */}
-        {error && <p role="alert" className="mx-5 mb-3 mt-3 shrink-0 rounded-lg bg-red-50 dark:bg-red-500/10 px-3 py-2 text-[13px] text-red-700 dark:text-red-400">{error}</p>}
+        {error && <p role="alert" className="mx-5 mb-3 mt-3 shrink-0 rounded-lg bg-[var(--color-error-lighter)] px-3 py-2 text-[13px] text-[var(--color-error-dark)]">{error}</p>}
         <div className="flex shrink-0 items-center justify-between gap-3 border-t border-stroke-soft-200 px-5 py-3.5">
           <span className="rounded-full border border-stroke-soft-200 px-2.5 py-1 text-[12px] text-text-sub-600">
-            {model ? `${model.creditsPerRun} / row` : "—"}
+            {model ? `${model.creditsPerRun} / linha` : "—"}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -859,16 +859,16 @@ export default function AiDialog({
               disabled={busy}
               className="rounded-lg border border-stroke-soft-200 px-3 py-2 text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50 disabled:opacity-50"
             >
-              Save
+              Salvar
             </button>
             <button
               type="button"
               onClick={() => void save(true)}
               disabled={busy}
-              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[13px] font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg bg-[var(--color-action-bg)] px-3 py-2 text-[13px] font-medium text-[var(--color-action-text)] transition hover:bg-[var(--color-action-bg-hover)] disabled:opacity-50"
             >
               {busy && <RiLoader4Line className="size-4 animate-spin" />}
-              Save and run 10 rows
+              Salvar e executar 10 linhas
             </button>
           </div>
         </div>

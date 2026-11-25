@@ -35,13 +35,13 @@ export default function ColumnsMenu({
   return (
     <div className="py-1.5">
       <div className="px-2 pb-1.5">
-        <div className="flex items-center gap-2 rounded-lg border border-blue-500 px-2.5 py-2 ring-1 ring-blue-500">
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--color-action-ring)] px-2.5 py-2 ring-1 ring-[var(--color-action-ring)]">
           <RiSearchLine className="size-4 shrink-0 text-text-soft-400" />
           <input
             autoFocus
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search"
+            placeholder="Pesquisar"
             className="min-w-0 flex-1 bg-transparent text-[13px] text-text-strong-950 outline-none placeholder:text-text-soft-400"
           />
         </div>
@@ -54,7 +54,7 @@ export default function ColumnsMenu({
         className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-text-strong-950 transition hover:bg-bg-weak-50 disabled:text-text-disabled-300"
       >
         <RiEyeLine className="size-[18px] shrink-0 text-text-soft-400" />
-        Show all columns
+        Mostrar todas as colunas
       </button>
       <button
         type="button"
@@ -63,14 +63,14 @@ export default function ColumnsMenu({
         className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-text-strong-950 transition hover:bg-bg-weak-50 disabled:text-text-disabled-300"
       >
         <RiSortAsc className="size-[18px] shrink-0 text-text-soft-400" />
-        Hide all columns
+        Ocultar todas as colunas
       </button>
 
       <div className="my-1.5 h-px bg-bg-weak-50" />
 
       <div className="max-h-[320px] overflow-y-auto">
         {filtered.length === 0 && (
-          <p className="px-3 py-3 text-[13px] text-text-soft-400">No columns match.</p>
+          <p className="px-3 py-3 text-[13px] text-text-soft-400">Nenhuma coluna encontrada.</p>
         )}
         {filtered.map((c) => {
           const isHidden = hiddenSet.has(c.key);

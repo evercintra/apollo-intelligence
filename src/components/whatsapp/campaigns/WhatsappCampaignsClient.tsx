@@ -41,18 +41,18 @@ const WHATSAPP = CHANNEL_META.whatsapp.color;
 
 const FILTERS = ["all", "active", "paused"] as const;
 type Filter = (typeof FILTERS)[number];
-const FILTER_LABEL: Record<Filter, string> = { all: "All", active: "Active", paused: "Paused" };
+const FILTER_LABEL: Record<Filter, string> = { all: "Todas", active: "Ativas", paused: "Pausadas" };
 
 const num = "text-paragraph-sm tabular-nums text-text-strong-950";
 
 function shortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString("pt-BR", { month: "short", day: "numeric" });
 }
 
 function senderLabel(c: WhatsappCampaignSummary): string {
-  if (c.senders.length === 0) return "No numbers";
+  if (c.senders.length === 0) return "Sem números";
   const first = c.senders[0]!;
-  const name = first.name || first.phone || "Number";
+  const name = first.name || first.phone || "Número";
   return c.senders.length === 1 ? name : `${name} +${c.senders.length - 1}`;
 }
 
@@ -60,23 +60,23 @@ function RowMenu({ campaign, busy, onToggle, onDelete, onEdit }: { campaign: Wha
   return (
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
-        <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`More actions for ${campaign.name}`}>
+        <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Mais ações para ${campaign.name}`}>
           <Button.Icon as={busy ? RiLoader4Line : RiMoreLine} className={cn(busy && "animate-spin")} />
         </Button.Root>
       </Dropdown.Trigger>
       <Dropdown.Content>
         <Dropdown.Item onSelect={onEdit}>
           <Dropdown.ItemIcon as={RiPencilLine} />
-          Edit campaign
+          Editar campanha
         </Dropdown.Item>
         <Dropdown.Item onSelect={onToggle}>
           <Dropdown.ItemIcon as={campaign.status === "active" ? RiPauseCircleLine : RiPlayCircleLine} />
-          {campaign.status === "active" ? "Pause campaign" : "Resume campaign"}
+          {campaign.status === "active" ? "Pausar campanha" : "Retomar campanha"}
         </Dropdown.Item>
         <Dropdown.Separator />
         <Dropdown.Item destructive onSelect={onDelete}>
           <Dropdown.ItemIcon as={RiDeleteBinLine} />
-          Archive campaign
+          Arquivar campanha
         </Dropdown.Item>
       </Dropdown.Content>
     </Dropdown.Root>
@@ -87,7 +87,7 @@ const NewCampaignButton = () => (
   <Button.Root variant="primary" mode="filled" size="small" asChild>
     <Link href="/whatsapp/campaigns/new">
       <Button.Icon as={RiAddLine} />
-      New campaign
+      Nova campanha
     </Link>
   </Button.Root>
 );
@@ -108,7 +108,7 @@ export function WhatsappCampaignsClient() {
       setCampaigns(data.campaigns);
       setLoadError(null);
     } catch (cause) {
-      setLoadError(errorText(cause, "Could not load campaigns"));
+      setLoadError(errorText(cause, "Não foi possível carregar as campanhas"));
     }
   }, []);
 
@@ -154,7 +154,7 @@ export function WhatsappCampaignsClient() {
       await apiJson(`/api/whatsapp/campaigns/${c.id}`, { method: "PATCH", body: JSON.stringify({ status: next }) });
       setCampaigns((prev) => prev?.map((x) => (x.id === c.id ? { ...x, status: next } : x)) ?? prev);
     } catch (cause) {
-      await dialogs.alert({ title: `Could not ${next === "paused" ? "pause" : "launch"} the campaign`, description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: `Não foi possível ${next === "paused" ? "pausar" : "iniciar"} a campanha`, description: errorText(cause), variant: "error" });
     } finally {
       setBusyId(null);
     }
@@ -162,9 +162,9 @@ export function WhatsappCampaignsClient() {
 
   async function archive(c: WhatsappCampaignSummary) {
     const ok = await dialogs.confirm({
-      title: "Archive campaign?",
-      description: "Sending stops and the campaign leaves this list. Messages already sent stay in Messages and the CRM.",
-      confirmLabel: "Archive campaign",
+      title: "Arquivar campanha?",
+      description: "Os envios param e a campanha sai desta lista. As mensagens já enviadas permanecem em Mensagens e no CRM.",
+      confirmLabel: "Arquivar campanha",
       variant: "error",
     });
     if (!ok) return;
@@ -173,7 +173,7 @@ export function WhatsappCampaignsClient() {
       await apiJson(`/api/whatsapp/campaigns/${c.id}`, { method: "DELETE" });
       setCampaigns((prev) => prev?.filter((x) => x.id !== c.id) ?? prev);
     } catch (cause) {
-      await dialogs.alert({ title: "Could not archive campaign", description: errorText(cause), variant: "error" });
+      await dialogs.alert({ title: "Não foi possível arquivar a campanha", description: errorText(cause), variant: "error" });
     } finally {
       setBusyId(null);
     }
@@ -182,22 +182,22 @@ export function WhatsappCampaignsClient() {
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        title="Message campaigns"
-        description="Cold WhatsApp messages and follow-ups from your numbers. A reply on any channel stops the sequence."
+        title="Campanhas de mensagens"
+        description="Mensagens e follow-ups de WhatsApp a frio a partir dos seus números. Uma resposta em qualquer canal interrompe a sequência."
         actions={<NewCampaignButton />}
       />
 
       <KpiStrip className="mt-6" columns={4}>
-        <KpiCell icon={RiTeamLine} label="Leads" value={formatCompact(totals.leads)} context={`${formatCompact(totals.queued)} not messaged yet`} />
-        <KpiCell icon={RiSendPlaneLine} label="Messaged" value={formatCompact(totals.messaged)} context={`${formatCompact(totals.sent)} messages sent`} hint="Leads who received at least one message and are still in sequence, finished or replied." />
-        <KpiCell icon={RiChat1Line} label="Replied" value={formatCompact(totals.replied)} context={totals.messaged > 0 ? `${formatPercent(totals.replied / totals.messaged)} of messaged` : undefined} hint="Leads who replied, on any channel." />
-        <KpiCell icon={RiPercentLine} label="Reply rate" value={formatPercent(totals.messaged > 0 ? totals.replied / totals.messaged : null)} context={`${counts.active} active, ${counts.paused} paused`} hint="Replied divided by messaged, across every campaign." />
+        <KpiCell icon={RiTeamLine} label="Leads" value={formatCompact(totals.leads)} context={`${formatCompact(totals.queued)} ainda não contatados`} />
+        <KpiCell icon={RiSendPlaneLine} label="Contatados" value={formatCompact(totals.messaged)} context={`${formatCompact(totals.sent)} mensagens enviadas`} hint="Leads que receberam pelo menos uma mensagem e estão em sequência, concluídos ou responderam." />
+        <KpiCell icon={RiChat1Line} label="Responderam" value={formatCompact(totals.replied)} context={totals.messaged > 0 ? `${formatPercent(totals.replied / totals.messaged)} dos contatados` : undefined} hint="Leads que responderam, em qualquer canal." />
+        <KpiCell icon={RiPercentLine} label="Taxa de resposta" value={formatPercent(totals.messaged > 0 ? totals.replied / totals.messaged : null)} context={`${counts.active} ativas, ${counts.paused} pausadas`} hint="Respostas divididas pelos contatados, em todas as campanhas." />
       </KpiStrip>
 
       <Frame className="mt-5">
         <FrameHeader
-          title="Campaigns"
-          description="All time. Select a campaign to see its activity, leads and sequence."
+          title="Campanhas"
+          description="Desde sempre. Selecione uma campanha para ver atividade, leads e sequência."
           actions={
             <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
               <SegmentedControl.Root value={filter} onValueChange={(v) => setFilter(v as Filter)}>
@@ -213,7 +213,7 @@ export function WhatsappCampaignsClient() {
               <Input.Root size="small" className="w-56">
                 <Input.Wrapper>
                   <Input.Icon as={RiSearchLine} />
-                  <Input.Input type="search" aria-label="Search campaigns" placeholder="Search campaigns…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                  <Input.Input type="search" aria-label="Buscar campanhas" placeholder="Buscar campanhas…" value={search} onChange={(e) => setSearch(e.target.value)} />
                 </Input.Wrapper>
               </Input.Root>
             </div>
@@ -221,43 +221,43 @@ export function WhatsappCampaignsClient() {
         />
         <FramePanel className="overflow-x-auto p-2 sm:p-2">
           {campaigns === null && !loadError ? (
-            <div aria-busy="true" aria-label="Loading" className="space-y-2 p-2">
+            <div aria-busy="true" aria-label="Carregando" className="space-y-2 p-2">
               {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="h-14 w-full rounded-xl" />)}
             </div>
           ) : loadError ? (
             <EmptyState
               icon={RiChat1Line}
-              title="Could not load campaigns"
+              title="Não foi possível carregar as campanhas"
               description={loadError}
-              action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => void load()}>Try again</Button.Root>}
+              action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => void load()}>Tentar novamente</Button.Root>}
             />
           ) : filtered.length === 0 ? (
             rows.length === 0 ? (
               <EmptyState
                 icon={RiChat1Line}
-                title="No message campaigns yet"
-                description="Start one to send a first WhatsApp message and follow-ups from your numbers."
+                title="Nenhuma campanha de mensagens ainda"
+                description="Crie uma para enviar a primeira mensagem e os follow-ups a partir dos seus números."
                 action={<NewCampaignButton />}
               />
             ) : (
               <EmptyState
                 icon={RiSearchLine}
-                title="No campaigns match"
-                description="Try another status or search."
-                action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setSearch(""); setFilter("all"); }}>Clear filters</Button.Root>}
+                title="Nenhuma campanha encontrada"
+                description="Tente outro status ou busca."
+                action={<Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setSearch(""); setFilter("all"); }}>Limpar filtros</Button.Root>}
               />
             )
           ) : (
             <Table.Root className="min-w-[960px] [&>table]:table-fixed">
               <Table.Header>
                 <Table.Row>
-                  <Table.Head scope="col" className="px-4">Campaign</Table.Head>
-                  <Table.Head scope="col" className="w-40 px-4">Numbers</Table.Head>
+                  <Table.Head scope="col" className="px-4">Campanha</Table.Head>
+                  <Table.Head scope="col" className="w-40 px-4">Números</Table.Head>
                   <Table.Head scope="col" className="w-20 px-4 text-right">Leads</Table.Head>
-                  <Table.Head scope="col" className="w-24 whitespace-nowrap px-4 text-right" title="Leads not yet sent their first message">Not messaged</Table.Head>
-                  <Table.Head scope="col" className="w-24 px-4 text-right" title="Leads who received a message">Messaged</Table.Head>
-                  <Table.Head scope="col" className="w-48 px-4" title="Leads who replied, and replied ÷ messaged">Replied</Table.Head>
-                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Actions</span></Table.Head>
+                  <Table.Head scope="col" className="w-24 whitespace-nowrap px-4 text-right" title="Leads que ainda não receberam a primeira mensagem">Não contatados</Table.Head>
+                  <Table.Head scope="col" className="w-24 px-4 text-right" title="Leads que receberam uma mensagem">Contatados</Table.Head>
+                  <Table.Head scope="col" className="w-48 px-4" title="Leads que responderam e respostas ÷ contatados">Responderam</Table.Head>
+                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Ações</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>
@@ -276,7 +276,7 @@ export function WhatsappCampaignsClient() {
                     >
                       <Table.Cell className="h-16 px-4">
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="shrink-0" title={f.progress === null ? "No leads" : f.queued === 0 ? "Every lead has been messaged" : `${Math.round(f.progress * 100)}% of leads messaged`}>
+                          <div className="shrink-0" title={f.progress === null ? "Sem leads" : f.queued === 0 ? "Todos os leads foram contatados" : `${Math.round(f.progress * 100)}% dos leads contatados`}>
                             <CampaignProgressRing progress={f.progress} complete={f.total > 0 && f.queued === 0} />
                           </div>
                           <div className="min-w-0">
@@ -288,7 +288,7 @@ export function WhatsappCampaignsClient() {
                               </Badge.Root>
                             </div>
                             <p className="mt-0.5 max-w-md truncate text-paragraph-xs text-text-sub-600" title={c.description ?? undefined} suppressHydrationWarning>
-                              Created {shortDate(c.createdAt)} · {c.stepCount} {c.stepCount === 1 ? "message" : "messages"}
+                              Criada em {shortDate(c.createdAt)} · {c.stepCount} {c.stepCount === 1 ? "mensagem" : "mensagens"}
                               {c.description ? ` · ${c.description}` : ""}
                             </p>
                           </div>
@@ -297,12 +297,12 @@ export function WhatsappCampaignsClient() {
                       <Table.Cell className="px-4">
                         <span className="block truncate text-paragraph-sm text-text-sub-600" title={c.senders.map((s) => s.name || s.phone).join(", ")}>{senderLabel(c)}</span>
                       </Table.Cell>
-                      <Table.Cell className={cn("px-4 text-right", num)}>{f.total.toLocaleString("en-US")}</Table.Cell>
-                      <Table.Cell className={cn("px-4 text-right", f.queued > 0 ? num : "text-paragraph-sm tabular-nums text-text-soft-400")}>{f.queued.toLocaleString("en-US")}</Table.Cell>
-                      <Table.Cell className={cn("px-4 text-right", num)}>{f.messaged.toLocaleString("en-US")}</Table.Cell>
+                      <Table.Cell className={cn("px-4 text-right", num)}>{f.total.toLocaleString("pt-BR")}</Table.Cell>
+                      <Table.Cell className={cn("px-4 text-right", f.queued > 0 ? num : "text-paragraph-sm tabular-nums text-text-soft-400")}>{f.queued.toLocaleString("pt-BR")}</Table.Cell>
+                      <Table.Cell className={cn("px-4 text-right", num)}>{f.messaged.toLocaleString("pt-BR")}</Table.Cell>
                       <Table.Cell className="px-4">
-                        <div className="flex items-center gap-3" title={`${f.replied.toLocaleString("en-US")} replied · ${formatPercent(f.replyRate)}`}>
-                          <span className={cn("w-10 text-right", num)}>{f.replied.toLocaleString("en-US")}</span>
+                        <div className="flex items-center gap-3" title={`${f.replied.toLocaleString("pt-BR")} responderam · ${formatPercent(f.replyRate)}`}>
+                          <span className={cn("w-10 text-right", num)}>{f.replied.toLocaleString("pt-BR")}</span>
                           <span className="w-11 text-paragraph-xs tabular-nums text-text-sub-600">{formatPercent(f.replyRate)}</span>
                           <span aria-hidden="true" className="h-1.5 w-12 rounded-full bg-bg-weak-50">
                             <span className="block h-full rounded-full" style={{ width: `${((f.replyRate ?? 0) / maxReply) * 100}%`, backgroundColor: WHATSAPP }} />

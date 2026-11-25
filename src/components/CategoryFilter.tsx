@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import categoriesData from "@/data/categories.json";
+import { translateCategory } from "@/lib/prospectingLabels";
 
 export const NULL_CATEGORY = "__null__";
 
@@ -61,7 +62,7 @@ export default function CategoryFilter({ countryCode, c1, c2, c3, onChange }: Pr
   return (
     <div className="flex flex-col gap-2">
       <CategorySelect
-        placeholder="All Categories"
+        placeholder="Todas as categorias"
         value={c1}
         options={categoriesData.l1}
         counts={c1Counts}
@@ -72,7 +73,7 @@ export default function CategoryFilter({ countryCode, c1, c2, c3, onChange }: Pr
 
       {c1 && c1 !== NULL_CATEGORY && c2Options.length > 0 && (
         <CategorySelect
-          placeholder={`All ${c1}`}
+          placeholder="Todas as subcategorias"
           value={c2}
           options={c2Options}
           counts={c2Counts}
@@ -83,7 +84,7 @@ export default function CategoryFilter({ countryCode, c1, c2, c3, onChange }: Pr
 
       {c1 && c2 && c3Options.length > 0 && (
         <CategorySelect
-          placeholder={`All ${c2}`}
+          placeholder="Todas as subcategorias"
           value={c3}
           options={c3Options}
           counts={c3Counts}
@@ -118,7 +119,7 @@ function CategorySelect({ placeholder, value, options, counts, showNull, onSelec
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  const displayLabel = value === NULL_CATEGORY ? "Uncategorized" : value;
+  const displayLabel = value === NULL_CATEGORY ? "Sem categoria" : translateCategory(value);
 
   return (
     <div ref={ref} className="relative w-full">
@@ -128,8 +129,8 @@ function CategorySelect({ placeholder, value, options, counts, showNull, onSelec
         className={`
           w-full flex items-center justify-between gap-2 rounded-lg border text-left
           px-3 py-2.5 text-sm transition-all duration-150 focus:outline-none
-          ${value ? "border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium" : "border-stroke-soft-200 bg-bg-white-0 text-text-strong-950/50 hover:border-stroke-sub-300"}
-          ${open ? "ring-2 ring-indigo-300 dark:ring-indigo-500/30 border-indigo-400" : ""}
+          ${value ? "border-complement-medium bg-complement-surface text-complement-deep font-medium" : "border-stroke-soft-200 bg-bg-white-0 text-text-strong-950/50 hover:border-stroke-sub-300"}
+          ${open ? "ring-2 ring-action-ring border-complement-medium" : ""}
         `}
       >
         <span className="truncate">{value ? displayLabel : placeholder}</span>
@@ -138,7 +139,7 @@ function CategorySelect({ placeholder, value, options, counts, showNull, onSelec
             <span
               role="button"
               onClick={(e) => { e.stopPropagation(); onClear(); setOpen(false); }}
-              className="w-4 h-4 flex items-center justify-center rounded-full text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-500/25 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors text-xs"
+              className="w-4 h-4 flex items-center justify-center rounded-full text-complement-medium hover:bg-complement-light dark:hover:bg-complement-deep/25 hover:text-complement-deep dark:hover:text-complement-medium transition-colors text-xs"
             >
               ×
             </span>
@@ -150,13 +151,13 @@ function CategorySelect({ placeholder, value, options, counts, showNull, onSelec
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1.5 w-56 rounded-xl border border-stroke-soft-200 bg-bg-white-0 shadow-xl shadow-slate-200/60 dark:shadow-black/40 overflow-hidden max-h-72 overflow-y-auto">
+        <div className="absolute z-50 mt-1.5 w-56 rounded-xl border border-stroke-soft-200 bg-bg-white-0 shadow-regular-md overflow-hidden max-h-72 overflow-y-auto">
           {/* All / clear */}
           <button
             type="button"
             onClick={() => { onClear(); setOpen(false); }}
             className={`w-full text-left px-3 py-2.5 text-sm border-b border-stroke-soft-200 transition-colors ${
-              !value ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium" : "text-text-strong-950/50 hover:bg-bg-weak-50"
+              !value ? "bg-complement-surface text-complement-deep font-medium" : "text-text-strong-950/50 hover:bg-bg-weak-50"
             }`}
           >
             {placeholder}
@@ -171,12 +172,12 @@ function CategorySelect({ placeholder, value, options, counts, showNull, onSelec
                 type="button"
                 onClick={() => { onSelect(opt); setOpen(false); }}
                 className={`w-full text-left flex items-center justify-between gap-2 px-3 py-2.5 text-sm transition-colors ${
-                  opt === value ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium" : "text-text-strong-950 hover:bg-bg-weak-50"
+                  opt === value ? "bg-complement-surface text-complement-deep font-medium" : "text-text-strong-950 hover:bg-bg-weak-50"
                 }`}
               >
-                <span className="truncate min-w-0 flex-1">{opt}</span>
+                <span className="truncate min-w-0 flex-1">{translateCategory(opt)}</span>
                 {cnt !== undefined && (
-                  <span className={`text-xs tabular-nums shrink-0 ${opt === value ? "text-indigo-400" : "text-text-strong-950/50"}`}>
+                  <span className={`text-xs tabular-nums shrink-0 ${opt === value ? "text-complement-medium" : "text-text-strong-950/50"}`}>
                     {fmt(cnt)}
                   </span>
                 )}
@@ -192,10 +193,10 @@ function CategorySelect({ placeholder, value, options, counts, showNull, onSelec
                 type="button"
                 onClick={() => { onSelect(NULL_CATEGORY); setOpen(false); }}
                 className={`w-full text-left px-3 py-2.5 text-sm italic transition-colors ${
-                  value === NULL_CATEGORY ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium not-italic" : "text-text-strong-950/50 hover:bg-bg-weak-50"
+                  value === NULL_CATEGORY ? "bg-complement-surface text-complement-deep font-medium not-italic" : "text-text-strong-950/50 hover:bg-bg-weak-50"
                 }`}
               >
-                Uncategorized
+                Sem categoria
               </button>
             </>
           )}

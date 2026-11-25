@@ -7,16 +7,16 @@ import { cn } from "@/utils/cn";
 import { Frame, FrameFooter, FrameHeader, FramePanel } from "../kit/Frame";
 import { formatPercent } from "../theme";
 
-const STAGE_HEADING: Record<ConversionStageKey, string> = { booked: "Meeting booked", showed: "Showed up", pilot: "Pilot", customer: "Customer" };
+const STAGE_HEADING: Record<ConversionStageKey, string> = { booked: "Reunião agendada", showed: "Compareceu", pilot: "Piloto", customer: "Cliente" };
 
 function cell(cohort: ConversionCohort, stage: ConversionStageKey) {
   const reached = cohort.reached[stage];
-  if (reached === null) return "n/a";
+  if (reached === null) return "n/d";
   // Counts first; the percentage only once there is a cohort to divide by.
   return cohort.interested > 0 ? `${reached} (${formatPercent(cohort.rates[stage])})` : "0";
 }
 
-const weekLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+const weekLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("pt-BR", { month: "short", day: "numeric", timeZone: "UTC" });
 
 /** Cohort conversion by week of first becoming interested, then the booking-link funnel. */
 export function ConversionCard({ value, loading, className }: { value: ConversionReport; loading: boolean; className?: string }) {
@@ -24,13 +24,13 @@ export function ConversionCard({ value, loading, className }: { value: Conversio
   const rows: ConversionCohort[] = [...weeks.filter((w) => w.interested > 0), total];
   return (
     <Frame className={className}>
-      <FrameHeader title="Conversion" description="Of the leads that became interested, how many went on to each stage. Each lead is followed after the period ends." />
+      <FrameHeader title="Conversão" description="Dos leads que se tornaram interessados, quantos chegaram a cada etapa. Cada lead é acompanhado após o fim do período." />
       <FramePanel className={cn("p-2 transition-opacity sm:p-3", loading && "opacity-60")}>
         <Table.Root>
-          <Table.Caption className="sr-only">Conversion by cohort</Table.Caption>
+          <Table.Caption className="sr-only">Conversão por coorte</Table.Caption>
           <Table.Header>
             <Table.Row>
-              <Table.Head scope="col">Became interested</Table.Head>
+              <Table.Head scope="col">Tornou-se interessado</Table.Head>
               <Table.Head scope="col" className="text-right">Leads</Table.Head>
               {CONVERSION_STAGES.map((stage) => (
                 <Table.Head key={stage} scope="col" className="text-right">{STAGE_HEADING[stage]}</Table.Head>
@@ -41,7 +41,7 @@ export function ConversionCard({ value, loading, className }: { value: Conversio
             {rows.map((cohort) => (
               <Table.Row key={cohort.weekStart ?? "total"}>
                 <Table.Cell className={cn("h-10 text-label-sm text-text-strong-950", cohort.weekStart === null && "font-medium")}>
-                  {cohort.weekStart === null ? "Whole period" : `Week of ${weekLabel(cohort.weekStart)}`}
+                  {cohort.weekStart === null ? "Período inteiro" : `Semana de ${weekLabel(cohort.weekStart)}`}
                 </Table.Cell>
                 <Table.Cell className="h-10 text-right text-paragraph-sm tabular-nums text-text-strong-950">{cohort.interested}</Table.Cell>
                 {CONVERSION_STAGES.map((stage) => (
@@ -53,26 +53,26 @@ export function ConversionCard({ value, loading, className }: { value: Conversio
         </Table.Root>
         <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-stroke-soft-200 px-2 pt-4 sm:px-3">
           <div>
-            <dt className="text-paragraph-xs text-text-sub-600">Booking links sent</dt>
+            <dt className="text-paragraph-xs text-text-sub-600">Links de agendamento enviados</dt>
             <dd className="text-label-md tabular-nums text-text-strong-950">{funnel.linksSent}</dd>
           </div>
           <div>
-            <dt className="text-paragraph-xs text-text-sub-600">Booked</dt>
+            <dt className="text-paragraph-xs text-text-sub-600">Agendados</dt>
             <dd className="text-label-md tabular-nums text-text-strong-950">
-              {funnel.booked}{funnel.bookedRate !== null && <span className="ml-1.5 text-paragraph-xs text-text-sub-600">{formatPercent(funnel.bookedRate)} of links</span>}
+              {funnel.booked}{funnel.bookedRate !== null && <span className="ml-1.5 text-paragraph-xs text-text-sub-600">{formatPercent(funnel.bookedRate)} dos links</span>}
             </dd>
           </div>
           <div>
-            <dt className="text-paragraph-xs text-text-sub-600">Showed up</dt>
+            <dt className="text-paragraph-xs text-text-sub-600">Compareceram</dt>
             <dd className="text-label-md tabular-nums text-text-strong-950">
-              {funnel.showed}{funnel.showedRate !== null && <span className="ml-1.5 text-paragraph-xs text-text-sub-600">{formatPercent(funnel.showedRate)} of booked</span>}
+              {funnel.showed}{funnel.showedRate !== null && <span className="ml-1.5 text-paragraph-xs text-text-sub-600">{formatPercent(funnel.showedRate)} dos agendados</span>}
             </dd>
           </div>
         </dl>
       </FramePanel>
       <FrameFooter>
-        Stages are matched by name and counted when a lead reached them or any later one:
-        {" "}{CONVERSION_STAGES.map((s) => `${STAGE_HEADING[s]} = ${stages[s]?.label ?? "not in your pipeline"}`).join(", ")}.
+        Etapas combinadas por nome e contadas quando o lead as alcançou ou uma etapa posterior:
+        {" "}{CONVERSION_STAGES.map((s) => `${STAGE_HEADING[s]} = ${stages[s]?.label ?? "não está no seu pipeline"}`).join(", ")}.
       </FrameFooter>
     </Frame>
   );

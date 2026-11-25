@@ -96,7 +96,7 @@ export default function ImportDialog({
         });
         const d = await res.json();
         if (!res.ok) {
-          setError(d.error ?? "Could not read that file");
+          setError(d.error ?? "Não foi possível ler este arquivo");
           setPreview(null);
           return;
         }
@@ -104,7 +104,7 @@ export default function ImportDialog({
         setMapping(d.mapping);
         setSheet(sheetName ?? d.sheetNames[0]);
       } catch {
-        setError("Upload failed — please try again");
+        setError("Falha no envio — tente novamente");
       } finally {
         setBusy(false);
       }
@@ -145,12 +145,12 @@ export default function ImportDialog({
       });
       const d = await res.json();
       if (!res.ok) {
-        setError(d.error ?? "Import failed");
+        setError(d.error ?? "Falha na importação");
         return;
       }
       onImported({ rowsInserted: d.rowsInserted, columnsCreated: d.columnsCreated });
     } catch {
-      setError("Import failed — please try again");
+      setError("Falha na importação — tente novamente");
     } finally {
       setBusy(false);
     }
@@ -163,14 +163,14 @@ export default function ImportDialog({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm" onClick={busy ? undefined : onClose} />
+      <div className="absolute inset-0 bg-[var(--color-overlay)] backdrop-blur-sm" onClick={busy ? undefined : onClose} />
 
       <div className="relative z-10 flex max-h-[86vh] w-full max-w-4xl flex-col rounded-2xl bg-bg-white-0 shadow-xl ring-1 ring-inset ring-stroke-soft-200">
         <div className="flex shrink-0 items-start justify-between border-b border-stroke-soft-200 px-5 py-4">
           <div>
-            <h2 className="text-[15px] font-semibold text-text-strong-950">Import data</h2>
+            <h2 className="text-[15px] font-semibold text-text-strong-950">Importar dados</h2>
             <p className="text-[13px] text-text-sub-600">
-              CSV, TSV or Excel. The first row is read as column headers.
+              CSV, TSV ou Excel. A primeira linha é lida como cabeçalhos de coluna.
             </p>
           </div>
           <button
@@ -200,7 +200,7 @@ export default function ImportDialog({
                 pick(e.dataTransfer.files?.[0]);
               }}
               className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed py-16 transition ${
-                dragging ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10" : "border-stroke-sub-300 hover:border-stroke-sub-300"
+                dragging ? "border-[var(--color-action-ring)] bg-[var(--color-complement-surface)]" : "border-stroke-sub-300 hover:border-stroke-sub-300"
               }`}
             >
               {busy ? (
@@ -209,7 +209,7 @@ export default function ImportDialog({
                 <RiUploadCloud2Line className="mb-3 size-7 text-text-soft-400" />
               )}
               <span className="text-[13px] font-medium text-text-strong-950">
-                {busy ? "Reading file…" : "Drop a file here, or click to choose"}
+                {busy ? "Lendo arquivo…" : "Solte um arquivo aqui ou clique para escolher"}
               </span>
               <span className="text-[13px] text-text-sub-600">.csv, .tsv, .txt, .xlsx, .xls</span>
             </button>
@@ -232,9 +232,9 @@ export default function ImportDialog({
                   {preview.fileName}
                 </span>
                 <span className="text-[13px] text-text-sub-600">
-                  {preview.totalRows.toLocaleString()} row
-                  {preview.totalRows === 1 ? "" : "s"} · {included} of {preview.headers.length}{" "}
-                  column{preview.headers.length === 1 ? "" : "s"} included
+                  {preview.totalRows.toLocaleString()} linha
+                  {preview.totalRows === 1 ? "" : "s"} · {included} de {preview.headers.length}{" "}
+                  coluna{preview.headers.length === 1 ? "" : "s"} incluída{preview.headers.length === 1 ? "" : "s"}
                 </span>
 
                 {preview.sheetNames.length > 1 && (
@@ -244,7 +244,7 @@ export default function ImportDialog({
                     disabled={busy}
                     onValueChange={(next) => file && loadPreview(file, next)}
                   >
-                    <Select.Trigger aria-label="Sheet" className="ml-auto w-auto">
+                    <Select.Trigger aria-label="Planilha" className="ml-auto w-auto">
                       <Select.Value />
                     </Select.Trigger>
                     <Select.Content>
@@ -259,9 +259,9 @@ export default function ImportDialog({
               </div>
 
               {preview.truncated && (
-                <p className="mb-3 flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-[13px] text-amber-800 dark:text-amber-400">
+                <p className="mb-3 flex items-center gap-2 rounded-lg bg-[var(--color-warning-lighter)] px-3 py-2 text-[13px] text-[var(--color-warning-dark)]">
                   <RiAlertLine className="size-4 shrink-0" />
-                  Only the first {preview.maxRows.toLocaleString()} rows will be imported.
+                  Somente as primeiras {preview.maxRows.toLocaleString()} linhas serão importadas.
                 </p>
               )}
 
@@ -269,9 +269,9 @@ export default function ImportDialog({
                 <table className="w-full text-left text-[13px]">
                   <thead className="bg-bg-weak-50 text-text-sub-600">
                     <tr>
-                      <th className="px-3 py-2 font-medium">File column</th>
-                      <th className="px-3 py-2 font-medium">Sample</th>
-                      <th className="px-3 py-2 font-medium">Import as</th>
+                      <th className="px-3 py-2 font-medium">Coluna do arquivo</th>
+                      <th className="px-3 py-2 font-medium">Amostra</th>
+                      <th className="px-3 py-2 font-medium">Importar como</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -293,7 +293,7 @@ export default function ImportDialog({
                       return (
                         <tr key={i} className="border-t border-stroke-soft-200">
                           <td className="px-3 py-2 font-medium text-text-strong-950">
-                            {header || <span className="text-text-soft-400">(unnamed)</span>}
+                            {header || <span className="text-text-soft-400">(sem nome)</span>}
                           </td>
                           <td className="max-w-[200px] truncate px-3 py-2 text-text-sub-600">
                             {samples || "—"}
@@ -311,7 +311,7 @@ export default function ImportDialog({
                                       next[i] = {
                                         headerIndex: i,
                                         action: "create",
-                                        name: header || `Column ${i + 1}`,
+                                        name: header || `Coluna ${i + 1}`,
                                         type: "text",
                                       };
                                     else
@@ -324,25 +324,25 @@ export default function ImportDialog({
                                   });
                                 }}
                               >
-                                <Select.Trigger aria-label="Import as" className="min-w-[168px]">
+                                <Select.Trigger aria-label="Importar como" className="min-w-[168px]">
                                   <Select.Value />
                                 </Select.Trigger>
                                 <Select.Content>
-                                  <Select.Item value="__new">+ Create new column</Select.Item>
+                                  <Select.Item value="__new">+ Criar nova coluna</Select.Item>
                                   {preview.columns.map((c) => (
                                     <Select.Item key={c.key} value={`col:${c.key}`}>
                                       {c.name}
                                     </Select.Item>
                                   ))}
-                                  <Select.Item value="__skip">Skip this column</Select.Item>
+                                  <Select.Item value="__skip">Ignorar esta coluna</Select.Item>
                                 </Select.Content>
                               </Select.Root>
 
                               {m?.action === "create" && (
                                 <input
-                                  aria-label="New column name"
+                                  aria-label="Nome da nova coluna"
                                   value={m.name}
-                                  placeholder={header || `Column ${i + 1}`}
+                                  placeholder={header || `Coluna ${i + 1}`}
                                   onChange={(e) =>
                                     setMapping((prev) => {
                                       const copy = [...prev];
@@ -350,7 +350,7 @@ export default function ImportDialog({
                                       return copy;
                                     })
                                   }
-                                  title={m.name} className="w-[200px] min-w-0 flex-1 rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-2 py-1 text-[13px] text-text-strong-950 outline-none focus:border-blue-500"
+                                  title={m.name} className="w-[200px] min-w-0 flex-1 rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-2 py-1 text-[13px] text-text-strong-950 outline-none focus:border-[var(--color-action-ring)]"
                                 />
                               )}
 
@@ -366,7 +366,7 @@ export default function ImportDialog({
                                     })
                                   }
                                 >
-                                  <Select.Trigger aria-label="Column type">
+                                  <Select.Trigger aria-label="Tipo de coluna">
                                     <Select.Value />
                                   </Select.Trigger>
                                   <Select.Content>
@@ -390,7 +390,7 @@ export default function ImportDialog({
           )}
 
           {error && (
-            <p className="mt-3 rounded-lg bg-red-50 dark:bg-red-500/10 px-3 py-2 text-[13px] text-red-700 dark:text-red-400">{error}</p>
+            <p className="mt-3 rounded-lg bg-[var(--color-error-lighter)] px-3 py-2 text-[13px] text-[var(--color-error-dark)]">{error}</p>
           )}
         </div>
 
@@ -407,7 +407,7 @@ export default function ImportDialog({
               disabled={busy}
               className="mr-auto rounded-lg px-3 py-2 text-[13px] font-medium text-text-sub-600 transition hover:bg-bg-weak-50 disabled:opacity-50"
             >
-              Choose a different file
+              Escolher outro arquivo
             </button>
           )}
           <button
@@ -416,16 +416,16 @@ export default function ImportDialog({
             disabled={busy}
             className="rounded-lg border border-stroke-soft-200 px-3 py-2 text-[13px] font-medium text-text-sub-600 transition hover:bg-bg-weak-50 disabled:opacity-50"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             type="button"
             onClick={runImport}
             disabled={!preview || busy || included === 0 || blankName}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[13px] font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--color-action-bg)] px-3 py-2 text-[13px] font-medium text-[var(--color-action-text)] transition hover:bg-[var(--color-action-bg-hover)] disabled:opacity-50"
           >
             {busy && <RiLoader4Line className="size-4 animate-spin" />}
-            {preview ? `Import ${preview.totalRows.toLocaleString()} rows` : "Import"}
+            {preview ? `Importar ${preview.totalRows.toLocaleString()} linhas` : "Importar"}
           </button>
         </div>
       </div>

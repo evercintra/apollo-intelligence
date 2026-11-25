@@ -63,14 +63,14 @@ export default function InstructionsSettings() {
     return (
       <Callout
         tone="error"
-        title="Could not load the instructions"
-        action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void load()}>Try again</Button.Root>}
+        title="Não foi possível carregar as instruções"
+        action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => void load()}>Tentar novamente</Button.Root>}
       >
         {error}
       </Callout>
     );
   if (!saved) return null;
-  if (!pipelineId) return <Callout tone="warning" title="No CRM pipeline yet">Instructions belong to the default CRM pipeline, and none is configured yet.</Callout>;
+  if (!pipelineId) return <Callout tone="warning" title="Nenhum pipeline de CRM ainda">As instruções pertencem ao pipeline padrão do CRM, mas nenhum foi configurado.</Callout>;
 
   return (
     // Both panels stay mounted (forceMount + hidden when inactive) so unsaved

@@ -2,7 +2,7 @@ import { WhatsappMessagesClient } from "@/components/whatsapp/WhatsappMessagesCl
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Messages" };
+export const metadata = { title: "Mensagens" };
 
 export default async function CallingMessagesPage({ searchParams }: { searchParams: Promise<{ chat?: string }> }) {
   const { chat } = await searchParams;

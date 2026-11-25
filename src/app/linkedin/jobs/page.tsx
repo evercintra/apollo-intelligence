@@ -21,7 +21,7 @@ export default async function JobsPage({ searchParams }: Props) {
   if (!(await isPlatformOperator(ctx))) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Jobs" description="System job runs are visible only to the team running this AgentSDR instance." />
+        <PageHeader title="Tarefas" description="As execuções do sistema só são visíveis para a equipe desta instância do Apollo Intelligence." />
       </div>
     );
   }

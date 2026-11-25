@@ -344,9 +344,9 @@ export function FilterPopover({
   return (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
       <Popover.Trigger asChild>
-        <Button.Root variant="neutral" mode="stroke" size="small" className={cn("shrink-0", iconOnly && "gap-1 px-2.5")} aria-label={iconOnly ? `Filters${count ? ` (${count} set)` : ""}` : undefined} title={iconOnly ? "Filters" : undefined}>
+        <Button.Root variant="neutral" mode="stroke" size="small" className={cn("shrink-0", iconOnly && "gap-1 px-2.5")} aria-label={iconOnly ? `Filtros${count ? ` (${count} ativos)` : ""}` : undefined} title={iconOnly ? "Filtros" : undefined}>
           <Button.Icon as={RiFilter3Line} />
-          {!iconOnly && "Filter"}
+          {!iconOnly && "Filtrar"}
           {count > 0 && (
             <Badge.Root size="medium" variant="filled" color="blue" square>
               {count}
@@ -367,7 +367,7 @@ export function FilterPopover({
         }}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-label-md text-text-strong-950">Filters</h2>
+          <h2 className="text-label-md text-text-strong-950">Filtros</h2>
           {onClear && (
             <button
               type="button"
@@ -375,7 +375,7 @@ export function FilterPopover({
               disabled={clearDisabled ?? !count}
               className="text-label-sm text-primary-base outline-none hover:underline focus-visible:underline disabled:pointer-events-none disabled:text-text-disabled-300"
             >
-              Clear all
+              Limpar tudo
             </button>
           )}
         </div>
@@ -408,7 +408,7 @@ export function ActiveFilterChips({ chips, onClearAll }: { chips: { key: string;
           <button
             type="button"
             onClick={chip.onRemove}
-            aria-label={`Remove filter: ${chip.label}`}
+            aria-label={`Remover filtro: ${chip.label}`}
             className="flex size-4 shrink-0 items-center justify-center rounded text-text-soft-400 outline-none transition hover:bg-bg-white-0 hover:text-text-strong-950 focus-visible:ring-2 focus-visible:ring-primary-base"
           >
             <svg viewBox="0 0 24 24" fill="none" className="size-3" aria-hidden="true">
@@ -419,7 +419,7 @@ export function ActiveFilterChips({ chips, onClearAll }: { chips: { key: string;
       ))}
       {onClearAll && chips.length > 1 && (
         <button type="button" onClick={onClearAll} className="h-6 rounded-md px-1.5 text-label-xs text-primary-base outline-none hover:underline focus-visible:underline">
-          Clear all
+          Limpar tudo
         </button>
       )}
     </div>
@@ -431,10 +431,10 @@ export function ListCount({ shown, total, noun, loading }: { shown: number; tota
   if (loading && shown === 0) return <Skeleton className="h-3.5 w-20" />;
   const text =
     total == null
-      ? `${shown.toLocaleString("en-US")} ${noun}`
+      ? `${shown.toLocaleString("pt-BR")} ${noun}`
       : shown >= total
-        ? `${total.toLocaleString("en-US")} ${noun}`
-        : `${shown.toLocaleString("en-US")} of ${total.toLocaleString("en-US")} ${noun}`;
+        ? `${total.toLocaleString("pt-BR")} ${noun}`
+        : `${shown.toLocaleString("pt-BR")} de ${total.toLocaleString("pt-BR")} ${noun}`;
   return <span className="shrink-0 whitespace-nowrap text-paragraph-xs tabular-nums text-text-soft-400">{text}</span>;
 }
 
@@ -537,7 +537,7 @@ export function ConversationRow({
         <span className="flex items-baseline gap-2">
           <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
             <span className={cn("truncate text-label-sm", unread ? "font-semibold text-text-strong-950" : "text-text-strong-950")} title={title}>
-              {unread && <span className="sr-only">Unread: </span>}
+              {unread && <span className="sr-only">Não lido: </span>}
               {title}
             </span>
             {subtitle && <span className="hidden min-w-0 truncate text-paragraph-xs text-text-soft-400 sm:inline">{subtitle}</span>}
@@ -557,7 +557,7 @@ export function ConversationRow({
           <span className="mt-0.5 flex items-center gap-2">
             <span className={cn("min-w-0 flex-1 truncate text-paragraph-xs", unread && !headline ? "text-text-strong-950" : "text-text-soft-400")}>{snippet}</span>
             {count > 0 && (
-              <span className="flex h-[1.125rem] min-w-[1.125rem] shrink-0 items-center justify-center rounded-full bg-primary-base px-1 text-[11px] font-semibold leading-none text-static-white" aria-label={`${count} unread`}>
+                <span className="flex h-[1.125rem] min-w-[1.125rem] shrink-0 items-center justify-center rounded-full bg-primary-base px-1 text-[11px] font-semibold leading-none text-static-white" aria-label={`${count} não lidas`}>
                 {count > 9 ? "9+" : count}
               </span>
             )}
@@ -598,9 +598,9 @@ export function CategoryChip({ categoryKey, label, title }: { categoryKey: strin
 }
 
 /** "AI draft" — a reply is drafted and waiting for review. */
-export function DraftChip({ label = "AI draft" }: { label?: string }) {
+export function DraftChip({ label = "Rascunho de IA" }: { label?: string }) {
   return (
-    <span className="inline-flex h-5 shrink-0 items-center gap-1 rounded-md bg-primary-alpha-10 px-1.5 text-label-xs text-primary-base" title="An AI-drafted reply is waiting for review">
+    <span className="inline-flex h-5 shrink-0 items-center gap-1 rounded-md bg-primary-alpha-10 px-1.5 text-label-xs text-primary-base" title="Uma resposta criada por IA aguardando revisão">
       <svg viewBox="0 0 24 24" className="size-3" aria-hidden="true" fill="currentColor">
         <path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2zm7 12l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14z" />
       </svg>
@@ -632,7 +632,7 @@ export function DayHeading({ children, action }: { children: ReactNode; action?:
 /** Skeleton rows for a list's first load. */
 export function RowsSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div aria-busy="true" aria-label="Loading" className="pt-1.5">
+    <div aria-busy="true" aria-label="Carregando" className="pt-1.5">
       {Array.from({ length: rows }, (_, i) => (
         <div key={i} className="flex gap-3 py-2.5 pl-4 pr-3">
           <Skeleton className="size-9 shrink-0 rounded-full" />

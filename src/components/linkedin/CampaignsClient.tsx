@@ -54,19 +54,19 @@ const LINKEDIN = CHANNEL_META.linkedin.color;
 
 const FILTERS = ["ALL", "ACTIVE", "PAUSED"] as const;
 type Filter = (typeof FILTERS)[number];
-const FILTER_LABEL: Record<Filter, string> = { ALL: "All", ACTIVE: "Active", PAUSED: "Paused" };
+const FILTER_LABEL: Record<Filter, string> = { ALL: "Todas", ACTIVE: "Ativas", PAUSED: "Pausadas" };
 
 const num = "text-paragraph-sm tabular-nums text-text-strong-950";
 
 function shortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString("pt-BR", { month: "short", day: "numeric" });
 }
 
 /** A count, its rate, and a slim bar scaled to the column's best rate so rows compare. */
 function CountRate({ count, rate, max, label }: { count: number; rate: number | null; max: number; label: string }) {
   return (
-    <div className="flex items-center gap-3" title={`${count.toLocaleString("en-US")} ${label} · ${formatPercent(rate)}`}>
-      <span className={cn("w-10 text-right", num)}>{count.toLocaleString("en-US")}</span>
+    <div className="flex items-center gap-3" title={`${count.toLocaleString("pt-BR")} ${label} · ${formatPercent(rate)}`}>
+      <span className={cn("w-10 text-right", num)}>{count.toLocaleString("pt-BR")}</span>
       <span className="w-11 text-paragraph-xs tabular-nums text-text-sub-600">{formatPercent(rate)}</span>
       <span aria-hidden="true" className="h-1.5 w-12 rounded-full bg-bg-weak-50">
         <span className="block h-full rounded-full" style={{ width: `${max > 0 ? ((rate ?? 0) / max) * 100 : 0}%`, backgroundColor: LINKEDIN }} />
@@ -91,23 +91,23 @@ function RowMenu({
   return (
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
-        <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`More actions for ${campaign.name}`}>
+        <Button.Root variant="neutral" mode="ghost" size="xsmall" disabled={busy} aria-label={`Mais ações para ${campaign.name}`}>
           <Button.Icon as={busy ? RiLoader4Line : RiMoreLine} className={cn(busy && "animate-spin")} />
         </Button.Root>
       </Dropdown.Trigger>
       <Dropdown.Content>
         <Dropdown.Item onSelect={onEdit}>
           <Dropdown.ItemIcon as={RiPencilLine} />
-          Edit campaign
+          Editar campanha
         </Dropdown.Item>
         <Dropdown.Item onSelect={onToggle}>
           <Dropdown.ItemIcon as={campaign.status === "ACTIVE" ? RiPauseCircleLine : RiPlayCircleLine} />
-          {campaign.status === "ACTIVE" ? "Pause campaign" : "Resume campaign"}
+          {campaign.status === "ACTIVE" ? "Pausar campanha" : "Retomar campanha"}
         </Dropdown.Item>
         <Dropdown.Separator />
         <Dropdown.Item destructive onSelect={onDelete}>
           <Dropdown.ItemIcon as={RiDeleteBinLine} />
-          Delete campaign
+          Excluir campanha
         </Dropdown.Item>
       </Dropdown.Content>
     </Dropdown.Root>
@@ -189,9 +189,9 @@ export function CampaignsClient({
   const handleDelete = async (id: string) => {
     if (deletingId) return;
     const ok = await dialogs.confirm({
-      title: "Delete campaign?",
-      description: "All of its leads, and any connection or message history tied to them, will be permanently deleted. This cannot be undone.",
-      confirmLabel: "Delete campaign",
+      title: "Excluir campanha?",
+      description: "Todos os leads e o histórico de convites e mensagens vinculados serão excluídos permanentemente. Esta ação não pode ser desfeita.",
+      confirmLabel: "Excluir campanha",
       variant: "error",
     });
     if (!ok) return;
@@ -199,13 +199,13 @@ export function CampaignsClient({
     try {
       const response = await fetch(`/api/linkedin/campaigns/${id}`, { method: "DELETE" });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.ok === false) throw new Error(data.error ?? "Could not delete campaign");
+      if (!response.ok || data.ok === false) throw new Error(data.error ?? "Não foi possível excluir a campanha");
       setCampaigns((prev) => prev.filter((c) => c.id !== id));
       router.refresh();
     } catch (cause) {
       await dialogs.alert({
-        title: "Could not delete campaign",
-        description: cause instanceof Error ? cause.message : "Something went wrong. Please try again.",
+        title: "Não foi possível excluir a campanha",
+        description: cause instanceof Error ? cause.message : "Algo deu errado. Tente novamente.",
         variant: "error",
       });
     } finally {
@@ -216,42 +216,42 @@ export function CampaignsClient({
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        title="LinkedIn campaigns"
-        description="Connection requests and follow-ups from your LinkedIn accounts, and how each campaign is landing."
+        title="Campanhas do LinkedIn"
+        description="Convites e acompanhamentos das suas contas do LinkedIn, e o desempenho de cada campanha."
         actions={
           <Button.Root variant="primary" mode="filled" size="small" asChild>
             <Link href="/linkedin/campaigns/new">
               <Button.Icon as={RiAddLine} />
-              Start new campaign
+              Criar nova campanha
             </Link>
           </Button.Root>
         }
       />
 
       <KpiStrip className="mt-6" columns={5}>
-        <KpiCell icon={RiLinkedinBoxLine} label="Active campaigns" value={formatCompact(counts.ACTIVE)} context={`${counts.PAUSED} paused`} />
-        <KpiCell icon={RiTeamLine} label="Leads" value={formatCompact(totals.leads)} context={`${formatCompact(totals.queued)} not yet invited`} />
-        <KpiCell icon={RiSendPlaneLine} label="Invited" value={formatCompact(totals.invited)} context={totals.leads > 0 ? `${formatPercent(totals.invited / totals.leads)} of leads` : undefined} hint="Leads who have been sent a connection request, whatever happened next. All time." />
+        <KpiCell icon={RiLinkedinBoxLine} label="Campanhas ativas" value={formatCompact(counts.ACTIVE)} context={`${counts.PAUSED} pausadas`} />
+        <KpiCell icon={RiTeamLine} label="Leads" value={formatCompact(totals.leads)} context={`${formatCompact(totals.queued)} ainda não convidados`} />
+        <KpiCell icon={RiSendPlaneLine} label="Convidados" value={formatCompact(totals.invited)} context={totals.leads > 0 ? `${formatPercent(totals.invited / totals.leads)} dos leads` : undefined} hint="Leads que receberam um convite, independentemente do resultado. Desde sempre." />
         <KpiCell
           icon={RiCheckDoubleLine}
-          label="Acceptance rate"
+          label="Taxa de aceite"
           value={formatPercent(totals.invited > 0 ? totals.accepted / totals.invited : null)}
-          context={`${formatCompact(totals.accepted)} of ${formatCompact(totals.invited)} accepted`}
-          hint="Accepted divided by invited, across every campaign."
+          context={`${formatCompact(totals.accepted)} de ${formatCompact(totals.invited)} aceitos`}
+          hint="Aceitos divididos por convidados em todas as campanhas."
         />
         <KpiCell
           icon={RiChat1Line}
-          label="Replies"
+          label="Respostas"
           value={formatCompact(totals.replied)}
-          context={totals.accepted > 0 ? `${formatPercent(totals.replied / totals.accepted)} of accepted` : undefined}
-          hint="Leads who replied. Reply rate is replied divided by accepted, as on Analytics."
+          context={totals.accepted > 0 ? `${formatPercent(totals.replied / totals.accepted)} dos aceitos` : undefined}
+          hint="Leads que responderam. A taxa de resposta é respostas divididas por aceitos, como em Analytics."
         />
       </KpiStrip>
 
       <Frame className="mt-5">
         <FrameHeader
-          title="Campaigns"
-          description="All time. Select a campaign to see its activity, leads and sequence."
+          title="Campanhas"
+          description="Desde sempre. Selecione uma campanha para ver atividade, leads e sequência."
           actions={
             <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
               <SegmentedControl.Root value={filter} onValueChange={(v) => setFilter(v as Filter)}>
@@ -267,7 +267,7 @@ export function CampaignsClient({
               <Input.Root size="small" className="w-56">
                 <Input.Wrapper>
                   <Input.Icon as={RiSearchLine} />
-                  <Input.Input type="search" aria-label="Search campaigns" placeholder="Search campaigns…" value={search} onChange={(e) => setSearch(e.target.value)} />
+                  <Input.Input type="search" aria-label="Buscar campanhas" placeholder="Buscar campanhas…" value={search} onChange={(e) => setSearch(e.target.value)} />
                 </Input.Wrapper>
               </Input.Root>
             </div>
@@ -278,13 +278,13 @@ export function CampaignsClient({
             campaigns.length === 0 ? (
               <EmptyState
                 icon={RiLinkedinBoxLine}
-                title="No LinkedIn campaigns yet"
-                description="Start one to send connection requests and follow-ups from your LinkedIn accounts."
+                title="Nenhuma campanha do LinkedIn ainda"
+                description="Crie uma para enviar convites e acompanhamentos pelas suas contas do LinkedIn."
                 action={
                   <Button.Root variant="primary" mode="filled" size="small" asChild>
                     <Link href="/linkedin/campaigns/new">
                       <Button.Icon as={RiAddLine} />
-                      Start new campaign
+                      Criar nova campanha
                     </Link>
                   </Button.Root>
                 }
@@ -292,11 +292,11 @@ export function CampaignsClient({
             ) : (
               <EmptyState
                 icon={RiSearchLine}
-                title="No campaigns match"
-                description="Try another status or search."
+                title="Nenhuma campanha encontrada"
+                description="Tente outro status ou termo de busca."
                 action={
                   <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => { setSearch(""); setFilter("ALL"); }}>
-                    Clear filters
+                    Limpar filtros
                   </Button.Root>
                 }
               />
@@ -305,14 +305,14 @@ export function CampaignsClient({
             <Table.Root className="min-w-[1080px] [&>table]:table-fixed">
               <Table.Header>
                 <Table.Row>
-                  <Table.Head scope="col" className="px-4">Campaign</Table.Head>
-                  <Table.Head scope="col" className="w-24 px-4">Senders</Table.Head>
+                  <Table.Head scope="col" className="px-4">Campanha</Table.Head>
+                  <Table.Head scope="col" className="w-24 px-4">Remetentes</Table.Head>
                   <Table.Head scope="col" className="w-20 px-4 text-right">Leads</Table.Head>
-                  <Table.Head scope="col" className="w-24 whitespace-nowrap px-4 text-right" title="Leads not yet sent a connection request">Not invited</Table.Head>
-                  <Table.Head scope="col" className="w-20 px-4 text-right" title="Leads sent a connection request">Invited</Table.Head>
-                  <Table.Head scope="col" className="w-48 px-4" title="Accepted connections, and accepted ÷ invited">Accepted</Table.Head>
-                  <Table.Head scope="col" className="w-48 px-4" title="Leads who replied, and replied ÷ accepted">Replied</Table.Head>
-                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Actions</span></Table.Head>
+                  <Table.Head scope="col" className="w-24 whitespace-nowrap px-4 text-right" title="Leads que ainda não receberam convite">Não convidados</Table.Head>
+                  <Table.Head scope="col" className="w-20 px-4 text-right" title="Leads que receberam convite">Convidados</Table.Head>
+                  <Table.Head scope="col" className="w-48 px-4" title="Conexões aceitas e aceitos ÷ convidados">Aceitos</Table.Head>
+                  <Table.Head scope="col" className="w-48 px-4" title="Leads que responderam e respostas ÷ aceitos">Respostas</Table.Head>
+                  <Table.Head scope="col" className="w-14 px-4"><span className="sr-only">Ações</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>
@@ -331,7 +331,7 @@ export function CampaignsClient({
                     >
                       <Table.Cell className="h-16 px-4">
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="shrink-0" title={f.progress === null ? "No leads" : f.queued === 0 ? "Every lead has been invited" : `${Math.round(f.progress * 100)}% of leads invited`}>
+                          <div className="shrink-0" title={f.progress === null ? "Sem leads" : f.queued === 0 ? "Todos os leads foram convidados" : `${Math.round(f.progress * 100)}% dos leads convidados`}>
                             <CampaignProgressRing progress={f.progress} complete={f.total > 0 && f.queued === 0} />
                           </div>
                           <div className="min-w-0">
@@ -341,10 +341,10 @@ export function CampaignsClient({
                                 <Badge.Dot />
                                 {status.label}
                               </Badge.Root>
-                              {deleting && <span className="shrink-0 text-paragraph-xs text-error-base">Deleting…</span>}
+                              {deleting && <span className="shrink-0 text-paragraph-xs text-error-base">Excluindo…</span>}
                             </div>
                             <p className="mt-0.5 max-w-md truncate text-paragraph-xs text-text-sub-600" title={c.description ?? undefined} suppressHydrationWarning>
-                              {c.type === "PERSONAL" ? "Personal · " : ""}Created {shortDate(c.createdAt)}
+                              {c.type === "PERSONAL" ? "Pessoal · " : ""}Criada em {shortDate(c.createdAt)}
                               {c.description ? ` · ${c.description}` : ""}
                             </p>
                           </div>
@@ -353,14 +353,14 @@ export function CampaignsClient({
                       <Table.Cell className="px-4">
                         <LinkedInAccountAvatars accounts={c.accounts} maxVisible={2} />
                       </Table.Cell>
-                      <Table.Cell className={cn("px-4 text-right", num)}>{f.total.toLocaleString("en-US")}</Table.Cell>
-                      <Table.Cell className={cn("px-4 text-right", f.queued > 0 ? num : "text-paragraph-sm tabular-nums text-text-soft-400")}>{f.queued.toLocaleString("en-US")}</Table.Cell>
-                      <Table.Cell className={cn("px-4 text-right", num)}>{f.invited.toLocaleString("en-US")}</Table.Cell>
+                      <Table.Cell className={cn("px-4 text-right", num)}>{f.total.toLocaleString("pt-BR")}</Table.Cell>
+                      <Table.Cell className={cn("px-4 text-right", f.queued > 0 ? num : "text-paragraph-sm tabular-nums text-text-soft-400")}>{f.queued.toLocaleString("pt-BR")}</Table.Cell>
+                      <Table.Cell className={cn("px-4 text-right", num)}>{f.invited.toLocaleString("pt-BR")}</Table.Cell>
                       <Table.Cell className="px-4">
-                        <CountRate count={f.accepted} rate={f.acceptanceRate} max={maxAccept} label="accepted" />
+                        <CountRate count={f.accepted} rate={f.acceptanceRate} max={maxAccept} label="aceitos" />
                       </Table.Cell>
                       <Table.Cell className="px-4">
-                        <CountRate count={f.replied} rate={f.replyRate} max={maxReply} label="replied" />
+                        <CountRate count={f.replied} rate={f.replyRate} max={maxReply} label="respostas" />
                       </Table.Cell>
                       <Table.Cell className="px-4" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                         <div className="flex justify-end">

@@ -282,7 +282,7 @@ export default function WorkbookClient({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         void dialogs.alert({
-          title: "Could not add a table",
+          title: "Não foi possível adicionar uma tabela",
           description: data.error,
           variant: "error",
         });
@@ -298,10 +298,10 @@ export default function WorkbookClient({
   const renameWorkbook = useCallback(async () => {
     const name = (
       await dialogs.prompt({
-        title: "Rename workbook",
-        label: "Name",
+        title: "Renomear pasta de trabalho",
+        label: "Nome",
         defaultValue: currentWorkbook.name,
-        confirmLabel: "Rename",
+        confirmLabel: "Renomear",
       })
     )?.trim();
     if (!name || name === currentWorkbook.name) return;
@@ -313,7 +313,7 @@ export default function WorkbookClient({
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       return dialogs.alert({
-        title: "Could not rename workbook",
+        title: "Não foi possível renomear a pasta de trabalho",
         description: data.error,
         variant: "error",
       });
@@ -323,10 +323,10 @@ export default function WorkbookClient({
 
   const editWorkbookSettings = useCallback(async () => {
     const description = await dialogs.prompt({
-      title: "Workbook settings",
-      label: "Description",
+      title: "Configurações da pasta de trabalho",
+      label: "Descrição",
       defaultValue: currentWorkbook.description ?? "",
-      placeholder: "What this workbook is for",
+      placeholder: "Para que serve esta pasta de trabalho",
       allowEmpty: true,
     });
     if (description === null) return;
@@ -338,7 +338,7 @@ export default function WorkbookClient({
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       return dialogs.alert({
-        title: "Could not update workbook",
+        title: "Não foi possível atualizar a pasta de trabalho",
         description: data.error,
         variant: "error",
       });
@@ -348,9 +348,9 @@ export default function WorkbookClient({
 
   const removeWorkbook = useCallback(async () => {
     const ok = await dialogs.confirm({
-      title: "Delete workbook?",
-      description: `“${currentWorkbook.name}” and every table, column and row inside it will be permanently deleted. This cannot be undone.`,
-      confirmLabel: "Delete workbook",
+      title: "Excluir pasta de trabalho?",
+      description: `“${currentWorkbook.name}” e todas as tabelas, colunas e linhas dentro dela serão excluídas permanentemente. Esta ação não pode ser desfeita.`,
+      confirmLabel: "Excluir pasta de trabalho",
       variant: "error",
     });
     if (!ok) return;
@@ -358,7 +358,7 @@ export default function WorkbookClient({
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       return dialogs.alert({
-        title: "Could not delete workbook",
+        title: "Não foi possível excluir a pasta de trabalho",
         description: data.error,
         variant: "error",
       });
@@ -376,7 +376,7 @@ export default function WorkbookClient({
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       void dialogs.alert({
-        title: "Could not update table",
+        title: "Não foi possível atualizar a tabela",
         description: data.error,
         variant: "error",
       });
@@ -413,10 +413,10 @@ export default function WorkbookClient({
   const renameTable = useCallback(async (table: GridTable) => {
     const name = (
       await dialogs.prompt({
-        title: "Rename table",
-        label: "Name",
+        title: "Renomear tabela",
+        label: "Nome",
         defaultValue: table.name,
-        confirmLabel: "Rename",
+        confirmLabel: "Renomear",
       })
     )?.trim();
     if (!name || name === table.name) return;
@@ -425,10 +425,10 @@ export default function WorkbookClient({
 
   const editTableSettings = useCallback(async (table: GridTable) => {
     const description = await dialogs.prompt({
-      title: "Table settings",
-      label: "Description",
+      title: "Configurações da tabela",
+      label: "Descrição",
       defaultValue: table.description ?? "",
-      placeholder: "What this table holds",
+      placeholder: "O que esta tabela contém",
       allowEmpty: true,
     });
     if (description === null) return;
@@ -438,15 +438,15 @@ export default function WorkbookClient({
   const removeTable = useCallback(async (table: GridTable) => {
     if (tables.length === 1) {
       await dialogs.alert({
-        title: "This is the only table",
-        description: "A workbook must contain at least one table. Add another before deleting this one.",
+        title: "Esta é a única tabela",
+        description: "Uma pasta de trabalho deve conter pelo menos uma tabela. Adicione outra antes de excluir esta.",
       });
       return;
     }
     const ok = await dialogs.confirm({
-      title: "Delete table?",
-      description: `“${table.name}” and all of its columns and rows will be permanently deleted. This cannot be undone.`,
-      confirmLabel: "Delete table",
+      title: "Excluir tabela?",
+      description: `“${table.name}” e todas as suas colunas e linhas serão excluídas permanentemente. Esta ação não pode ser desfeita.`,
+      confirmLabel: "Excluir tabela",
       variant: "error",
     });
     if (!ok) return;
@@ -454,7 +454,7 @@ export default function WorkbookClient({
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       return dialogs.alert({
-        title: "Could not delete table",
+        title: "Não foi possível excluir a tabela",
         description: data.error,
         variant: "error",
       });
@@ -476,7 +476,7 @@ export default function WorkbookClient({
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       void dialogs.alert({
-        title: "Could not reorder those tables",
+        title: "Não foi possível reordenar essas tabelas",
         description: data.error,
         variant: "error",
       });
@@ -544,7 +544,7 @@ export default function WorkbookClient({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         return dialogs.alert({
-          title: "Could not duplicate that table",
+          title: "Não foi possível duplicar essa tabela",
           description: data.error,
           variant: "error",
         });
@@ -567,7 +567,7 @@ export default function WorkbookClient({
     });
     const data = await res.json().catch(() => ({}));
     // Thrown so MoveTableDialog can show the reason inline and stay open.
-    if (!res.ok) throw new Error(data.error ?? "Could not move that table");
+    if (!res.ok) throw new Error(data.error ?? "Não foi possível mover essa tabela");
 
     setMovingTable(null);
     const remaining = tablesRef.current.filter((t) => t.id !== table.id);
@@ -597,7 +597,7 @@ export default function WorkbookClient({
           className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-text-sub-600 transition hover:bg-bg-weak-50"
         >
           <RiFolder3Line className="size-4 text-text-soft-400" />
-          All Files
+          Todos os arquivos
         </Link>
         {/* The folders this workbook is filed under. Without them the trail
             claimed every workbook sat at the root, and the one link out went
@@ -655,8 +655,8 @@ export default function WorkbookClient({
           // what made a switch look like it had not happened.
           <div className="absolute inset-0 z-20 flex items-start justify-center bg-bg-white-0/70 pt-24">
             <span className="flex items-center gap-2 rounded-full border border-stroke-soft-200 bg-bg-white-0 px-3.5 py-2 text-[13px] font-medium text-text-sub-600 shadow-sm">
-              <RiLoader4Line className="size-4 animate-spin text-blue-600 dark:text-blue-400" />
-              Loading {pendingTable?.name ?? "table"}…
+              <RiLoader4Line className="size-4 animate-spin text-[var(--color-complement-deep)]" />
+              Carregando {pendingTable?.name ?? "tabela"}…
             </span>
           </div>
         )}
@@ -700,10 +700,10 @@ export default function WorkbookClient({
                   // put the tabs back instead of saving the live preview.
                   if (!droppedRef.current) cancelTabDrag();
                 }}
-                title="Drag to reorder"
+                title="Arraste para reordenar"
                 className={`flex shrink-0 cursor-grab items-center border-t-2 text-[13px] font-medium transition active:cursor-grabbing ${
                   active
-                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    ? "border-[var(--color-complement-deep)] text-[var(--color-complement-deep)]"
                     : "border-transparent text-text-sub-600 hover:bg-bg-weak-50"
                 } ${dragging ? "opacity-40" : ""}`}
               >
@@ -712,7 +712,7 @@ export default function WorkbookClient({
                     <SheetIcon />
                     <input
                       autoFocus
-                      aria-label="Table name"
+                      aria-label="Nome da tabela"
                       value={editingName}
                       maxLength={200}
                       onFocus={(event) => event.currentTarget.select()}
@@ -722,7 +722,7 @@ export default function WorkbookClient({
                         if (event.key === "Enter") void finishInlineRename(t, true);
                         else if (event.key === "Escape") void finishInlineRename(t, false);
                       }}
-                      className="w-[140px] rounded border border-blue-500 bg-bg-white-0 px-1.5 py-0.5 text-[13px] font-medium text-text-strong-950 outline-none"
+                      className="w-[140px] rounded border border-[var(--color-action-ring)] bg-bg-white-0 px-1.5 py-0.5 text-[13px] font-medium text-text-strong-950 outline-none"
                     />
                   </span>
                 ) : (
@@ -762,7 +762,7 @@ export default function WorkbookClient({
                     aria-label={`Actions for ${t.name}`}
                     className="py-[7px] pl-1 pr-2.5"
                   >
-                    <RiArrowDownSLine className={`size-4 ${active ? "text-blue-500" : "text-text-soft-400"}`} />
+                    <RiArrowDownSLine className={`size-4 ${active ? "text-[var(--color-complement-deep)]" : "text-text-soft-400"}`} />
                   </button>
                 </TableActionsMenu>
               </div>
@@ -777,13 +777,13 @@ export default function WorkbookClient({
           className="ml-1 flex shrink-0 items-center gap-1.5 rounded-lg border border-stroke-soft-200 px-2.5 py-[7px] text-[13px] font-medium text-text-strong-950 transition hover:bg-bg-weak-50 disabled:opacity-50"
         >
           {saving ? <RiLoader4Line className="size-4 animate-spin" /> : <RiAddLine className="size-4" />}
-          Add
+          Adicionar
         </button>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
           <span className="flex items-center gap-1.5 px-2 text-[13px] text-text-sub-600">
-            <RiCheckLine className="size-4 text-emerald-500" />
-            Table up to date
+            <RiCheckLine className="size-4 text-[var(--color-success-base)]" />
+            Tabela atualizada
           </span>
         </div>
       </div>
@@ -794,7 +794,7 @@ export default function WorkbookClient({
         currentWorkbookId={currentWorkbook.id}
         blockedReason={
           tables.length <= 1
-            ? "This is the workbook's only table. Duplicate it first — a workbook must keep at least one."
+            ? "Esta é a única tabela da pasta de trabalho. Duplique-a primeiro — uma pasta de trabalho deve manter pelo menos uma."
             : null
         }
         onClose={() => setMovingTable(null)}

@@ -7,7 +7,8 @@ import { AgentVoiceRehearsal } from "@/components/calls/AgentVoiceRehearsal";
 import { ElevenLabsVoiceRehearsal } from "@/components/calls/ElevenLabsVoiceRehearsal";
 import type { AiCampaignDetail, AiCampaignLead } from "@/lib/calls/aiCampaigns/api";
 import { aiApi, listAiLeads } from "@/lib/calls/aiCampaigns/client";
-import { accentFlag, DEFAULT_ELEVENLABS_VOICE, elevenLabsVoiceLabel, type ElevenLabsMode, type ElevenLabsVoice } from "@/lib/calls/elevenlabs/contract";
+import { accentFlag, DEFAULT_ELEVENLABS_VOICE, type ElevenLabsMode, type ElevenLabsVoice } from "@/lib/calls/elevenlabs/contract";
+import { aiErrorPt, elevenLabsVoiceLabelPt } from "./aiShared";
 
 const MADE_UP = "__made_up";
 
@@ -35,7 +36,7 @@ export function VoiceCompareTab({ campaign }: { campaign: AiCampaignDetail }) {
       .catch(() => {});
     aiApi<{ voices: ElevenLabsVoice[] }>("/api/calling/agent/elevenlabs-voices")
       .then((response) => live && setVoices({ status: "ok", voices: response.voices }))
-      .catch((error: unknown) => live && setVoices({ status: "error", error: error instanceof Error ? error.message : "Could not load ElevenLabs voices" }));
+      .catch((error: unknown) => live && setVoices({ status: "error", error: aiErrorPt(error instanceof Error ? error.message : "Não foi possível carregar as vozes da ElevenLabs") }));
     return () => {
       live = false;
     };
@@ -48,18 +49,18 @@ export function VoiceCompareTab({ campaign }: { campaign: AiCampaignDetail }) {
   return (
     <div className="flex flex-col gap-5">
       <p className="max-w-3xl text-paragraph-sm text-text-sub-600">
-        Talk to this campaign&apos;s AI agent with your microphone, once with Gemini (what calls use today) and once with ElevenLabs, as the lead you pick. Both get exactly
-        what a real call would: your calling instructions, the campaign&apos;s knowledge and brief, the lead&apos;s history and the time. Each side times how long its replies
-        take to start and keeps a recording. Use headphones, and run one side at a time.
+        Converse com o agente de IA desta campanha pelo microfone, uma vez com o Gemini (usado nas ligações hoje) e outra com a ElevenLabs, como o lead que você escolher. Ambos recebem exatamente
+        o que uma ligação real teria: suas instruções, o Conhecimento e o resumo da campanha, o histórico do lead e o horário. Cada lado mede quanto tempo leva para começar a responder
+        e guarda uma gravação. Use fone de ouvido e execute um lado por vez.
       </p>
 
       <div className="flex flex-wrap items-end gap-4">
         <div className="min-w-64">
-          <label htmlFor={ids.lead} className="mb-1.5 block text-label-sm text-text-strong-950">Play the lead</label>
+          <label htmlFor={ids.lead} className="mb-1.5 block text-label-sm text-text-strong-950">Simular o lead</label>
           <Select.Root size="small" value={contactId} onValueChange={setContactId}>
             <Select.Trigger id={ids.lead}><Select.Value /></Select.Trigger>
             <Select.Content>
-              <Select.Item value={MADE_UP}>A made-up lead (Asha Verma, Acme)</Select.Item>
+              <Select.Item value={MADE_UP}>Lead fictício (Asha Verma, Acme)</Select.Item>
               {leads.map((candidate) => (
                 <Select.Item key={candidate.id} value={candidate.id}>
                   {[candidate.name ?? candidate.phone, candidate.companyName].filter(Boolean).join(" · ")}
@@ -71,34 +72,34 @@ export function VoiceCompareTab({ campaign }: { campaign: AiCampaignDetail }) {
         {connected ? (
           <>
             <div className="min-w-56">
-              <label htmlFor={ids.mode} className="mb-1.5 block text-label-sm text-text-strong-950">ElevenLabs mode</label>
+              <label htmlFor={ids.mode} className="mb-1.5 block text-label-sm text-text-strong-950">Modo da ElevenLabs</label>
               <Select.Root size="small" value={mode} onValueChange={(next) => setMode(next as ElevenLabsMode)}>
                 <Select.Trigger id={ids.mode}><Select.Value /></Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="realtime">Realtime: fastest, English only</Select.Item>
-                  <Select.Item value="standard">Standard: switches to Hinglish, slower</Select.Item>
+                  <Select.Item value="realtime">Tempo real: mais rápida, apenas em inglês</Select.Item>
+                  <Select.Item value="standard">Padrão: alterna para Hinglish, mais lenta</Select.Item>
                 </Select.Content>
               </Select.Root>
             </div>
             <div className="min-w-72">
-              <label htmlFor={ids.voice} className="mb-1.5 block text-label-sm text-text-strong-950">ElevenLabs voice</label>
+              <label htmlFor={ids.voice} className="mb-1.5 block text-label-sm text-text-strong-950">Voz da ElevenLabs</label>
               <Select.Root size="small" value={voiceId} onValueChange={setVoiceId} disabled={voices.status !== "ok"}>
-                <Select.Trigger id={ids.voice}><Select.Value placeholder="Loading voices…" /></Select.Trigger>
+                <Select.Trigger id={ids.voice}><Select.Value placeholder="Carregando vozes…" /></Select.Trigger>
                 <Select.Content>
                   {voices.status === "ok" && !voices.voices.some((candidate) => candidate.id === DEFAULT_ELEVENLABS_VOICE) ? (
-                    <Select.Item value={DEFAULT_ELEVENLABS_VOICE}>{accentFlag("indian")} Monika Sogam (default)</Select.Item>
+                    <Select.Item value={DEFAULT_ELEVENLABS_VOICE}>{accentFlag("indian")} Monika Sogam (padrão)</Select.Item>
                   ) : null}
                   {voices.status === "ok"
                     ? voices.voices.map((candidate) => (
                         <Select.Item key={candidate.id} value={candidate.id}>
-                          {elevenLabsVoiceLabel(candidate)}
+                          {elevenLabsVoiceLabelPt(candidate)}
                         </Select.Item>
                       ))
                     : null}
                 </Select.Content>
               </Select.Root>
             </div>
-            {voice?.previewUrl ? <audio key={voice.id} controls preload="none" src={voice.previewUrl} className="h-9" aria-label={`Preview of ${voice.name}`} /> : null}
+            {voice?.previewUrl ? <audio key={voice.id} controls preload="none" src={voice.previewUrl} className="h-9" aria-label={`Prévia de ${voice.name}`} /> : null}
           </>
         ) : null}
       </div>
@@ -106,7 +107,7 @@ export function VoiceCompareTab({ campaign }: { campaign: AiCampaignDetail }) {
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="flex flex-col gap-2">
           <h3 className="text-label-md text-text-strong-950">Gemini</h3>
-          <p className="text-paragraph-xs text-text-sub-600">What calls use today: Gemini Live, voice {campaign.agentVoice ?? "Kore"}.</p>
+          <p className="text-paragraph-xs text-text-sub-600">Usado nas ligações hoje: Gemini Live, voz {campaign.agentVoice ?? "Kore"}.</p>
           <AgentVoiceRehearsal key={`gemini|${contactId}`} campaignId={campaign.id} contactId={lead} compare />
         </section>
         <section className="flex flex-col gap-2">
@@ -114,14 +115,14 @@ export function VoiceCompareTab({ campaign }: { campaign: AiCampaignDetail }) {
           {connected ? (
             <>
               <p className="text-paragraph-xs text-text-sub-600">
-                {mode === "realtime" ? "Realtime mode" : "Standard mode"}, voice {voice?.name ?? "Monika Sogam"}. AgentSDR sets the agent up in your ElevenLabs account.
+                 {mode === "realtime" ? "Modo em tempo real" : "Modo padrão"}, voz {voice?.name ?? "Monika Sogam"}. O Apollo Intelligence configura o agente na sua conta da ElevenLabs.
               </p>
               <ElevenLabsVoiceRehearsal key={`eleven|${contactId}|${mode}|${voiceId}`} campaignId={campaign.id} contactId={lead} mode={mode} voiceId={voiceId} />
             </>
           ) : (
             <p className="rounded-xl border border-stroke-soft-200 bg-bg-white-0 p-3 text-paragraph-sm text-text-sub-600">
-              {voices.status === "error" && !/connect elevenlabs/i.test(voices.error) ? `${voices.error}. ` : ""}
-              <Link href="/settings/ai" className="underline">Connect ElevenLabs in Settings → AI provider</Link> to compare it here.
+              {voices.status === "error" && !/connect elevenlabs/i.test(voices.error) ? `${aiErrorPt(voices.error)}. ` : ""}
+              <Link href="/settings/ai" className="underline">Conecte a ElevenLabs em Configurações → Provedor de IA</Link> para comparar aqui.
             </p>
           )}
         </section>

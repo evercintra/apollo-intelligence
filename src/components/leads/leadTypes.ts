@@ -55,17 +55,17 @@ export const isFuture = (value: string | Date) => new Date(value).getTime() > Da
 /** Sort choices per tab, for the toolbar's sort menu (keys match the API). */
 export const SORTS: Record<LeadsTab, Array<{ key: string; label: string }>> = {
   people: [
-    { key: "updated", label: "Last updated" },
-    { key: "created", label: "Date added" },
-    { key: "name", label: "Name" },
-    { key: "company", label: "Company" },
-    { key: "title", label: "Title" },
-    { key: "email", label: "Email" },
+    { key: "updated", label: "Última atualização" },
+    { key: "created", label: "Data de inclusão" },
+    { key: "name", label: "Nome" },
+    { key: "company", label: "Empresa" },
+    { key: "title", label: "Cargo" },
+    { key: "email", label: "E-mail" },
   ],
   companies: [
-    { key: "updated", label: "Last updated" },
-    { key: "name", label: "Name" },
-    { key: "domain", label: "Domain" },
-    { key: "people", label: "People" },
+    { key: "updated", label: "Última atualização" },
+    { key: "name", label: "Nome" },
+    { key: "domain", label: "Domínio" },
+    { key: "people", label: "Pessoas" },
   ],
 };

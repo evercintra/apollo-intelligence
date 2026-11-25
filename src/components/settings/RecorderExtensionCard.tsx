@@ -65,35 +65,35 @@ export function RecorderExtensionCard() {
             </span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-label-md text-text-strong-950">Call Recorder extension</h3>
+                <h3 className="text-label-md text-text-strong-950">Extensão de gravação de chamadas</h3>
                 {installed.state === "missing" && (
-                  <Badge.Root size="medium" variant="lighter" color="gray">Not installed in this browser</Badge.Root>
+                  <Badge.Root size="medium" variant="lighter" color="gray">Não instalada neste navegador</Badge.Root>
                 )}
                 {installed.state === "installed" && outdated && (
                   <Badge.Root size="medium" variant="lighter" color="orange">
-                    Update available{installed.version ? ` · you have ${installed.version}` : ""}
+                    Atualização disponível{installed.version ? ` · você está na ${installed.version}` : ""}
                   </Badge.Root>
                 )}
                 {installed.state === "installed" && !outdated && (
-                  <Badge.Root size="medium" variant="lighter" color="green">Up to date</Badge.Root>
+                  <Badge.Root size="medium" variant="lighter" color="green">Atualizada</Badge.Root>
                 )}
               </div>
               <p className="mt-1 text-paragraph-sm text-text-sub-600">
-                Places WhatsApp calls from AgentSDR and records them. Chrome only, loaded unpacked.
+                Faz ligações do WhatsApp pelo Apollo Intelligence e as grava. Apenas Chrome, carregada sem empacotamento.
               </p>
-              <p className="mt-1 text-paragraph-xs text-text-soft-400">Latest version: {LATEST_RECORDER_VERSION}</p>
+              <p className="mt-1 text-paragraph-xs text-text-soft-400">Versão mais recente: {LATEST_RECORDER_VERSION}</p>
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {outdated ? (
-              <DocsLink page="whatsapp/calling#update-the-extension">How to update</DocsLink>
+              <DocsLink page="whatsapp/calling#update-the-extension">Como atualizar</DocsLink>
             ) : (
-              <DocsLink page="whatsapp/calling#install-the-extension">{installed.state === "missing" ? "How to install" : "Setup guide"}</DocsLink>
+              <DocsLink page="whatsapp/calling#install-the-extension">{installed.state === "missing" ? "Como instalar" : "Guia de configuração"}</DocsLink>
             )}
             {outdated && canSelfUpdate ? (
               <Button.Root variant="primary" mode="filled" size="small" onClick={() => void openUpdater()}>
                 <Button.Icon as={RiRefreshLine} />
-                Update
+                Atualizar
               </Button.Root>
             ) : (
               <Button.Root
@@ -104,7 +104,7 @@ export function RecorderExtensionCard() {
               >
                 <a href={RECORDER_DOWNLOAD_PATH} download>
                   <Button.Icon as={RiDownload2Line} />
-                  Download
+                  Baixar
                 </a>
               </Button.Root>
             )}
@@ -114,30 +114,30 @@ export function RecorderExtensionCard() {
 
         <div className="grid gap-4 border-t border-stroke-soft-200 pt-4 text-paragraph-sm text-text-sub-600 sm:grid-cols-2">
           <div>
-            <p className="text-label-sm text-text-strong-950">First time</p>
+            <p className="text-label-sm text-text-strong-950">Primeira vez</p>
             <ol className="mt-1.5 list-decimal space-y-1 pl-4">
-              <li>Download and unzip it.</li>
+              <li>Baixe e descompacte o arquivo.</li>
               <li>
-                Move the <Code>agentsdr-call-recorder</Code> folder somewhere it can stay, such as Documents.
+                Mova a pasta <Code>agentsdr-call-recorder</Code> para um local fixo, como Documentos.
               </li>
               <li>
-                Open <Code>chrome://extensions</Code>, turn on Developer mode, click Load unpacked and choose that folder.
+                Abra <Code>chrome://extensions</Code>, ative o modo desenvolvedor, clique em Carregar sem compactação e escolha essa pasta.
               </li>
             </ol>
           </div>
           <div>
-            <p className="text-label-sm text-text-strong-950">To update</p>
+            <p className="text-label-sm text-text-strong-950">Para atualizar</p>
             <ol className="mt-1.5 list-decimal space-y-1 pl-4">
-              <li>Click Update. The extension downloads the new version and reloads itself.</li>
+              <li>Clique em Atualizar. A extensão baixa a versão nova e recarrega a si mesma.</li>
               <li>
-                The first time, it asks for its folder: the one under Source in <Code>chrome://extensions</Code> → Details. Allow
-                Chrome to edit it.
+                Na primeira vez, ela pede a pasta: a que aparece em Origem em <Code>chrome://extensions</Code> → Detalhes. Permita
+                que o Chrome a edite.
               </li>
-              <li>Reload WhatsApp Web before your next call.</li>
+              <li>Recarregue o WhatsApp Web antes da próxima ligação.</li>
             </ol>
             <p className="mt-2 text-paragraph-xs text-text-soft-400">
-              Versions before {RECORDER_SELF_UPDATE_VERSION} have no Update button: replace the folder with a fresh download once
-              and click the reload arrow in <Code>chrome://extensions</Code>.
+              Versões anteriores a {RECORDER_SELF_UPDATE_VERSION} não têm o botão Atualizar: substitua a pasta por um download novo
+              e clique na seta de recarregar em <Code>chrome://extensions</Code>.
             </p>
           </div>
         </div>

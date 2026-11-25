@@ -48,16 +48,16 @@ import { ContactPanel, RemoveContactModal } from "@/components/calling/ContactPa
 import { EditContactModal } from "@/components/calling/EditContactModal";
 import { EditCampaignModal, DeleteCampaignModal } from "@/components/calling/CampaignModals";
 import { addCampaignContact, getCampaign, importCampaignContacts, updateCampaign } from "@/lib/calls/client";
-import { CAMPAIGN_CONTACT_STAGE_LABELS, type CampaignContact, type CampaignSummary } from "@/lib/calls/contract";
+import type { CampaignContact, CampaignSummary } from "@/lib/calls/contract";
 import { Avatar, CallStatusBadge, CampaignStatusBadge, CompanyFavicon, LeadStagePicker, attemptHint, bareDomain, followUpHint, titleAtCompany, useCrmCategories } from "@/components/calling/callingShared";
 import { CONTACT_TABS, inTab, isOverdue, type ContactTab } from "@/components/calling/contactTabs";
 import { cn } from "@/utils/cn";
 
 const TAB_LABELS: Record<ContactTab, string> = {
-  all: "All leads",
-  due: "Due today",
-  follow_up: CAMPAIGN_CONTACT_STAGE_LABELS.follow_up,
-  done: CAMPAIGN_CONTACT_STAGE_LABELS.done,
+  all: "Todos os leads",
+  due: "Vence hoje",
+  follow_up: "Acompanhamento",
+  done: "Concluído",
 };
 const TAB_ICONS: Record<ContactTab, React.ComponentType<{ className?: string }>> = {
   all: RiTeamLine,
@@ -66,15 +66,15 @@ const TAB_ICONS: Record<ContactTab, React.ComponentType<{ className?: string }>>
   done: RiCheckDoubleLine,
 };
 const TAB_DESCRIPTIONS: Record<ContactTab, string> = {
-  all: "Everyone in this campaign. Select a person to see their calls, notes and WhatsApp.",
-  due: "Not called yet, retries that have come round, and follow-ups due today or overdue.",
-  follow_up: "You spoke to them; the next step is pending.",
-  done: "Finished: no more calls are planned.",
+  all: "Todas as pessoas desta campanha. Selecione alguém para ver ligações, notas e WhatsApp.",
+  due: "Ainda não ligados, novas tentativas e follow-ups com vencimento hoje ou atrasados.",
+  follow_up: "Você conversou com elas; o próximo passo está pendente.",
+  done: "Concluído: não há mais ligações programadas.",
 };
 const TABS = CONTACT_TABS;
 
 function createdOn(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(iso).toLocaleDateString("pt-BR", { month: "short", day: "numeric", year: "numeric" });
 }
 
 function matches(contact: CampaignContact, term: string): boolean {
@@ -178,9 +178,9 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
       <div className="mx-auto w-full max-w-[1440px] space-y-4">
         <Link href="/calling/campaigns" className="-ml-1 inline-flex items-center gap-0.5 rounded-md px-1 text-label-xs text-text-sub-600 hover:text-text-strong-950">
           <RiArrowLeftSLine className="size-4" aria-hidden="true" />
-          Call campaigns
+          Campanhas de chamadas
         </Link>
-        <ErrorState message={error || "This campaign could not be loaded."} onRetry={() => { setLoading(true); void load(); }} />
+        <ErrorState message={error || "Esta campanha não pôde ser carregada."} onRetry={() => { setLoading(true); void load(); }} />
       </div>
     );
   }
@@ -189,26 +189,26 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
   const uploadButton = (
     <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setUploadOpen(true)}>
       <Button.Icon as={RiUpload2Line} />
-      Upload contacts
+      Importar contatos
     </Button.Root>
   );
   const addButton = (
     <Button.Root variant="primary" mode="filled" size="small" onClick={() => setAddOpen(true)}>
       <Button.Icon as={RiAddLine} />
-      Add contact
+      Adicionar contato
     </Button.Root>
   );
 
   return (
     <div className="mx-auto w-full max-w-[1440px]">
       <PageHeader
-        back={{ href: "/calling/campaigns", label: "Call campaigns" }}
+        back={{ href: "/calling/campaigns", label: "Campanhas de chamadas" }}
         title={campaign.name}
         badge={<CampaignStatusBadge status={campaign.status} />}
         description={
           <span suppressHydrationWarning>
             {campaign.description ? `${campaign.description} · ` : ""}
-            {total.toLocaleString("en-US")} {total === 1 ? "contact" : "contacts"} · Created {createdOn(campaign.createdAt)}
+            {total.toLocaleString("pt-BR")} {total === 1 ? "contato" : "contatos"} · Criada em {createdOn(campaign.createdAt)}
           </span>
         }
         actions={
@@ -217,23 +217,23 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
             {addButton}
             <Dropdown.Root>
               <Dropdown.Trigger asChild>
-                <Button.Root variant="neutral" mode="stroke" size="small" disabled={toggling} aria-label={`More actions for ${campaign.name}`}>
+                <Button.Root variant="neutral" mode="stroke" size="small" disabled={toggling} aria-label={`Mais ações para ${campaign.name}`}>
                   <Button.Icon as={RiMoreLine} />
                 </Button.Root>
               </Dropdown.Trigger>
               <Dropdown.Content align="end">
                 <Dropdown.Item onSelect={() => setEditOpen(true)}>
                   <Dropdown.ItemIcon as={RiPencilLine} />
-                  Edit campaign
+                  Editar campanha
                 </Dropdown.Item>
                 <Dropdown.Item onSelect={() => void toggleStatus()} disabled={toggling}>
                   <Dropdown.ItemIcon as={campaign.status === "active" ? RiPauseCircleLine : RiPlayCircleLine} />
-                  {campaign.status === "active" ? "Pause campaign" : "Resume campaign"}
+                  {campaign.status === "active" ? "Pausar campanha" : "Retomar campanha"}
                 </Dropdown.Item>
                 <Dropdown.Separator />
                 <Dropdown.Item destructive onSelect={() => setDeleteOpen(true)}>
                   <Dropdown.ItemIcon as={RiDeleteBinLine} />
-                  Delete campaign
+                  Excluir campanha
                 </Dropdown.Item>
               </Dropdown.Content>
             </Dropdown.Root>
@@ -246,25 +246,25 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
         className="mt-5"
         items={[
           {
-            label: "Due today",
-            value: pulse.overdue > 0 ? `${tabCounts.due} · ${pulse.overdue} overdue` : tabCounts.due.toLocaleString("en-US"),
+            label: "Vence hoje",
+            value: pulse.overdue > 0 ? `${tabCounts.due} · ${pulse.overdue} atrasados` : tabCounts.due.toLocaleString("pt-BR"),
             icon: RiCalendarTodoLine,
-            hint: `${TAB_DESCRIPTIONS.due} Overdue: the follow-up date has passed.`,
+            hint: `${TAB_DESCRIPTIONS.due} Atrasados: a data de follow-up já passou.`,
           },
-          { label: "Reached", value: `${called.toLocaleString("en-US")} of ${leads.toLocaleString("en-US")}`, icon: RiUserReceivedLine, hint: "Contacts called at least once" },
+          { label: "Alcançados", value: `${called.toLocaleString("pt-BR")} de ${leads.toLocaleString("pt-BR")}`, icon: RiUserReceivedLine, hint: "Contatos que receberam pelo menos uma ligação" },
           {
-            label: "Connect rate",
+            label: "Taxa de conexão",
             value: formatPercent(called > 0 ? connected / called : null),
             icon: RiPhoneLine,
-            hint: called > 0 ? `${connected} of the ${called} contacts called picked up at least once` : "Nobody called yet",
+              hint: called > 0 ? `${connected} dos ${called} contatos que receberam ligação atenderam pelo menos uma vez` : "Nenhum contato recebeu ligação ainda",
           },
-          { label: "Last call", value: pulse.lastCalledAt ? timeAgo(pulse.lastCalledAt) : "Never", icon: RiTimeLine },
+          { label: "Última ligação", value: pulse.lastCalledAt ? timeAgo(pulse.lastCalledAt) : "Nunca", icon: RiTimeLine },
         ]}
       />
 
       <PageTabs
         className="mt-6"
-        label="Campaign contacts"
+        label="Contatos da campanha"
         value={tab}
         onChange={setTab}
         tabs={TABS.map((key) => ({ value: key, label: TAB_LABELS[key], icon: TAB_ICONS[key], count: tabCounts[key] }))}
@@ -279,7 +279,7 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
               <Input.Root size="small" className="w-48 sm:w-56">
                 <Input.Wrapper>
                   <Input.Icon as={RiSearchLine} />
-                  <Input.Input type="search" aria-label="Search contacts" placeholder="Search contacts…" value={search} onChange={(event) => setSearch(event.target.value)} />
+                  <Input.Input type="search" aria-label="Buscar contatos" placeholder="Buscar contatos…" value={search} onChange={(event) => setSearch(event.target.value)} />
                 </Input.Wrapper>
               </Input.Root>
             )
@@ -290,12 +290,12 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
             <Table.Root className="min-w-[1060px]">
               <Table.Header>
                 <Table.Row>
-                  <Table.Head scope="col" className="px-4">Person</Table.Head>
-                  <Table.Head scope="col" className="w-44 px-4">Company</Table.Head>
-                  <Table.Head scope="col" className="w-48 px-4">Call status</Table.Head>
-                  <Table.Head scope="col" className="w-56 px-4">Lead status</Table.Head>
-                  <Table.Head scope="col" className="w-52 px-4">Last call</Table.Head>
-                  <Table.Head scope="col" className="w-32 px-4"><span className="sr-only">Actions</span></Table.Head>
+                  <Table.Head scope="col" className="px-4">Pessoa</Table.Head>
+                  <Table.Head scope="col" className="w-44 px-4">Empresa</Table.Head>
+                  <Table.Head scope="col" className="w-48 px-4">Status da ligação</Table.Head>
+                  <Table.Head scope="col" className="w-56 px-4">Status do lead</Table.Head>
+                  <Table.Head scope="col" className="w-52 px-4">Última ligação</Table.Head>
+                  <Table.Head scope="col" className="w-32 px-4"><span className="sr-only">Ações</span></Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body spacing={4}>
@@ -320,22 +320,22 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
           ) : total === 0 ? (
             <EmptyState
               icon={RiTeamLine}
-              title="No contacts yet"
-              description="Add people one at a time, or upload a CSV or Excel file of the list to call."
+              title="Nenhum contato ainda"
+              description="Adicione pessoas uma a uma ou envie um CSV ou Excel com a lista para ligar."
               action={<div className="flex flex-wrap justify-center gap-2">{uploadButton}{addButton}</div>}
             />
           ) : inCurrentTab.length > 0 ? (
             <EmptyState
               icon={RiSearchLine}
-              title="No contacts match"
-              description={`Nobody in ${TAB_LABELS[tab]} matches “${search.trim()}”.`}
-              action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => setSearch("")}>Clear search</Button.Root>}
+              title="Nenhum contato encontrado"
+              description={`Ninguém em ${TAB_LABELS[tab]} corresponde a “${search.trim()}”.`}
+              action={<Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={() => setSearch("")}>Limpar busca</Button.Root>}
             />
           ) : (
             <EmptyState
               icon={TAB_ICONS[tab]}
-              title={tab === "due" ? "Nobody is due today" : tab === "follow_up" ? "No follow-ups pending" : "Nobody is done yet"}
-              description={tab === "due" ? "Leads to call today and follow-ups that have come due show up here." : tab === "follow_up" ? "People you spoke to with a next step pending show up here." : "Leads move here once there is nothing left to do."}
+              title={tab === "due" ? "Nenhum contato vence hoje" : tab === "follow_up" ? "Nenhum follow-up pendente" : "Nenhum contato foi concluído ainda"}
+              description={tab === "due" ? "Leads para ligar hoje e follow-ups que venceram aparecem aqui." : tab === "follow_up" ? "Pessoas com quem você conversou e com próximo passo pendente aparecem aqui." : "Leads passam para cá quando não há mais nada a fazer."}
             />
           )}
         </FramePanel>
@@ -399,16 +399,16 @@ export default function CampaignClient({ campaignId, initialTab = "all" }: { cam
 function LastCallArtifacts({ call }: { call: CampaignContact["lastCall"] }) {
   if (!call) return null;
   const transcript =
-    call.transcriptStatus === "pending" ? { icon: RiLoader4Line, label: "Transcribing", className: "text-text-sub-600", spin: true }
-    : call.transcriptStatus === "done" ? { icon: RiFileTextLine, label: "Transcript", className: "text-success-base", spin: false }
-    : call.transcriptStatus === "failed" ? { icon: RiFileTextLine, label: "Transcript failed", className: "text-error-base", spin: false }
+    call.transcriptStatus === "pending" ? { icon: RiLoader4Line, label: "Transcrevendo", className: "text-text-sub-600", spin: true }
+    : call.transcriptStatus === "done" ? { icon: RiFileTextLine, label: "Transcrição", className: "text-success-base", spin: false }
+    : call.transcriptStatus === "failed" ? { icon: RiFileTextLine, label: "Falha na transcrição", className: "text-error-base", spin: false }
     : null;
   if (!call.hasRecording && !transcript) return null;
   return (
     <p className="mt-0.5 flex items-center gap-2 whitespace-nowrap text-paragraph-xs text-text-sub-600">
       {call.hasRecording && (
         <span className="inline-flex items-center gap-1">
-          <RiMicLine className="size-3.5" aria-hidden="true" />Recording
+          <RiMicLine className="size-3.5" aria-hidden="true" />Gravação
         </span>
       )}
       {transcript && (
@@ -441,7 +441,7 @@ function ContactRow({
   onCallStarted: () => void;
 }) {
   const person = contact.person;
-  const name = person.fullName || person.firstName || "Unnamed contact";
+  const name = person.fullName || person.firstName || "Contato sem nome";
   const domain = person.companyWebsite ? bareDomain(person.companyWebsite) : "";
   const hint = attemptHint(contact);
   const followUp = followUpHint(contact, now);
@@ -452,7 +452,7 @@ function ContactRow({
       tabIndex={0}
       onClick={onOpen}
       onKeyDown={(event) => { if (event.target === event.currentTarget && event.key === "Enter") onOpen(); }}
-      aria-label={`Open ${name}`}
+      aria-label={`Abrir ${name}`}
       className="cursor-pointer outline-none focus-visible:[&>td]:bg-bg-weak-50"
     >
       <Table.Cell className="h-16 px-4">
@@ -468,15 +468,15 @@ function ContactRow({
                   rel="noopener noreferrer"
                   onClick={(event) => event.stopPropagation()}
                   onKeyDown={(event) => event.stopPropagation()}
-                  title="LinkedIn profile"
-                  aria-label={`${name} on LinkedIn`}
+                  title="Perfil no LinkedIn"
+                  aria-label={`${name} no LinkedIn`}
                   className="shrink-0 text-text-soft-400 transition hover:text-text-strong-950"
                 >
                   <RiLinkedinBoxFill className="size-4" aria-hidden="true" />
                 </a>
               )}
             </div>
-            <p className="truncate text-paragraph-xs text-text-sub-600" title={subtitle ?? undefined}>{subtitle || person.phone || "No details"}</p>
+            <p className="truncate text-paragraph-xs text-text-sub-600" title={subtitle ?? undefined}>{subtitle || person.phone || "Sem detalhes"}</p>
           </div>
         </div>
       </Table.Cell>
@@ -519,12 +519,12 @@ function ContactRow({
           <div>
             <p className="whitespace-nowrap text-paragraph-sm text-text-strong-950">
               {timeAgo(contact.lastCalledAt)}
-              <span className="text-text-sub-600"> · {contact.callCount} {contact.callCount === 1 ? "call" : "calls"}</span>
+              <span className="text-text-sub-600"> · {contact.callCount} {contact.callCount === 1 ? "ligação" : "ligações"}</span>
             </p>
             <LastCallArtifacts call={contact.lastCall} />
           </div>
         ) : (
-          <span className="text-paragraph-sm text-text-soft-400">Not called yet</span>
+          <span className="text-paragraph-sm text-text-soft-400">Ainda não ligado</span>
         )}
       </Table.Cell>
       {/* Stops clicks bubbling to the row — including clicks inside the Call
@@ -535,19 +535,19 @@ function ContactRow({
           <CallButton personId={person.id} campaignContactId={contact.id} phone={person.phone} onCallStarted={onCallStarted} numberMenu={false} />
           <Dropdown.Root>
             <Dropdown.Trigger asChild>
-              <Button.Root variant="neutral" mode="ghost" size="xxsmall" aria-label={`More actions for ${name}`}>
+              <Button.Root variant="neutral" mode="ghost" size="xxsmall" aria-label={`Mais ações para ${name}`}>
                 <Button.Icon as={RiMoreLine} />
               </Button.Root>
             </Dropdown.Trigger>
             <Dropdown.Content align="end">
               <Dropdown.Item onSelect={onEdit}>
                 <Dropdown.ItemIcon as={RiPencilLine} />
-                Edit contact
+                Editar contato
               </Dropdown.Item>
               <Dropdown.Separator />
               <Dropdown.Item destructive onSelect={onRemove}>
                 <Dropdown.ItemIcon as={RiDeleteBinLine} />
-                Remove from campaign
+                Remover da campanha
               </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown.Root>
@@ -609,32 +609,32 @@ function AddContactModal({
     <Modal.Root open={open} onOpenChange={(next) => { if (!submitting) onOpenChange(next); }}>
       <Modal.Content>
         <Modal.Header icon={RiAddLine}>
-          <Modal.Title>Add a contact</Modal.Title>
-          <Modal.Description>Added to the campaign, ready to call.</Modal.Description>
+          <Modal.Title>Adicionar contato</Modal.Title>
+          <Modal.Description>Adicionado à campanha, pronto para ligar.</Modal.Description>
         </Modal.Header>
         <Modal.Body className="space-y-3">
           {error && <FormError>{error}</FormError>}
-          <TextField label="Full name" autoFocus value={fullName} onChange={setFullName} placeholder="Priya Nair" disabled={submitting} />
-          <TextField label="WhatsApp number" value={phone} onChange={setPhone} placeholder="+91 98765 43210" disabled={submitting} />
+          <TextField label="Nome completo" autoFocus value={fullName} onChange={setFullName} placeholder="Maria Silva" disabled={submitting} />
+          <TextField label="Número do WhatsApp" value={phone} onChange={setPhone} placeholder="+55 11 98765-4321" disabled={submitting} />
           <div className="grid gap-3 sm:grid-cols-2">
             <CompanyNameField
-              label="Company name (optional)"
+              label="Nome da empresa (opcional)"
               value={companyName}
               onChange={setCompanyName}
               onPick={(company) => { setCompanyName(company.name ?? companyName); setCompanyWebsite(company.domain); }}
               disabled={submitting}
             />
-            <TextField label="Company website (optional)" value={companyWebsite} onChange={setCompanyWebsite} placeholder="acme.com" disabled={submitting} />
+            <TextField label="Site da empresa (opcional)" value={companyWebsite} onChange={setCompanyWebsite} placeholder="acme.com" disabled={submitting} />
           </div>
-          <TextField label="Title (optional)" value={title} onChange={setTitle} disabled={submitting} />
-          <TextField label="Email (optional)" value={email} onChange={setEmail} disabled={submitting} />
+          <TextField label="Cargo (opcional)" value={title} onChange={setTitle} disabled={submitting} />
+          <TextField label="E-mail (opcional)" value={email} onChange={setEmail} disabled={submitting} />
         </Modal.Body>
         <Modal.Footer>
           <Modal.Close asChild>
-            <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancel</Button.Root>
+            <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancelar</Button.Root>
           </Modal.Close>
           <Button.Root variant="primary" mode="filled" size="small" disabled={submitting || !fullName.trim() || !phone.trim()} onClick={() => void submit()}>
-            {submitting ? "Adding…" : "Add contact"}
+            {submitting ? "Adicionando…" : "Adicionar contato"}
           </Button.Root>
         </Modal.Footer>
       </Modal.Content>
@@ -684,8 +684,8 @@ function UploadContactsModal({
     <Modal.Root open={open} onOpenChange={(next) => { if (!submitting) onOpenChange(next); }}>
       <Modal.Content>
         <Modal.Header icon={RiUpload2Line}>
-          <Modal.Title>Upload contacts</Modal.Title>
-          <Modal.Description>CSV or Excel. Expected columns: Name (or First Name / Last Name), Phone (or Mobile / WhatsApp), Company, Title, Email.</Modal.Description>
+          <Modal.Title>Importar contatos</Modal.Title>
+          <Modal.Description>CSV ou Excel. Colunas esperadas: Nome (ou Nome próprio / Sobrenome), Telefone (ou Celular / WhatsApp), Empresa, Cargo, E-mail.</Modal.Description>
         </Modal.Header>
         <Modal.Body className="space-y-3">
           {error && <FormError>{error}</FormError>}
@@ -705,15 +705,15 @@ function UploadContactsModal({
               <span className="mb-2 flex size-10 items-center justify-center rounded-xl bg-bg-white-0 ring-1 ring-inset ring-stroke-soft-200">
                 <RiUpload2Line className="size-5 text-text-sub-600" aria-hidden="true" />
               </span>
-              <span className="text-label-sm text-text-strong-950">{fileName || "Choose a .csv or .xlsx file"}</span>
-              {!fileName && <span className="mt-0.5 text-paragraph-xs text-text-sub-600">Click to browse</span>}
+              <span className="text-label-sm text-text-strong-950">{fileName || "Escolha um arquivo .csv ou .xlsx"}</span>
+              {!fileName && <span className="mt-0.5 text-paragraph-xs text-text-sub-600">Clique para selecionar</span>}
             </label>
           ) : (
             <div className="space-y-2 rounded-xl bg-bg-weak-50 p-3 text-paragraph-sm text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200">
               <p>
-                <span className="font-medium tabular-nums text-text-strong-950">{result.added}</span> added ·{" "}
-                <span className="font-medium tabular-nums text-text-strong-950">{result.alreadyInCampaign}</span> already in campaign ·{" "}
-                <span className="font-medium tabular-nums text-text-strong-950">{result.skipped.length}</span> skipped
+                <span className="font-medium tabular-nums text-text-strong-950">{result.added}</span> {result.added === 1 ? "adicionado" : "adicionados"} ·{" "}
+                <span className="font-medium tabular-nums text-text-strong-950">{result.alreadyInCampaign}</span> {result.alreadyInCampaign === 1 ? "já estava" : "já estavam"} na campanha ·{" "}
+                <span className="font-medium tabular-nums text-text-strong-950">{result.skipped.length}</span> {result.skipped.length === 1 ? "ignorado" : "ignorados"}
               </p>
               {result.skipped.length > 0 && (
                 <ul className="max-h-40 space-y-1 overflow-y-auto text-paragraph-xs text-error-dark">
@@ -725,14 +725,14 @@ function UploadContactsModal({
         </Modal.Body>
         <Modal.Footer>
           {result ? (
-            <Button.Root variant="primary" mode="filled" size="small" onClick={() => onOpenChange(false)}>Done</Button.Root>
+            <Button.Root variant="primary" mode="filled" size="small" onClick={() => onOpenChange(false)}>Concluir</Button.Root>
           ) : (
             <>
               <Modal.Close asChild>
-                <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancel</Button.Root>
+                <Button.Root variant="neutral" mode="stroke" size="small" disabled={submitting}>Cancelar</Button.Root>
               </Modal.Close>
               <Button.Root variant="primary" mode="filled" size="small" disabled={submitting || !file} onClick={() => void submit()}>
-                {submitting ? "Uploading…" : "Upload"}
+                {submitting ? "Importando…" : "Importar"}
               </Button.Root>
             </>
           )}

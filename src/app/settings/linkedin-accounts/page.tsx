@@ -11,7 +11,7 @@ import { channelRules } from "@/lib/channels/rules.server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "LinkedIn accounts" };
+export const metadata = { title: "Contas do LinkedIn" };
 
 async function Accounts() {
   const ctx = await requirePageOrgContext();
@@ -38,8 +38,8 @@ async function Accounts() {
 export default function LinkedInAccountsPage() {
   return (
     <SettingsPage
-      title="LinkedIn accounts"
-      description="The LinkedIn profiles campaigns send from, connected through Unipile."
+      title="Contas do LinkedIn"
+      description="Os perfis do LinkedIn usados pelas campanhas, conectados pela Unipile."
       actions={
         <RequiresPlatform platform="unipile" fallback={null}>
           <ConnectAccountButton />

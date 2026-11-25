@@ -7,7 +7,7 @@ import { timeInputClass } from "@/components/outreach/WorkingHoursModal";
 import type { WeeklyHours } from "@/lib/channels/rules";
 import { cn } from "@/utils/cn";
 
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const COMMON_TIMEZONES = ["Asia/Kolkata", "Asia/Singapore", "Asia/Dubai", "Europe/London", "Europe/Berlin", "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "Australia/Sydney", "UTC"];
 
 export function hoursSummary(hours: WeeklyHours): string {
@@ -25,12 +25,12 @@ export function StationHoursEditor({ value, onChange, disabled }: { value: Weekl
   return (
     <div className="flex flex-col gap-2.5">
       <Select.Root size="small" value={value.timezone} onValueChange={(timezone) => set({ timezone })} disabled={disabled}>
-        <Select.Trigger aria-label="Time zone"><Select.Value /></Select.Trigger>
+        <Select.Trigger aria-label="Fuso horário"><Select.Value /></Select.Trigger>
         <Select.Content>
           {zones.map((zone) => <Select.Item key={zone} value={zone}>{zone}</Select.Item>)}
         </Select.Content>
       </Select.Root>
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Days">
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Dias">
         {DAY_LABELS.map((label, day) => {
           const on = value.days.includes(day);
           return (
@@ -46,11 +46,11 @@ export function StationHoursEditor({ value, onChange, disabled }: { value: Weekl
         })}
       </div>
       <div className="flex items-center gap-2">
-        <input type="time" aria-label="Start" value={value.start} disabled={disabled} onChange={(event) => set({ start: event.target.value })} className={cn(timeInputClass, value.start >= value.end && "ring-error-base")} />
-        <span className="shrink-0 text-paragraph-xs text-text-soft-400">to</span>
-        <input type="time" aria-label="End" value={value.end} disabled={disabled} onChange={(event) => set({ end: event.target.value })} className={cn(timeInputClass, value.start >= value.end && "ring-error-base")} />
+        <input type="time" aria-label="Início" value={value.start} disabled={disabled} onChange={(event) => set({ start: event.target.value })} className={cn(timeInputClass, value.start >= value.end && "ring-error-base")} />
+        <span className="shrink-0 text-paragraph-xs text-text-soft-400">às</span>
+        <input type="time" aria-label="Fim" value={value.end} disabled={disabled} onChange={(event) => set({ end: event.target.value })} className={cn(timeInputClass, value.start >= value.end && "ring-error-base")} />
       </div>
-      {invalid && <p className="text-paragraph-xs text-error-base">Pick at least one day, and an end after the start.</p>}
+      {invalid && <p className="text-paragraph-xs text-error-base">Escolha pelo menos um dia e um horário final depois do inicial.</p>}
     </div>
   );
 }

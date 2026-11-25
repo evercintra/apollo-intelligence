@@ -18,7 +18,7 @@ function GoogleG() {
 export function GoogleButton({
   callbackURL,
   onError,
-  label = "Continue with Google",
+  label = "Continuar com o Google",
 }: {
   callbackURL: string;
   onError: (message: string) => void;
@@ -30,7 +30,7 @@ export function GoogleButton({
     setLoading(true);
     const { error } = await authClient.signIn.social({ provider: "google", callbackURL });
     if (error) {
-      onError(error.message || "Google sign-in failed. Please try again.");
+      onError(error.message || "Falha ao entrar com o Google. Tente novamente.");
       setLoading(false);
     }
   }
@@ -43,12 +43,12 @@ export function GoogleButton({
   );
 }
 
-export function OrDivider({ label = "or" }: { label?: string }) {
+export function OrDivider({ label = "ou" }: { label?: string }) {
   return (
-    <div className="my-6 flex items-center gap-3 text-xs text-zinc-500">
-      <span className="h-px flex-1 bg-white/10" />
+    <div className="my-6 flex items-center gap-3 text-xs text-apollo-graphite-400">
+      <span className="h-px flex-1 bg-apollo-purple-300/15" />
       {label}
-      <span className="h-px flex-1 bg-white/10" />
+      <span className="h-px flex-1 bg-apollo-purple-300/15" />
     </div>
   );
 }

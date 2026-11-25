@@ -18,14 +18,14 @@ export default function UnsubscribeClient({ token }: { token: string | null }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong");
+        setError(data.error ?? "Algo deu errado");
         setState("error");
         return;
       }
       setEmail(data.email);
       setState("done");
     } catch {
-      setError("Network error — please try again");
+      setError("Erro de rede — tente novamente");
       setState("error");
     }
   }
@@ -33,8 +33,8 @@ export default function UnsubscribeClient({ token }: { token: string | null }) {
   if (!token) {
     return (
       <div className="text-center">
-        <h1 className="text-lg font-bold text-text-strong-950">Invalid link</h1>
-        <p className="text-sm text-text-strong-950/50 mt-2">This unsubscribe link is missing its token.</p>
+        <h1 className="text-lg font-bold text-text-strong-950">Link inválido</h1>
+        <p className="text-sm text-text-strong-950/50 mt-2">Este link de cancelamento está sem o token.</p>
       </div>
     );
   }
@@ -42,14 +42,14 @@ export default function UnsubscribeClient({ token }: { token: string | null }) {
   if (state === "done") {
     return (
       <div className="text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="w-12 h-12 rounded-full bg-success-lighter flex items-center justify-center mx-auto mb-4">
+          <svg className="w-6 h-6 text-success-base" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.5 12.75l6 6 9-13.5" />
           </svg>
         </div>
-        <h1 className="text-lg font-bold text-text-strong-950">You&apos;re unsubscribed</h1>
+        <h1 className="text-lg font-bold text-text-strong-950">Inscrição cancelada</h1>
         <p className="text-sm text-text-strong-950/50 mt-2">
-          {email} won&apos;t receive any further emails from us.
+          {email} não receberá mais e-mails nossos.
         </p>
       </div>
     );
@@ -57,17 +57,17 @@ export default function UnsubscribeClient({ token }: { token: string | null }) {
 
   return (
     <div className="text-center">
-      <h1 className="text-lg font-bold text-text-strong-950">Unsubscribe</h1>
+      <h1 className="text-lg font-bold text-text-strong-950">Cancelar inscrição</h1>
       <p className="text-sm text-text-strong-950/50 mt-2 mb-6">
-        Click below to stop receiving emails from this sender.
+        Clique abaixo para parar de receber e-mails deste remetente.
       </p>
-      {error && <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 rounded-lg px-3 py-2 mb-4">{error}</p>}
+      {error && <p className="text-xs text-error-base bg-error-lighter rounded-lg px-3 py-2 mb-4">{error}</p>}
       <button
         onClick={handleUnsubscribe}
         disabled={state === "loading"}
-        className="w-full h-10 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 disabled:opacity-50 transition-colors"
+        className="w-full h-10 rounded-lg bg-accent-base text-accent-contrast text-sm font-medium hover:bg-accent-hover disabled:opacity-50 transition-colors"
       >
-        {state === "loading" ? "Unsubscribing…" : "Unsubscribe me"}
+        {state === "loading" ? "Cancelando…" : "Cancelar inscrição"}
       </button>
     </div>
   );

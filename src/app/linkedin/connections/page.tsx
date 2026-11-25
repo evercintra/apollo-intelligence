@@ -84,19 +84,19 @@ export default async function ConnectionsPage({ searchParams }: Props) {
     return (
       <div className="mx-auto w-full max-w-[1440px]">
         <PageHeader
-          title="Connections"
+          title="Conexões"
           description={
             totalCount === 0
-              ? "People who accept your LinkedIn invitations"
-              : `${totalCount.toLocaleString("en-US")} ${totalCount === 1 ? "person has" : "people have"} accepted your invitations, newest first`
+              ? "Pessoas que aceitarem seus convites no LinkedIn"
+              : `${totalCount.toLocaleString("pt-BR")} ${totalCount === 1 ? "pessoa aceitou" : "pessoas aceitaram"} seus convites, mais recentes primeiro`
           }
         />
 
         <Frame className="mt-5">
-          <FrameHeader title="Accepted invitations" description="Each connection is matched to its lead, campaign and sending account" />
+          <FrameHeader title="Convites aceitos" description="Cada conexão é associada ao lead, à campanha e à conta de envio" />
           {totalCount === 0 ? (
             <FramePanel>
-              <EmptyState icon={RiUserAddLine} title="No connections yet" description="Connections appear here when leads accept your invitations." />
+              <EmptyState icon={RiUserAddLine} title="Nenhuma conexão ainda" description="As conexões aparecem aqui quando os leads aceitam seus convites." />
             </FramePanel>
           ) : (
             <>
@@ -104,15 +104,15 @@ export default async function ConnectionsPage({ searchParams }: Props) {
                 <Table.Root className="min-w-[760px]">
                   <Table.Header>
                     <Table.Row>
-                      <Table.Head scope="col" className="px-4">Connection</Table.Head>
-                      <Table.Head scope="col" className="w-56 px-4">Campaign</Table.Head>
-                      <Table.Head scope="col" className="w-48 px-4">Account</Table.Head>
-                      <Table.Head scope="col" className="w-32 px-4">Connected</Table.Head>
+                      <Table.Head scope="col" className="px-4">Conexão</Table.Head>
+                      <Table.Head scope="col" className="w-56 px-4">Campanha</Table.Head>
+                      <Table.Head scope="col" className="w-48 px-4">Conta</Table.Head>
+                      <Table.Head scope="col" className="w-32 px-4">Conectado em</Table.Head>
                     </Table.Row>
                   </Table.Header>
                   <Table.Body spacing={4}>
                     {connections.map((conn) => {
-                      const displayName = conn.name ?? conn.linkedinUrl ?? "Unknown";
+                      const displayName = conn.name ?? conn.linkedinUrl ?? "Desconhecido";
                       return (
                         <Table.Row key={conn.id}>
                           <Table.Cell className="h-16 px-4">
@@ -157,7 +157,7 @@ export default async function ConnectionsPage({ searchParams }: Props) {
                                 )}
                               </div>
                             ) : (
-                              <span className="text-paragraph-sm text-text-soft-400">Not from a campaign</span>
+                              <span className="text-paragraph-sm text-text-soft-400">Não veio de uma campanha</span>
                             )}
                           </Table.Cell>
 

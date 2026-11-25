@@ -19,7 +19,7 @@ import { cn } from "@/utils/cn";
  * warning shown past the safe edge, and a way back to the default.
  */
 
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const COMMON_TIMEZONES = ["Asia/Kolkata", "Asia/Singapore", "Asia/Dubai", "Europe/London", "Europe/Berlin", "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "Australia/Sydney", "UTC"];
 
 type Values = Record<string, unknown>;
@@ -33,9 +33,9 @@ function describeDefault(rule: Rule): string {
     case "range":
       return `${rule.default[0]}–${rule.default[1]} ${rule.unit}`;
     case "hours":
-      return rule.default ? hoursSummary(rule.default) : "any time";
+      return rule.default ? hoursSummary(rule.default) : "qualquer horário";
     case "country":
-      return rule.default ? countryName(rule.default) : "none";
+      return rule.default ? countryName(rule.default) : "nenhum";
     case "timezone":
     case "time":
       return rule.default;
@@ -48,7 +48,7 @@ function hoursSummary(h: WeeklyHours): string {
 
 function countryName(code: string): string {
   try {
-    return new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code;
+    return new Intl.DisplayNames(["pt-BR"], { type: "region" }).of(code) ?? code;
   } catch {
     return code;
   }
@@ -85,7 +85,7 @@ function TimeZoneInput({ id, value, onChange, disabled }: { id: string; value: s
   const zones = useTimeZones(value);
   return (
     <Select.Root size="small" value={value} onValueChange={onChange} disabled={disabled}>
-      <Select.Trigger id={id} aria-label="Time zone">
+      <Select.Trigger id={id} aria-label="Fuso horário">
         <Select.Value />
       </Select.Trigger>
       <Select.Content>
@@ -104,9 +104,9 @@ function HoursInput({ id, rule, value, onChange, disabled }: { id: string; rule:
   if (rule.optional && value === null) {
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-paragraph-sm text-text-sub-600">Any time</span>
+        <span className="text-paragraph-sm text-text-sub-600">Qualquer horário</span>
         <Button.Root type="button" size="xxsmall" variant="neutral" mode="stroke" disabled={disabled} onClick={() => onChange(rule.default ?? fallback)}>
-          Set hours
+          Definir horário
         </Button.Root>
       </div>
     );
@@ -116,7 +116,7 @@ function HoursInput({ id, rule, value, onChange, disabled }: { id: string; rule:
   return (
     <div className="flex flex-col gap-2.5">
       <Select.Root size="small" value={h.timezone} onValueChange={(timezone) => set({ timezone })} disabled={disabled}>
-        <Select.Trigger id={id} aria-label="Time zone">
+        <Select.Trigger id={id} aria-label="Fuso horário">
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
@@ -125,7 +125,7 @@ function HoursInput({ id, rule, value, onChange, disabled }: { id: string; rule:
           ))}
         </Select.Content>
       </Select.Root>
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Days">
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Dias">
         {DAY_LABELS.map((label, day) => {
           const on = h.days.includes(day);
           return (
@@ -141,13 +141,13 @@ function HoursInput({ id, rule, value, onChange, disabled }: { id: string; rule:
         })}
       </div>
       <div className="flex items-center gap-2">
-        <input type="time" aria-label="Start" value={h.start} disabled={disabled} onChange={(e) => set({ start: e.target.value })} className={cn(timeInputClass, h.start >= h.end && "ring-error-base")} />
-        <span className="shrink-0 text-paragraph-xs text-text-soft-400">to</span>
-        <input type="time" aria-label="End" value={h.end} disabled={disabled} onChange={(e) => set({ end: e.target.value })} className={cn(timeInputClass, h.start >= h.end && "ring-error-base")} />
+        <input type="time" aria-label="Início" value={h.start} disabled={disabled} onChange={(e) => set({ start: e.target.value })} className={cn(timeInputClass, h.start >= h.end && "ring-error-base")} />
+        <span className="shrink-0 text-paragraph-xs text-text-soft-400">às</span>
+        <input type="time" aria-label="Fim" value={h.end} disabled={disabled} onChange={(e) => set({ end: e.target.value })} className={cn(timeInputClass, h.start >= h.end && "ring-error-base")} />
       </div>
       {rule.optional && (
         <button type="button" disabled={disabled} onClick={() => onChange(null)} className="self-start text-paragraph-xs text-text-sub-600 underline-offset-2 hover:underline disabled:opacity-50">
-          Clear: send at any time
+          Limpar: enviar a qualquer horário
         </button>
       )}
     </div>
@@ -161,11 +161,11 @@ function CountryInput({ id, value, onChange, disabled }: { id: string; value: st
   );
   return (
     <Select.Root size="small" value={value || "none"} onValueChange={(v) => onChange(v === "none" ? "" : v)} disabled={disabled}>
-      <Select.Trigger id={id} aria-label="Country">
+      <Select.Trigger id={id} aria-label="País">
         <Select.Value />
       </Select.Trigger>
       <Select.Content>
-        <Select.Item value="none">None (numbers need a + and country code)</Select.Item>
+        <Select.Item value="none">Nenhum (números precisam de + e código do país)</Select.Item>
         {countries.map((c) => (
           <Select.Item key={c.code} value={c.code}>{c.name} ({c.code})</Select.Item>
         ))}
@@ -209,13 +209,13 @@ export function ChannelRulesForm({
         body: JSON.stringify(values),
       });
       const body = (await res.json().catch(() => null)) as { values?: Values; error?: string } | null;
-      if (!res.ok || !body?.values) throw new Error(body?.error || "Could not save the sending rules.");
+      if (!res.ok || !body?.values) throw new Error(body?.error || "Não foi possível salvar as regras de envio.");
       setSaved(body.values);
       setValues(body.values);
-      setStatus({ tone: "success", text: "Saved. Sending follows these rules within a minute." });
+      setStatus({ tone: "success", text: "Salvo. Os envios seguem estas regras em até um minuto." });
       router.refresh();
     } catch (error) {
-      setStatus({ tone: "error", text: error instanceof Error ? error.message : "Could not save the sending rules." });
+      setStatus({ tone: "error", text: error instanceof Error ? error.message : "Não foi possível salvar as regras de envio." });
     } finally {
       setSaving(false);
     }
@@ -223,7 +223,7 @@ export function ChannelRulesForm({
 
   return (
     <div className="flex flex-col gap-4">
-      {!canEdit && <Callout tone="info">Only owners and admins can change these.</Callout>}
+      {!canEdit && <Callout tone="info">Apenas proprietários e administradores podem alterar estas regras.</Callout>}
       <Frame>
         <FramePanel className="divide-y divide-stroke-soft-200">
           {rules.map((rule) => {
@@ -253,9 +253,9 @@ export function ChannelRulesForm({
                   )}
                   {rule.kind === "range" && (
                     <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                      <NumberInput id={id} label="Lowest" value={(value as [number, number])[0]} onChange={(n) => set(rule.key, [n, (value as [number, number])[1]])} disabled={!canEdit} />
-                      <span className="text-paragraph-xs text-text-soft-400">to</span>
-                      <NumberInput id={`${id}-hi`} label="Highest" value={(value as [number, number])[1]} onChange={(n) => set(rule.key, [(value as [number, number])[0], n])} disabled={!canEdit} />
+                      <NumberInput id={id} label="Menor" value={(value as [number, number])[0]} onChange={(n) => set(rule.key, [n, (value as [number, number])[1]])} disabled={!canEdit} />
+                      <span className="text-paragraph-xs text-text-soft-400">a</span>
+                      <NumberInput id={`${id}-hi`} label="Maior" value={(value as [number, number])[1]} onChange={(n) => set(rule.key, [(value as [number, number])[0], n])} disabled={!canEdit} />
                       <span className="text-paragraph-xs text-text-sub-600">{rule.unit}</span>
                     </div>
                   )}
@@ -287,12 +287,12 @@ export function ChannelRulesForm({
                   {error && <p role="alert" className="text-paragraph-xs text-error-base">{error}</p>}
                   {warning && <Callout tone="warning" className="w-full py-2 text-left">{warning}</Callout>}
                   <p className="text-paragraph-xs text-text-soft-400">
-                    Default: {describeDefault(rule)}
+                    Padrão: {describeDefault(rule)}
                     {!isDefault && canEdit && (
                       <>
                         {" · "}
                         <button type="button" onClick={() => set(rule.key, rule.default)} className="text-text-sub-600 underline-offset-2 hover:underline">
-                          Use default
+                          Usar padrão
                         </button>
                       </>
                     )}
@@ -305,12 +305,12 @@ export function ChannelRulesForm({
       </Frame>
       {canEdit && (
         <div className="flex flex-wrap items-center justify-end gap-3">
-          {status && <span role={status.tone === "error" ? "alert" : "status"} className={cn("text-paragraph-sm", status.tone === "error" ? "text-error-base" : "text-success-base")}>{status.text}</span>}
+          {status && <span role={status.tone === "error" ? "alert" : "status"} className={cn("text-paragraph-sm", status.tone === "error" ? "text-error-base" : "text-success-dark")}>{status.text}</span>}
           <Button.Root type="button" variant="neutral" mode="stroke" size="small" disabled={!dirty || saving} onClick={() => { setValues(saved); setStatus(null); }}>
-            Discard
+            Descartar
           </Button.Root>
           <Button.Root type="button" variant="primary" mode="filled" size="small" disabled={!dirty || hasErrors || saving} onClick={() => void save()}>
-            {saving ? "Saving…" : "Save changes"}
+            {saving ? "Salvando…" : "Salvar alterações"}
           </Button.Root>
         </div>
       )}

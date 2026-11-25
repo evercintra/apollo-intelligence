@@ -68,7 +68,6 @@ export type NavGroup = {
   id: string;
   label: string;
   icon: RemixiconComponentType;
-  /** Channel identity colour for the group's icon (the Analytics channel colours). */
   color?: string;
   children: NavLink[];
   /** Closed until opened, unless it holds the current page. */
@@ -83,13 +82,13 @@ const link = (href: string, label: string, icon: RemixiconComponentType, extra: 
 export const NAV_SECTIONS: NavSection[] = [
   {
     entries: [
-      link("/analytics", "Analytics", RiBarChartBoxLine),
-      link("/crm/actions", "Action required", RiTodoLine, { badge: "actionRequired" }),
+      link("/analytics", "Análises", RiBarChartBoxLine),
+      link("/crm/actions", "Ação necessária", RiTodoLine, { badge: "actionRequired" }),
       link("/leads", "Leads", RiUserSearchLine, { match: ["/crm/records"] }),
     ],
   },
   {
-    label: "Outreach",
+    label: "Prospecção",
     entries: [
       {
         kind: "group",
@@ -98,8 +97,8 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: RiMailFill,
         color: HUE.orange,
         children: [
-          link("/outreach/campaigns", "Campaigns", RiSendPlaneLine),
-          link("/outreach/inbox", "Inbox", RiInboxLine),
+          link("/outreach/campaigns", "Campanhas", RiSendPlaneLine),
+          link("/outreach/inbox", "Caixa de entrada", RiInboxLine),
         ],
       },
       {
@@ -109,9 +108,9 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: RiLinkedinBoxFill,
         color: HUE.blue,
         children: [
-          link("/linkedin/campaigns", "Campaigns", RiMegaphoneLine),
-          link("/linkedin/messages", "Messages", RiChat3Line),
-          link("/linkedin/search", "Search", RiSearchLine),
+          link("/linkedin/campaigns", "Campanhas", RiMegaphoneLine),
+          link("/linkedin/messages", "Mensagens", RiChat3Line),
+          link("/linkedin/search", "Busca", RiSearchLine),
         ],
       },
       {
@@ -121,9 +120,9 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: RiWhatsappFill,
         color: HUE.green,
         children: [
-          link("/whatsapp/campaigns", "Message campaigns", RiChatSmile2Line, { match: ["/whatsapp/"] }),
-          link("/calling/campaigns", "Call campaigns", RiPhoneLine, { match: ["/calling/"] }),
-          link("/calling/messages", "Messages", RiChat3Line, { badge: "whatsappUnread" }),
+          link("/whatsapp/campaigns", "Campanhas de mensagens", RiChatSmile2Line, { match: ["/whatsapp/"] }),
+          link("/calling/campaigns", "Campanhas de ligação", RiPhoneLine, { match: ["/calling/"] }),
+          link("/calling/messages", "Mensagens", RiChat3Line, { badge: "whatsappUnread" }),
         ],
       },
     ],
@@ -132,21 +131,21 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "CRM",
     entries: [
       link("/crm/pipeline", "Pipeline", RiRouteLine),
-      link("/crm/sequences", "Sequences", RiTimeLine),
+      link("/crm/sequences", "Sequências", RiTimeLine),
     ],
   },
   {
-    label: "Data",
+    label: "Dados",
     entries: [
-      link("/tables", "Tables", RiGridLine),
+      link("/tables", "Tabelas", RiGridLine),
       {
         kind: "group",
         id: "prospecting",
-        label: "Prospecting",
+        label: "Prospecção",
         icon: RiDatabase2Line,
         children: [
-          link("/domains", "All domains", RiGlobalLine),
-          link("/campaigns", "Qualification campaigns", RiFilter3Line),
+          link("/domains", "Domínios brasileiros", RiGlobalLine),
+          link("/campaigns", "Campanhas de qualificação", RiFilter3Line),
         ],
       },
     ],
@@ -157,15 +156,15 @@ export const NAV_FOOTER: NavEntry[] = [
   {
     kind: "group",
     id: "developers",
-    label: "Developers",
+    label: "Desenvolvedores",
     icon: RiCodeSSlashLine,
     children: [
-      link("/linkedin/connections", "Connections", RiLinkM),
-      link("/linkedin/jobs", "Job history", RiHistoryLine),
-      link("/linkedin/webhooks", "LinkedIn webhooks", RiWebhookLine),
+      link("/linkedin/connections", "Conexões", RiLinkM),
+      link("/linkedin/jobs", "Histórico de tarefas", RiHistoryLine),
+      link("/linkedin/webhooks", "Webhooks do LinkedIn", RiWebhookLine),
     ],
   },
-  link(SETTINGS_HOME, "Settings", RiSettings3Line, { match: ["/settings"], badge: "accountsNeedingAttention", badgeStyle: "dot" }),
+  link(SETTINGS_HOME, "Configurações", RiSettings3Line, { match: ["/settings"], badge: "accountsNeedingAttention", badgeStyle: "dot" }),
 ];
 
 export function allLinks(): NavLink[] {
@@ -192,8 +191,8 @@ export function paletteItems(): PaletteItem[] {
   const items: PaletteItem[] = [];
   for (const section of NAV_SECTIONS) {
     for (const e of section.entries) {
-      if (e.kind === "link") items.push({ href: e.href, label: e.label, group: section.label ?? "Pages", icon: e.icon });
-      else for (const c of e.children) items.push({ href: c.href, label: `${e.label} · ${c.label}`, group: section.label ?? "Pages", icon: c.icon });
+      if (e.kind === "link") items.push({ href: e.href, label: e.label, group: section.label ?? "Páginas", icon: e.icon });
+      else for (const c of e.children) items.push({ href: c.href, label: `${e.label} · ${c.label}`, group: section.label ?? "Páginas", icon: c.icon });
     }
   }
   for (const e of NAV_FOOTER) {
@@ -201,20 +200,20 @@ export function paletteItems(): PaletteItem[] {
   }
   for (const g of SETTINGS_NAV) {
     for (const s of g.items) {
-      if (!s.tabs) items.push({ href: s.href, label: s.label, group: "Settings", icon: s.icon, keywords: g.label });
-      else for (const t of s.tabs) items.push({ href: t.href, label: `${s.label} · ${t.label}`, group: "Settings", icon: t.icon, keywords: g.label });
+      if (!s.tabs) items.push({ href: s.href, label: s.label, group: "Configurações", icon: s.icon, keywords: g.label });
+      else for (const t of s.tabs) items.push({ href: t.href, label: `${s.label} · ${t.label}`, group: "Configurações", icon: t.icon, keywords: g.label });
     }
   }
   items.push(
-    { href: "/outreach/campaigns/new", label: "New email campaign", group: "Create", icon: RiMailFill },
-    { href: "/linkedin/campaigns/new", label: "New LinkedIn campaign", group: "Create", icon: RiLinkedinBoxFill },
+    { href: "/outreach/campaigns/new", label: "Nova campanha de e-mail", group: "Criar", icon: RiMailFill },
+    { href: "/linkedin/campaigns/new", label: "Nova campanha no LinkedIn", group: "Criar", icon: RiLinkedinBoxFill },
   );
   items.push(
-    { href: SUPPORT_LINKS.docs, label: "Documentation", group: "Help", icon: RiBookOpenLine, external: true },
-    { href: bugReportUrl(APP_VERSION), label: "Report a bug", group: "Help", icon: RiBugLine, external: true },
-    { href: SUPPORT_LINKS.featureRequest, label: "Request a feature", group: "Help", icon: RiLightbulbLine, external: true },
-    { href: SUPPORT_LINKS.community, label: "Ask the community", group: "Help", icon: RiChat3Line, external: true },
-    { href: SUPPORT_LINKS.security, label: "Report a security issue", group: "Help", icon: RiShieldCheckLine, external: true },
+    { href: SUPPORT_LINKS.docs, label: "Documentação", group: "Ajuda", icon: RiBookOpenLine, external: true },
+    { href: bugReportUrl(APP_VERSION), label: "Reportar um problema", group: "Ajuda", icon: RiBugLine, external: true },
+    { href: SUPPORT_LINKS.featureRequest, label: "Sugerir uma funcionalidade", group: "Ajuda", icon: RiLightbulbLine, external: true },
+    { href: SUPPORT_LINKS.community, label: "Perguntar à comunidade", group: "Ajuda", icon: RiChat3Line, external: true },
+    { href: SUPPORT_LINKS.security, label: "Reportar uma falha de segurança", group: "Ajuda", icon: RiShieldCheckLine, external: true },
   );
   return items;
 }

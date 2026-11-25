@@ -66,7 +66,7 @@ export function useHostedAuthRedirect() {
 }
 
 export function ConnectAccountButton({
-  label = "Connect LinkedIn account",
+  label = "Conectar conta do LinkedIn",
   variant = "default",
 }: {
   label?: string;
@@ -85,7 +85,7 @@ export function ConnectAccountButton({
         onClick={() => start()}
       >
         <Button.Icon as={redirecting ? RiLoader4Line : RiAddLine} className={redirecting ? "animate-spin" : undefined} />
-        {redirecting ? "Opening LinkedIn…" : label}
+        {redirecting ? "Abrindo o LinkedIn…" : label}
       </Button.Root>
       {error && <p role="alert" className="text-paragraph-xs text-error-base">{error}</p>}
     </div>
@@ -134,22 +134,22 @@ export function HostedAuthReturn() {
 
   const dismiss = (
     <button type="button" onClick={clearParam} className="rounded text-label-xs underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-primary-base">
-      Dismiss
+      Dispensar
     </button>
   );
 
   if (outcome === "failure") {
     return (
-      <Callout tone="error" className="mb-5" title="LinkedIn was not connected" action={dismiss}>
-        The Unipile wizard did not complete. Try connecting again.
+      <Callout tone="error" className="mb-5" title="O LinkedIn não foi conectado" action={dismiss}>
+        O assistente do Unipile não foi concluído. Tente conectar novamente.
       </Callout>
     );
   }
 
   if (state === "failed") {
     return (
-      <Callout tone="warning" className="mb-5" title="Connected, but the sync failed" action={dismiss}>
-        The account will appear here after the next outreach run.
+      <Callout tone="warning" className="mb-5" title="Conectada, mas a sincronização falhou" action={dismiss}>
+        A conta aparecerá aqui após a próxima execução da abordagem.
       </Callout>
     );
   }
@@ -157,7 +157,7 @@ export function HostedAuthReturn() {
   return (
     <div role="status" className="mb-5 flex items-center gap-2 rounded-xl bg-bg-weak-50 px-3.5 py-3 text-paragraph-sm text-text-sub-600 ring-1 ring-inset ring-stroke-soft-200">
       <RiLoader4Line className="size-4 animate-spin" aria-hidden="true" />
-      Syncing the connected account from Unipile…
+      Sincronizando a conta conectada pelo Unipile…
     </div>
   );
 }

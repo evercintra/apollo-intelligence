@@ -37,7 +37,7 @@ export default function NewWorkbookDialog({
       body: JSON.stringify({ name, folderId: folderId ?? null }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error ?? "Could not create workbook");
+    if (!response.ok) throw new Error(data.error ?? "Não foi possível criar a pasta de trabalho");
     return data;
   }
 
@@ -45,10 +45,10 @@ export default function NewWorkbookDialog({
     setBusy(true);
     setError(null);
     try {
-      const created = await createWorkbook("Untitled workbook");
+      const created = await createWorkbook("Pasta de trabalho sem título");
       onCreated(created.workbook.id);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not create workbook");
+      setError(cause instanceof Error ? cause.message : "Não foi possível criar a pasta de trabalho");
     } finally {
       setBusy(false);
     }
@@ -63,11 +63,11 @@ export default function NewWorkbookDialog({
     setBusy(true);
     setError(null);
     try {
-      const name = file.name.replace(/\.(csv|tsv|txt|xlsx|xls)$/i, "").trim() || "Untitled workbook";
+      const name = file.name.replace(/\.(csv|tsv|txt|xlsx|xls)$/i, "").trim() || "Pasta de trabalho sem título";
       const created = await createWorkbook(name);
       setPending({ workbookId: created.workbook.id, tableId: created.table.id, file });
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not create workbook");
+      setError(cause instanceof Error ? cause.message : "Não foi possível criar a pasta de trabalho");
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -88,11 +88,11 @@ export default function NewWorkbookDialog({
     <Modal.Root open={open && !pending} onOpenChange={(next) => { if (!next && !busy) onClose(); }}>
       <Modal.Content size="max-w-lg">
         <Modal.Header icon={WorkbookIcon}>
-          <Modal.Title>Create a workbook</Modal.Title>
+          <Modal.Title>Criar uma pasta de trabalho</Modal.Title>
           <Modal.Description>
             {folderId
-              ? "It will be created in the folder you are viewing."
-              : "Start empty or import an existing spreadsheet."}
+              ? "Ela será criada na pasta que você está visualizando."
+              : "Comece vazia ou importe uma planilha existente."}
           </Modal.Description>
         </Modal.Header>
 
@@ -107,9 +107,9 @@ export default function NewWorkbookDialog({
               <span className="mb-4 flex size-10 items-center justify-center rounded-10 bg-primary-alpha-10 text-primary-base">
                 <RiTableLine className="size-5" />
               </span>
-              <span className="block text-label-sm text-text-strong-950">Blank workbook</span>
+              <span className="block text-label-sm text-text-strong-950">Pasta de trabalho em branco</span>
               <span className="mt-1 block text-paragraph-xs text-text-sub-600">
-                Start with an empty custom table.
+                Comece com uma tabela personalizada vazia.
               </span>
             </button>
 
@@ -122,9 +122,9 @@ export default function NewWorkbookDialog({
               <span className="mb-4 flex size-10 items-center justify-center rounded-10 bg-success-lighter text-success-base">
                 <RiFileExcel2Line className="size-5" />
               </span>
-              <span className="block text-label-sm text-text-strong-950">CSV or Excel</span>
+              <span className="block text-label-sm text-text-strong-950">CSV ou Excel</span>
               <span className="mt-1 block text-paragraph-xs text-text-sub-600">
-                Create a workbook from a spreadsheet.
+                Crie uma pasta de trabalho a partir de uma planilha.
               </span>
             </button>
           </div>
@@ -139,7 +139,7 @@ export default function NewWorkbookDialog({
 
           {busy && (
             <p className="mt-4 flex items-center gap-2 text-paragraph-sm text-text-sub-600">
-              <RiLoader4Line className="size-4 animate-spin" />Creating your workbook…
+              <RiLoader4Line className="size-4 animate-spin" />Criando sua pasta de trabalho…
             </p>
           )}
           {error && (

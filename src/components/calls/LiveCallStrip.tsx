@@ -12,7 +12,7 @@ import { AgentOutcomeLine } from "./AgentOutcomeLine";
 import { formatElapsed } from "./formatElapsed";
 import { useLiveCallState } from "./useLiveCall";
 
-/** A connected call: hanging up from AgentSDR ends it, and its recording is kept. */
+/** Chamada conectada: desligar pelo Apollo Intelligence encerra a chamada e mantém a gravação. */
 const END_CALL_PHASES: ReadonlySet<CloudCallPhase["kind"]> = new Set(["on-call"]);
 /** A call not yet connected: the rep can cancel it. */
 const CANCEL_PHASES: ReadonlySet<CloudCallPhase["kind"]> = new Set([
@@ -26,7 +26,7 @@ const CANCEL_PHASES: ReadonlySet<CloudCallPhase["kind"]> = new Set([
 ]);
 
 /**
- * `serverStatus` is the call's status as AgentSDR last loaded it. A call the
+ * `serverStatus` é o status da chamada conforme o Apollo Intelligence a carregou por último. Uma chamada que
  * server has closed out as not connected or failed (cancelled, WhatsApp
  * closed, never reported back) may still show "Calling…" here, because its
  * extension went quiet; the server's word wins and the strip goes away.
@@ -88,14 +88,14 @@ export function LiveCallStrip({
     try {
       await endCallViaRecorder(callId);
     } catch (cause) {
-      setEndError(cause instanceof Error ? cause.message : "Couldn't end the call. Please try again.");
+      setEndError(cause instanceof Error ? cause.message : "Não foi possível encerrar a ligação. Tente novamente.");
     } finally {
       setEnding(false);
     }
   };
 
   return (
-    <Frame aria-label="Live call">
+    <Frame aria-label="Ligação em andamento">
       <FramePanel className="space-y-2 p-3 sm:p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -105,7 +105,7 @@ export function LiveCallStrip({
             </p>
             {cloud && (
               <span className="shrink-0 text-paragraph-xs text-text-soft-400">
-                {cloud.remoteRep ? "Rep" : "AI agent"}{cloud.stationName ? ` · ${cloud.stationName}` : ""}
+                {cloud.remoteRep ? "Representante" : "Agente de IA"}{cloud.stationName ? ` · ${cloud.stationName}` : ""}
               </span>
             )}
           </div>
@@ -121,7 +121,7 @@ export function LiveCallStrip({
               {ending
                 ? <RiLoader4Line className="size-3.5 animate-spin" aria-hidden="true" />
                 : <RiCloseCircleLine className="size-3.5" aria-hidden="true" />}
-              End call
+              Encerrar ligação
             </Button.Root>
           )}
           {CANCEL_PHASES.has(phase.kind) && (
@@ -136,7 +136,7 @@ export function LiveCallStrip({
               {ending
                 ? <RiLoader4Line className="size-3.5 animate-spin" aria-hidden="true" />
                 : <RiCloseCircleLine className="size-3.5" aria-hidden="true" />}
-              Cancel call
+              Cancelar ligação
             </Button.Root>
           )}
         </div>
@@ -179,33 +179,33 @@ function PhaseDot({ phase }: { phase: CloudCallPhase }) {
 function PhaseStatus({ phase }: { phase: CloudCallPhase }) {
   switch (phase.kind) {
     case "queued":
-      return <>Waiting for a cloud number…</>;
+      return <>Aguardando um número na nuvem…</>;
     case "starting-browser":
-      return <>Opening WhatsApp in the cloud…</>;
+      return <>Abrindo o WhatsApp na nuvem…</>;
     case "opening":
-      return <>Opening WhatsApp…</>;
+      return <>Abrindo o WhatsApp…</>;
     case "calling":
-      return <>Calling…</>;
+      return <>Ligando…</>;
     case "ringing":
-      return <>Ringing — recording starts when they pick up</>;
+      return <>Chamando — a gravação começa quando atenderem</>;
     case "on-call":
-      return <>Recording</>;
+      return <>Gravando</>;
     case "manual-dial":
-      return <>Couldn&apos;t press Voice call — switch to WhatsApp and click it; recording still starts on its own</>;
+      return <>Não foi possível tocar em Chamada de voz — abra o WhatsApp e clique no botão; a gravação começa sozinha</>;
     case "audio-blocked":
-      return <>Chrome paused the call audio — switch to the WhatsApp tab and click anywhere</>;
+      return <>O Chrome pausou o áudio da ligação — volte à aba do WhatsApp e clique em qualquer lugar</>;
     case "not-answered":
-      return <>Not answered — nothing was recorded</>;
+      return <>Não atendeu — nada foi gravado</>;
     case "not-on-whatsapp":
       return phase.noCallButton ? (
-        <>WhatsApp can&apos;t call this number (a business account, likely) — marked Not on WhatsApp</>
+        <>O WhatsApp não liga para este número (provavelmente é uma conta comercial) — marcado como Sem WhatsApp</>
       ) : (
-        <>This number isn&apos;t on WhatsApp</>
+        <>Este número não tem WhatsApp</>
       );
     case "processing":
-      return <>{phase.step === "uploading" ? "Saving the recording…" : "Transcribing…"}</>;
+      return <>{phase.step === "uploading" ? "Salvando a gravação…" : "Transcrevendo…"}</>;
     case "done":
-      return <>Call recorded ({formatElapsed(phase.durationMs)})</>;
+      return <>Ligação gravada ({formatElapsed(phase.durationMs)})</>;
     case "error":
       return <>{phase.message}</>;
   }
@@ -220,7 +220,7 @@ function PhaseDetail({ phase }: { phase: CloudCallPhase }) {
             <LiveTimer answeredAt={phase.answeredAt} />
           </p>
           {!phase.timerSeen && (
-            <p className="text-paragraph-xs text-text-soft-400">Call timer not detected — recording started as a fallback</p>
+            <p className="text-paragraph-xs text-text-soft-400">Cronômetro da ligação não detectado — a gravação começou como alternativa</p>
           )}
         </div>
       );
@@ -228,11 +228,11 @@ function PhaseDetail({ phase }: { phase: CloudCallPhase }) {
       return <p className="text-paragraph-sm tabular-nums text-text-sub-600">{formatElapsed(phase.durationMs)}</p>;
     case "done":
       if (phase.transcriptFailed) {
-        return <p className="text-paragraph-xs text-error-dark">Transcription failed — retry below</p>;
+        return <p className="text-paragraph-xs text-error-dark">A transcrição falhou — tente novamente abaixo</p>;
       }
       return phase.summary ? <p className="line-clamp-4 text-paragraph-sm text-text-sub-600">{phase.summary}</p> : null;
     case "error":
-      return phase.savedLocally ? <p className="text-paragraph-xs text-text-soft-400">The recording was saved to your Downloads.</p> : null;
+      return phase.savedLocally ? <p className="text-paragraph-xs text-text-soft-400">A gravação foi salva em seus Downloads.</p> : null;
     default:
       return null;
   }

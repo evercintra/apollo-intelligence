@@ -22,7 +22,7 @@ export default function Select({
   value,
   onChange,
   options,
-  placeholder = "Select…",
+  placeholder = "Selecione…",
   className = "",
   size = "md",
   variant = "default",
@@ -55,10 +55,10 @@ export default function Select({
           transition-all duration-150 focus:outline-none
           ${isSm ? "px-3 py-1.5 text-xs" : "px-3 py-2.5 text-sm"}
           ${isPrimary
-            ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-semibold focus:ring-2 focus:ring-indigo-400"
-            : "border-stroke-soft-200 bg-bg-white-0 text-text-strong-950 hover:border-stroke-sub-300 focus:ring-2 focus:ring-indigo-400"
+            ? "border-[var(--color-action-ring)] bg-[var(--color-complement-surface)] text-[var(--color-complement-deep)] font-semibold focus:ring-2 focus:ring-[var(--color-action-ring)]"
+            : "border-[var(--color-stroke-soft-200)] bg-[var(--color-bg-white-0)] text-[var(--color-text-strong-950)] hover:border-[var(--color-stroke-sub-300)] focus:ring-2 focus:ring-[var(--color-action-ring)]"
           }
-          ${open ? (isPrimary ? "ring-2 ring-indigo-400" : "border-stroke-sub-300 ring-2 ring-indigo-200 dark:ring-indigo-500/30") : ""}
+          ${open ? (isPrimary ? "ring-2 ring-[var(--color-action-ring)]" : "border-[var(--color-stroke-sub-300)] ring-2 ring-[var(--color-action-ring)]") : ""}
         `}
       >
         <span className={selected ? "" : "text-text-strong-950/50"}>
@@ -73,7 +73,7 @@ export default function Select({
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1.5 w-full min-w-[160px] rounded-xl border border-stroke-soft-200 bg-bg-white-0 shadow-xl shadow-slate-200/60 dark:shadow-black/40 overflow-hidden">
+        <div className="absolute z-50 mt-1.5 w-full min-w-[160px] overflow-hidden rounded-xl border border-[var(--color-stroke-soft-200)] bg-[var(--color-bg-white-0)] shadow-xl shadow-black/10">
           {options.map((opt) => (
             <button
               key={opt.value}
@@ -82,8 +82,8 @@ export default function Select({
               className={`
                 w-full text-left flex flex-col gap-0.5 px-3 py-2.5 text-sm transition-colors
                 ${opt.value === value
-                  ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium"
-                  : "text-text-strong-950 hover:bg-bg-weak-50"
+                  ? "bg-[var(--color-complement-surface)] text-[var(--color-complement-deep)] font-medium"
+                  : "text-[var(--color-text-strong-950)] hover:bg-[var(--color-bg-weak-50)]"
                 }
               `}
             >

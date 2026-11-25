@@ -17,21 +17,21 @@ type Connection = {
   lastActiveAt: string | null;
 };
 
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+const dateFormat = new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" });
 
 function relative(iso: string | null): string {
-  if (!iso) return "never";
+  if (!iso) return "nunca";
   const ms = Date.now() - new Date(iso).getTime();
   const minutes = Math.round(ms / 60_000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 1) return "agora";
+  if (minutes < 60) return `há ${minutes} min`;
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} h ago`;
+  if (hours < 24) return `há ${hours} h`;
   const days = Math.round(hours / 24);
-  return days === 1 ? "yesterday" : `${days} days ago`;
+  return days === 1 ? "ontem" : `há ${days} dias`;
 }
 
-function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
+function CopyButton({ text, label = "Copiar" }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <Button.Root
@@ -48,7 +48,7 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
         }
       }}
     >
-      {copied ? "Copied" : label}
+      {copied ? "Copiado" : label}
     </Button.Root>
   );
 }
@@ -80,16 +80,16 @@ function Steps({ items }: { items: React.ReactNode[] }) {
 }
 
 const TABS = [
-  { id: "claude", label: "Claude (web & desktop)" },
+  { id: "claude", label: "Claude (web e desktop)" },
   { id: "code", label: "Claude Code" },
-  { id: "other", label: "Other clients" },
+  { id: "other", label: "Outros clientes" },
 ] as const;
 
 const PROMPTS = [
-  "Summarise my Action required queue",
-  "Draft replies for everyone who asked for pricing — show me before sending",
-  "Find Priya from Acme and tell me where the deal stands",
-  "Mark the leads who said 'not now' to follow up next month",
+  "Resuma minha fila de Ação necessária",
+  "Crie respostas para todos que pediram preços — me mostre antes de enviar",
+  "Encontre Priya da Acme e me diga como está o negócio",
+  "Marque os leads que disseram ‘agora não’ para acompanhar no mês que vem",
 ];
 
 export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
@@ -103,11 +103,11 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
     try {
       const res = await fetch("/api/settings/ai-assistants", { credentials: "same-origin" });
       const data = await res.json().catch(() => null);
-      if (!res.ok) throw new Error(data?.error || "Could not load your connections.");
+      if (!res.ok) throw new Error(data?.error || "Não foi possível carregar suas conexões.");
       setConnections((data?.connections ?? []) as Connection[]);
       setError("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load your connections.");
+      setError(e instanceof Error ? e.message : "Não foi possível carregar suas conexões.");
       setConnections((current) => current ?? []);
     }
   }, []);
@@ -118,11 +118,11 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
   }, [load]);
 
   async function disconnect(c: Connection) {
-    const name = c.name || "this assistant";
+    const name = c.name || "este assistente";
     const confirmed = await dialogs.confirm({
-      title: `Disconnect ${name}?`,
-      description: "It stops working at once. You can connect it again whenever you like.",
-      confirmLabel: "Disconnect",
+      title: `Desconectar ${name}?`,
+      description: "Ele para de funcionar imediatamente. Você pode conectá-lo de novo quando quiser.",
+      confirmLabel: "Desconectar",
       variant: "error",
     });
     if (!confirmed) return;
@@ -136,10 +136,10 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
         body: JSON.stringify({ clientId: c.clientId }),
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok) setError(data?.error || "Could not disconnect.");
+      if (!res.ok) setError(data?.error || "Não foi possível desconectar.");
       else await load();
     } catch {
-      setError("Network error. Try again.");
+      setError("Erro de rede. Tente de novo.");
     } finally {
       setBusy(null);
     }
@@ -154,13 +154,13 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
   return (
     <div className="flex flex-col gap-6">
       <Frame>
-        <FrameHeader title="Your connections" description="Assistants that can work in this organization as you." />
+        <FrameHeader title="Suas conexões" description="Assistentes que podem trabalhar nesta organização por você." />
         <FramePanel>
           {error && <Callout tone="error" className="mb-3">{error}</Callout>}
           {connections === null ? (
-            <p className="text-paragraph-sm text-text-sub-600">Loading…</p>
+            <p className="text-paragraph-sm text-text-sub-600">Carregando…</p>
           ) : connections.length === 0 ? (
-            <p className="text-paragraph-sm text-text-sub-600">No assistants connected yet.</p>
+            <p className="text-paragraph-sm text-text-sub-600">Ainda não há assistentes conectados.</p>
           ) : (
             <ul className="divide-y divide-stroke-soft-200">
               {connections.map((c) => (
@@ -171,15 +171,15 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
                       <img src={c.icon} alt="" className="size-8 shrink-0 rounded-lg object-cover" />
                     )}
                     <div className="min-w-0">
-                      <p className="truncate text-label-sm text-text-strong-950">{c.name || "AI assistant"}</p>
+                      <p className="truncate text-label-sm text-text-strong-950">{c.name || "Assistente de IA"}</p>
                       <p className="text-paragraph-xs text-text-sub-600">
-                        Connected {c.connectedAt ? dateFormat.format(new Date(c.connectedAt)) : "earlier"} · Last active{" "}
+                        Conectado em {c.connectedAt ? dateFormat.format(new Date(c.connectedAt)) : "data anterior"} · Última atividade{" "}
                         {relative(c.lastActiveAt)}
                       </p>
                     </div>
                   </div>
                   <Button.Root variant="error" mode="ghost" size="xsmall" disabled={busy === c.clientId} onClick={() => void disconnect(c)}>
-                    {busy === c.clientId ? "Disconnecting…" : "Disconnect"}
+                    {busy === c.clientId ? "Desconectando…" : "Desconectar"}
                   </Button.Root>
                 </li>
               ))}
@@ -189,12 +189,12 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
       </Frame>
 
       <Frame>
-        <FrameHeader title="Server URL" description="Paste this into Claude, ChatGPT or any MCP client to connect." />
+        <FrameHeader title="URL do servidor" description="Cole isto no Claude, ChatGPT ou em qualquer cliente MCP para conectar." />
         <FramePanel>
           <div className="flex items-center gap-2">
             <Input.Root size="small" className="flex-1">
               <Input.Wrapper>
-                <Input.Input aria-label="MCP server URL" readOnly value={serverUrl} onFocus={(e) => e.currentTarget.select()} />
+                <Input.Input aria-label="URL do servidor MCP" readOnly value={serverUrl} onFocus={(e) => e.currentTarget.select()} />
               </Input.Wrapper>
             </Input.Root>
             <CopyButton text={serverUrl} />
@@ -203,7 +203,7 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
       </Frame>
 
       <Frame>
-        <FrameHeader title="How to connect" description="Pick the app you use. Each takes about a minute." />
+        <FrameHeader title="Como conectar" description="Escolha o app que você usa. Cada um leva cerca de um minuto." />
         <FramePanel>
           <div role="tablist" className="mb-4 flex flex-wrap gap-1.5">
             {TABS.map((t) => (
@@ -229,16 +229,16 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
             <div className="flex flex-col gap-4">
               <Steps
                 items={[
-                  <>Open Claude and go to <b>Customize → Connectors</b> (also reachable from Settings).</>,
-                  <>Choose <b>Add → Add custom connector</b>. Name it <b>AgentSDR</b>, paste the server URL above, and choose <b>Continue</b>.</>,
-                  <>Once Claude has checked the server, choose <b>Add</b>, then <b>Connect</b>.</>,
-                  <>Sign in to AgentSDR if asked, check the organization, and choose <b>Allow</b>.</>,
-                  <>In a chat, switch AgentSDR on from the tools menu and ask, for example, &ldquo;What&apos;s in my Action required queue?&rdquo;</>,
+                  <>Abra o Claude e vá em <b>Customize → Connectors</b> (também acessível em Settings).</>,
+                  <>Escolha <b>Add → Add custom connector</b>. Nomeie como <b>Apollo</b>, cole a URL do servidor acima e escolha <b>Continue</b>.</>,
+                  <>Depois que o Claude verificar o servidor, escolha <b>Add</b> e então <b>Connect</b>.</>,
+                  <>Se pedido, entre no Apollo, confira a organização e escolha <b>Allow</b>.</>,
+                  <>Em uma conversa, ative o Apollo no menu de ferramentas e pergunte, por exemplo: &ldquo;O que há na minha fila de Ação necessária?&rdquo;</>,
                 ]}
               />
               <Callout tone="info">
-                On Claude Team and Enterprise plans, an owner must first add the connector under organization settings
-                before members can connect it.
+                Nos planos Claude Team e Enterprise, um proprietário precisa adicionar o conector nas configurações da organização
+                antes de os membros conectarem.
               </Callout>
             </div>
           )}
@@ -247,12 +247,12 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
             <Steps
               items={[
                 <div key="a" className="flex flex-col gap-2">
-                  <span>Run this in your terminal:</span>
+                  <span>Execute isto no seu terminal:</span>
                   <CodeBlock text={`claude mcp add --transport http agentsdr ${serverUrl}`} />
                 </div>,
-                <>Start Claude Code and run <code>/mcp</code>.</>,
-                <>Select <b>agentsdr</b>, choose <b>Authenticate</b>, and your browser opens.</>,
-                <>Sign in to AgentSDR if asked and choose <b>Allow</b>.</>,
+                <>Inicie o Claude Code e execute <code>/mcp</code>.</>,
+                <>Selecione <b>agentsdr</b>, escolha <b>Authenticate</b> e seu navegador abrirá.</>,
+                <>Se pedido, entre no Apollo e escolha <b>Allow</b>.</>,
               ]}
             />
           )}
@@ -260,13 +260,13 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
           {tab === "other" && (
             <div className="flex flex-col gap-4 text-paragraph-sm text-text-sub-600">
               <p>
-                Any client that supports remote MCP over Streamable HTTP with OAuth works with the same server URL, including
-                ChatGPT (add AgentSDR as a custom app in its settings), Cursor and other editors.
+                Qualquer cliente com suporte a MCP remoto via Streamable HTTP com OAuth funciona com a mesma URL, incluindo
+                ChatGPT (adicione o Apollo como app personalizado nas configurações), Cursor e outros editores.
               </p>
               <p>
-                For a setup with no browser, an owner or admin can create an API key under <b>Settings → API keys</b> and
-                send it as <code>Authorization: Bearer asdr_…</code>. A key acts as the whole organization, not as one
-                person.
+                Para uma configuração sem navegador, um proprietário ou administrador pode criar uma chave de API em <b>Configurações → Chaves de API</b> e
+                enviá-la como <code>Authorization: Bearer asdr_…</code>. A chave representa a organização inteira, não uma
+                pessoa.
               </p>
               <CodeBlock text={mcpJson} />
             </div>
@@ -275,7 +275,7 @@ export function AiAssistantsSettings({ serverUrl }: { serverUrl: string }) {
       </Frame>
 
       <Frame>
-        <FrameHeader title="Things to ask" />
+        <FrameHeader title="Sugestões de perguntas" />
         <FramePanel>
           <ul className="flex list-disc flex-col gap-1.5 pl-5 text-paragraph-sm text-text-sub-600">
             {PROMPTS.map((p) => (

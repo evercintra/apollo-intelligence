@@ -7,10 +7,10 @@ import { RequiresPlatform } from "@/components/settings/RequiresPlatform";
  */
 export const metadata: Metadata = {
   title: {
-    default: "LinkedIn · AgentSDR",
-    template: "%s · LinkedIn · AgentSDR",
+    default: "LinkedIn · Apollo Intelligence",
+    template: "%s · LinkedIn · Apollo Intelligence",
   },
-  description: "LinkedIn outreach automation",
+  description: "Automação de prospecção no LinkedIn",
 };
 
 // Reads the database (is Unipile connected?), so the segment renders per request.

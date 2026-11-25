@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { connection } from "next/server";
 import { Instrument_Serif, Inter as FontSans } from "next/font/google";
 import AppShell from "@/components/AppShell";
@@ -22,12 +22,17 @@ const fontSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "AgentSDR",
+  title: "Apollo Intelligence",
+  applicationName: "Apollo Intelligence",
   // A private workspace behind sign-in: keep every page out of search.
   robots: { index: false, follow: false },
-  description: "Outreach, qualification and CRM for GTM teams",
+  description: "Inteligência comercial para descobrir, qualificar e converter empresas brasileiras.",
   // The favicon is src/app/icon.svg and apple-icon.png (Next's file convention):
   // the brand tile, which reads on light and dark tabs alike.
+};
+
+export const viewport: Viewport = {
+  themeColor: "#49345F",
 };
 
 export default async function RootLayout({
@@ -55,7 +60,7 @@ export default async function RootLayout({
   // It covers this element's own attributes only, not its children.
   return (
     <html
-      lang="en"
+      lang="pt-BR"
       data-theme="light"
       suppressHydrationWarning
       className={`${fontSans.variable} ${fontSerif.variable} ${brandDisplay.variable} h-full antialiased`}

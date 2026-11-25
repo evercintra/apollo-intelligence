@@ -2,7 +2,10 @@ import AnalyticsClient from "@/components/analytics/AnalyticsClient";
 import { DEFAULT_RANGE, parseView, serializeRange } from "@/components/analytics/range";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Analytics" };
+export const metadata = {
+  title: "Análises · Apollo Intelligence",
+  description: "Inteligência comercial para acompanhar prospecção, CRM e resultados por canal.",
+};
 
 type Search = Promise<{ view?: string | string[]; range?: string | string[] }>;
 

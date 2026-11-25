@@ -5,10 +5,10 @@ import { docsPageUrl } from "@/lib/support";
 /** WhatsApp message campaigns share the padded, scrolling surface of the calling pages. */
 export const metadata: Metadata = {
   title: {
-    default: "WhatsApp · AgentSDR",
-    template: "%s · WhatsApp · AgentSDR",
+    default: "WhatsApp · Apollo Intelligence",
+    template: "%s · WhatsApp · Apollo Intelligence",
   },
-  description: "Message leads over WhatsApp and follow up",
+  description: "Fale com leads pelo WhatsApp e faça follow-up",
 };
 
 // Reads the database (is Unipile connected?), so the segment renders per request.

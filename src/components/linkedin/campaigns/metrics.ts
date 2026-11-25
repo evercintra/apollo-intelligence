@@ -64,20 +64,20 @@ type BadgeColor = React.ComponentProps<typeof Badge.Root>["color"];
 
 /** Every lead status, in sequence order, with its label and badge colour. */
 export const LEAD_STATUS: Record<string, { label: string; color: BadgeColor }> = {
-  PENDING: { label: "Pending", color: "gray" },
-  REQUEST_SENT: { label: "Invited", color: "sky" },
-  CONNECTED: { label: "Connected", color: "teal" },
-  ACCEPT_MESSAGE_SENT: { label: "Accepted", color: "teal" },
-  FOLLOW_UP_1_SENT: { label: "Follow-up 1", color: "blue" },
-  FOLLOW_UP_2_SENT: { label: "Follow-up 2", color: "blue" },
-  FOLLOW_UP_3_SENT: { label: "Follow-up 3", color: "blue" },
-  COMPLETED: { label: "Completed", color: "purple" },
-  REPLIED: { label: "Replied", color: "green" },
-  FAILED: { label: "Failed", color: "red" },
-  CANCELLED: { label: "Cancelled", color: "orange" },
+  PENDING: { label: "Pendente", color: "gray" },
+  REQUEST_SENT: { label: "Convite enviado", color: "sky" },
+  CONNECTED: { label: "Conectado", color: "teal" },
+  ACCEPT_MESSAGE_SENT: { label: "Aceito", color: "teal" },
+  FOLLOW_UP_1_SENT: { label: "Acompanhamento 1", color: "blue" },
+  FOLLOW_UP_2_SENT: { label: "Acompanhamento 2", color: "blue" },
+  FOLLOW_UP_3_SENT: { label: "Acompanhamento 3", color: "blue" },
+  COMPLETED: { label: "Concluído", color: "purple" },
+  REPLIED: { label: "Respondeu", color: "green" },
+  FAILED: { label: "Falhou", color: "red" },
+  CANCELLED: { label: "Cancelado", color: "orange" },
 };
 
 export const CAMPAIGN_STATUS: Record<"ACTIVE" | "PAUSED", { label: string; color: BadgeColor }> = {
-  ACTIVE: { label: "Active", color: "green" },
-  PAUSED: { label: "Paused", color: "orange" },
+  ACTIVE: { label: "Ativa", color: "green" },
+  PAUSED: { label: "Pausada", color: "orange" },
 };

@@ -13,8 +13,8 @@ import { effectiveColumnType } from "@/lib/grid/value-types";
  */
 function directionLabels(type: string): { asc: string; desc: string } {
   if (type === "number" || type === "currency") return { asc: "1 → 9", desc: "9 → 1" };
-  if (type === "date") return { asc: "Oldest first", desc: "Newest first" };
-  if (type === "boolean") return { asc: "Unchecked first", desc: "Checked first" };
+  if (type === "date") return { asc: "Mais antigos primeiro", desc: "Mais recentes primeiro" };
+  if (type === "boolean") return { asc: "Não marcados primeiro", desc: "Marcados primeiro" };
   return { asc: "A → Z", desc: "Z → A" };
 }
 
@@ -40,7 +40,7 @@ export default function SortPanel({
     <div className="p-3">
       {value.length === 0 && (
         <p className="mb-2 px-1 text-[13px] text-text-sub-600">
-          No sorts yet — rows keep their natural order.
+          Nenhuma ordenação — as linhas mantêm a ordem natural.
         </p>
       )}
 
@@ -62,7 +62,7 @@ export default function SortPanel({
                   onChange(value.map((x, idx) => (idx === i ? { ...x, columnKey: next } : x)))
                 }
               >
-                <Select.Trigger aria-label="Sort column" className="min-w-0 flex-1">
+                <Select.Trigger aria-label="Coluna da ordenação" className="min-w-0 flex-1">
                   <Icon className="size-4 shrink-0 text-text-soft-400" />
                   <Select.Value />
                 </Select.Trigger>
@@ -86,7 +86,7 @@ export default function SortPanel({
                   )
                 }
               >
-                <Select.Trigger aria-label="Sort direction" className="w-[150px] shrink-0">
+                <Select.Trigger aria-label="Direção da ordenação" className="w-[150px] shrink-0">
                   <Select.Value />
                 </Select.Trigger>
                 <Select.Content>
@@ -98,7 +98,7 @@ export default function SortPanel({
               <button
                 type="button"
                 onClick={() => onChange(value.filter((_, idx) => idx !== i))}
-                className="shrink-0 rounded p-1 text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"
+                className="shrink-0 rounded p-1 text-[var(--color-error-base)] transition hover:bg-[var(--color-error-lighter)]"
               >
                 <RiDeleteBin6Line className="size-4" />
               </button>
@@ -113,7 +113,7 @@ export default function SortPanel({
         disabled={!columns.length}
         className="mt-2 w-full rounded-lg border border-stroke-soft-200 py-2 text-center text-[13px] text-text-sub-600 transition hover:bg-bg-weak-50 disabled:opacity-50"
       >
-        Add sort
+        Adicionar ordenação
       </button>
     </div>
   );

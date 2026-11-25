@@ -12,10 +12,10 @@ export default function DeleteCampaignButton({ campaignId }: { campaignId: strin
   async function handleDelete() {
     if (deleting) return;
     const confirmed = await dialogs.confirm({
-      title: "Delete campaign?",
+      title: "Excluir campanha?",
       description:
-        "All targeted domains, including linked parent domains, will be deleted with it. This cannot be undone.",
-      confirmLabel: "Delete campaign",
+        "Todos os domínios segmentados, incluindo domínios pai vinculados, serão excluídos junto. Isso não pode ser desfeito.",
+      confirmLabel: "Excluir campanha",
       variant: "error",
     });
     if (!confirmed) return;
@@ -25,8 +25,8 @@ export default function DeleteCampaignButton({ campaignId }: { campaignId: strin
     if (!res.ok) {
       setDeleting(false);
       await dialogs.alert({
-        title: "Could not delete campaign",
-        description: "Something went wrong. Please try again.",
+        title: "Não foi possível excluir a campanha",
+        description: "Algo deu errado. Tente novamente.",
         variant: "error",
       });
       return;
@@ -39,9 +39,9 @@ export default function DeleteCampaignButton({ campaignId }: { campaignId: strin
       type="button"
       onClick={handleDelete}
       disabled={deleting}
-      className="h-8 px-3 text-xs font-semibold text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/15 disabled:opacity-60"
+      className="h-8 rounded-lg border border-[var(--color-error-light)] bg-[var(--color-error-lighter)] px-3 text-xs font-semibold text-[var(--color-error-dark)] disabled:opacity-60 hover:bg-[var(--color-error-light)]"
     >
-      {deleting ? "Deleting..." : "Delete"}
+      {deleting ? "Excluindo..." : "Excluir"}
     </button>
   );
 }
